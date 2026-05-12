@@ -24,10 +24,83 @@ const STATUS_COLORS = {
   B: { c: '#A78BFA', l: 'Bình' },
 };
 
+// Watermark emoji per chi position — visual cue per cung cell (≈10% opacity)
+const ZODIAC_EMOJI = ['🐀', '🐂', '🐅', '🐈', '🐉', '🐍', '🐎', '🐐', '🐒', '🐓', '🐕', '🐖'];
+
+// Bát Trạch — ported from sample/constants/appConstant.ts
+const BIRTHDAY_YEAR_DATA = [
+  { years: [1940, 1949, 1958, 1967, 1976, 1985, 1994, 2003, 2012, 2021], nam: 'canf', nu: 'ly' },
+  { years: [1941, 1950, 1959, 1968, 1977, 1986, 1995, 2004, 2013, 2022], nam: 'khon', nu: 'kham' },
+  { years: [1942, 1951, 1960, 1969, 1978, 1987, 1996, 2005, 2014, 2023], nam: 'ton', nu: 'khon' },
+  { years: [1943, 1952, 1961, 1970, 1979, 1988, 1997, 2006, 2015, 2024], nam: 'chan', nu: 'chan' },
+  { years: [1944, 1953, 1962, 1971, 1980, 1989, 1998, 2007, 2016, 2025], nam: 'khon', nu: 'ton' },
+  { years: [1945, 1954, 1963, 1972, 1981, 1990, 1999, 2008, 2017, 2026], nam: 'kham', nu: 'can' },
+  { years: [1946, 1955, 1964, 1973, 1982, 1991, 2000, 2009, 2018, 2027], nam: 'ly', nu: 'canf' },
+  { years: [1947, 1956, 1965, 1974, 1983, 1992, 2001, 2010, 2019, 2028], nam: 'can', nu: 'doai' },
+  { years: [1948, 1957, 1966, 1975, 1984, 1993, 2002, 2011, 2020, 2029], nam: 'doai', nu: 'can' },
+];
+
+const CUNG_MENH_DATA = {
+  canf: { 'Sanh Khí': 'Tây', 'Họa Hại': 'Đông nam', 'Diên Niên': 'Tây nam', 'Tuyệt Mệnh': 'Nam', 'Thiên Y': 'Đông bắc', 'Lục Sát': 'Bắc', 'Phục Vị': 'Tây bắc', 'Ngũ Quỷ': 'Đông' },
+  can:  { 'Sanh Khí': 'Tây nam', 'Họa Hại': 'Nam', 'Diên Niên': 'Tây', 'Tuyệt Mệnh': 'Đông nam', 'Thiên Y': 'Tây bắc', 'Lục Sát': 'Đông', 'Phục Vị': 'Đông bắc', 'Ngũ Quỷ': 'Bắc' },
+  kham: { 'Sanh Khí': 'Đông nam', 'Họa Hại': 'Tây', 'Diên Niên': 'Nam', 'Tuyệt Mệnh': 'Tây nam', 'Thiên Y': 'Đông', 'Lục Sát': 'Tây bắc', 'Phục Vị': 'Bắc', 'Ngũ Quỷ': 'Đông bắc' },
+  chan: { 'Sanh Khí': 'Nam', 'Họa Hại': 'Tây nam', 'Diên Niên': 'Đông nam', 'Tuyệt Mệnh': 'Tây', 'Thiên Y': 'Bắc', 'Lục Sát': 'Đông bắc', 'Phục Vị': 'Đông', 'Ngũ Quỷ': 'Tây bắc' },
+  ton:  { 'Sanh Khí': 'Bắc', 'Họa Hại': 'Tây bắc', 'Diên Niên': 'Đông', 'Tuyệt Mệnh': 'Đông bắc', 'Thiên Y': 'Nam', 'Lục Sát': 'Tây', 'Phục Vị': 'Đông nam', 'Ngũ Quỷ': 'Tây nam' },
+  ly:   { 'Sanh Khí': 'Đông', 'Họa Hại': 'Đông bắc', 'Diên Niên': 'Bắc', 'Tuyệt Mệnh': 'Tây bắc', 'Thiên Y': 'Đông nam', 'Lục Sát': 'Tây nam', 'Phục Vị': 'Nam', 'Ngũ Quỷ': 'Tây' },
+  khon: { 'Sanh Khí': 'Đông bắc', 'Họa Hại': 'Đông', 'Diên Niên': 'Tây bắc', 'Tuyệt Mệnh': 'Bắc', 'Thiên Y': 'Tây', 'Lục Sát': 'Nam', 'Phục Vị': 'Tây nam', 'Ngũ Quỷ': 'Đông nam' },
+  doai: { 'Sanh Khí': 'Tây bắc', 'Họa Hại': 'Bắc', 'Diên Niên': 'Đông bắc', 'Tuyệt Mệnh': 'Đông', 'Thiên Y': 'Tây nam', 'Lục Sát': 'Đông nam', 'Phục Vị': 'Tây', 'Ngũ Quỷ': 'Nam' },
+};
+const SAO_TOT = ['Sanh Khí', 'Diên Niên', 'Thiên Y', 'Phục Vị'];
+const CUNG_PHI_MAP = { 1: 'Khảm', 2: 'Khôn', 3: 'Chấn', 4: 'Tốn', 5: 'Không có cung', 6: 'Càn', 7: 'Đoài', 8: 'Cấn', 9: 'Ly' };
+
 function canChi(canIdx, chiIdx) {
   const can = CAN_NAMES[canIdx] || '';
   const chi = CHI_NAMES[chiIdx] || '';
   return `${can} ${chi}`.trim();
+}
+
+function sinhLaoBenhTu(name) {
+  if (!name) return '';
+  const s = name.trim().replace(/\s+/g, '');
+  if (!s.length) return '';
+  const m = s.length % 4;
+  return m === 1 ? 'Sinh' : m === 2 ? 'Lão' : m === 3 ? 'Bệnh' : 'Tử';
+}
+
+function getCungMenhInfo(year, gender) {
+  // gender: 'male' | 'female'
+  const entry = BIRTHDAY_YEAR_DATA.find((d) => d.years.includes(+year));
+  if (!entry) return null;
+  const cungKey = gender === 'male' ? entry.nam : entry.nu;
+  const map = CUNG_MENH_DATA[cungKey];
+  if (!map) return null;
+  const tot = [], xau = [];
+  Object.entries(map).forEach(([k, v]) => (SAO_TOT.includes(k) ? tot : xau).push(`${k}: ${v}`));
+  return { saoTot: tot.join(' · '), saoXau: xau.join(' · '), key: cungKey };
+}
+
+function calculateCungPhi(year, gender) {
+  // gender: 'male' | 'female'; uses solar year as approximation of lunar year
+  const y = +year;
+  if (!y) return '';
+  let a = y % 100;
+  if (a > 9) {
+    a = Math.floor(a / 10) + (a % 10);
+    if (a > 9) a = Math.floor(a / 10) + (a % 10);
+  }
+  if (y >= 2000) {
+    a += 1;
+    if (a > 9) a = Math.floor(a / 10) + (a % 10);
+  }
+  let cungNumber;
+  if (gender === 'male') {
+    cungNumber = 10 - a;
+  } else {
+    cungNumber = 5 + a;
+    if (cungNumber > 9) cungNumber = Math.floor(cungNumber / 10) + (cungNumber % 10);
+  }
+  if (cungNumber === 5) return gender === 'male' ? 'Khôn' : 'Cấn';
+  return CUNG_PHI_MAP[cungNumber] || '';
 }
 
 function buildTuViUrl({ hoten, gender, dobDay, dobMonth, dobYear, hour, minute, namXem }) {
@@ -80,6 +153,7 @@ function TuViScreen({ nav, brand, user, showToast }) {
   const [result, setResult] = React.useState(null);
   const [source, setSource] = React.useState(null);
   const [selectedCung, setSelectedCung] = React.useState(null);
+  const [personalOpen, setPersonalOpen] = React.useState(false);
   const [form, setForm] = React.useState({
     hoten: user?.name || '',
     gender: 'male',
@@ -133,11 +207,19 @@ function TuViScreen({ nav, brand, user, showToast }) {
       )}
       {phase === 'loading' && <TuViLoading/>}
       {phase === 'result' && result && (
-        <TuViResult data={result} source={source} brand={brand} form={form} onReset={onReset} onCungSelect={setSelectedCung}/>
+        <TuViResult
+          data={result} source={source} brand={brand} form={form}
+          onReset={onReset} onCungSelect={setSelectedCung}
+          onOpenPersonal={() => setPersonalOpen(true)}
+        />
       )}
 
       <Sheet open={!!selectedCung} onClose={() => setSelectedCung(null)} title={selectedCung ? `Cung ${selectedCung.Name}` : ''}>
         {selectedCung && <CungDetail cung={selectedCung}/>}
+      </Sheet>
+
+      <Sheet open={personalOpen} onClose={() => setPersonalOpen(false)} title="Thông tin cá nhân">
+        {result && <PersonalInfoSheet info={result.Info} form={form}/>}
       </Sheet>
     </div>
   );
@@ -322,7 +404,7 @@ function TuViLoading() {
 
 /* ---------------------------------- Result ---------------------------------- */
 
-function TuViResult({ data, source, brand, form, onReset, onCungSelect }) {
+function TuViResult({ data, source, brand, form, onReset, onCungSelect, onOpenPersonal }) {
   const b = getBrand(brand);
   const info = data.Info || {};
   const cungList = data.Cac_cung || [];
@@ -363,7 +445,7 @@ function TuViResult({ data, source, brand, form, onReset, onCungSelect }) {
       {/* Chart */}
       <div style={{ flex: 1, overflow: 'auto', padding: '10px 8px 24px', position: 'relative' }} className="scroll-area">
         <StarField count={14}/>
-        <TuViChart cungByChi={cungByChi} info={info} form={form} brand={brand} onCungSelect={onCungSelect}/>
+        <TuViChart cungByChi={cungByChi} info={info} form={form} brand={brand} onCungSelect={onCungSelect} onOpenPersonal={onOpenPersonal}/>
 
         <div style={{ marginTop: 12, padding: '0 6px', textAlign: 'center', fontSize: 11, color: '#64748B' }}>
           Chạm vào cung để xem chi tiết sao
@@ -381,7 +463,7 @@ function TuViResult({ data, source, brand, form, onReset, onCungSelect }) {
   );
 }
 
-function TuViChart({ cungByChi, info, form, brand, onCungSelect }) {
+function TuViChart({ cungByChi, info, form, brand, onCungSelect, onOpenPersonal }) {
   // Chart is a 4×4 grid. Outer 12 cells = cung. Inner 2×2 = personal info.
   return (
     <div style={{
@@ -406,7 +488,7 @@ function TuViChart({ cungByChi, info, form, brand, onCungSelect }) {
         );
       })}
       <div style={{ gridArea: '2 / 2 / 4 / 4', minWidth: 0, minHeight: 0 }}>
-        <CenterInfo info={info} form={form} brand={brand}/>
+        <CenterInfo info={info} form={form} brand={brand} onOpen={onOpenPersonal}/>
       </div>
     </div>
   );
@@ -414,8 +496,10 @@ function TuViChart({ cungByChi, info, form, brand, onCungSelect }) {
 
 function ChartCell({ cung, chiIdx, onClick }) {
   const isMenh = cung.Name === 'Mệnh';
+  const emoji = ZODIAC_EMOJI[chiIdx] || '';
   return (
     <button onClick={onClick} className="tap" style={{
+      position: 'relative',
       width: '100%', height: '100%',
       background: isMenh
         ? 'linear-gradient(160deg, #2A1F47 0%, #1A1530 100%)'
@@ -427,10 +511,20 @@ function ChartCell({ cung, chiIdx, onClick }) {
       textAlign: 'center', overflow: 'hidden',
       boxShadow: isMenh ? '0 0 10px rgba(245,158,11,0.3)' : 'none',
     }}>
+      {/* Zodiac emoji watermark — 80% of cell, ~10% opacity */}
       <span style={{
+        position: 'absolute', inset: 0,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: 56, opacity: 0.1, pointerEvents: 'none', filter: 'grayscale(0.3)',
+        lineHeight: 1,
+      }} aria-hidden>{emoji}</span>
+
+      <span style={{
+        position: 'relative',
         fontSize: 13, fontWeight: 700, lineHeight: 1.2,
         color: isMenh ? '#FCD34D' : '#E2E8F0',
         letterSpacing: -0.2,
+        textShadow: '0 1px 2px rgba(0,0,0,0.6)',
       }}>
         {cung.Name}
       </span>
@@ -449,51 +543,49 @@ function EmptyCell({ chiIdx }) {
   );
 }
 
-function CenterInfo({ info, form, brand }) {
-  const b = getBrand(brand);
+function CenterInfo({ info, form, brand, onOpen }) {
   const fullDob = `${form.dobDay}/${form.dobMonth}/${form.dobYear}`;
-  const time = `${form.hour}:${form.minute}`;
-
-  const rows = [
-    { l: 'Bản mệnh', v: info.MenhCuc },
-    { l: 'Cục', v: info.Cuc },
-    { l: 'Năm sinh', v: info.Nam },
-    { l: 'Tháng/Ngày', v: info.ThangCC && info.NgayCC ? `${info.ThangCC} / ${info.NgayCC}` : null },
-    { l: 'Giờ sinh', v: info.GioCC || `${time}` },
-    { l: 'Năm xem', v: info.NamHan ? `${info.NamHan} · ${info.Tuoi} t` : null },
-    { l: 'Chủ mệnh', v: info.ChuMenh },
-    { l: 'Chủ thân', v: info.ChuThan },
-  ].filter((r) => r.v);
+  const slbt = sinhLaoBenhTu(form.hoten);
 
   return (
-    <div style={{
+    <button onClick={onOpen} className="tap" style={{
       width: '100%', height: '100%',
       background: 'linear-gradient(160deg, #2A1F47 0%, #1A1530 60%, #0F1320 100%)',
-      border: '1px solid #4C3A8A',
-      borderRadius: 7, padding: '6px 6px 4px',
+      border: '1px solid #4C3A8A', borderRadius: 7, padding: '8px 8px 6px',
       color: '#fff', position: 'relative', overflow: 'hidden',
-      display: 'flex', flexDirection: 'column', alignItems: 'stretch',
+      display: 'flex', flexDirection: 'column', cursor: 'pointer',
     }}>
-      <div style={{ position: 'absolute', top: -20, right: -20, width: 80, height: 80, borderRadius: '50%', background: 'radial-gradient(circle, rgba(168,85,247,0.4), transparent 70%)' }}/>
+      <div style={{ position: 'absolute', top: -24, right: -24, width: 90, height: 90, borderRadius: '50%', background: 'radial-gradient(circle, rgba(168,85,247,0.45), transparent 70%)' }}/>
+      <div style={{ position: 'absolute', bottom: -30, left: -20, width: 80, height: 80, borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,158,11,0.18), transparent 70%)' }}/>
 
-      <div style={{ position: 'relative', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: 4 }}>
-        <div style={{ fontSize: 11, fontWeight: 800, color: '#FCD34D', letterSpacing: 0.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {form.hoten || 'Quý khách'}
+      <div style={{ position: 'relative', textAlign: 'center' }}>
+        <div style={{ fontSize: 12, fontWeight: 800, color: '#FCD34D', letterSpacing: 0.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {form.hoten || 'Quý khách'}{slbt && <span style={{ fontSize: 8.5, opacity: 0.8, marginLeft: 4 }}>({slbt})</span>}
         </div>
-        <div style={{ fontSize: 8.5, color: '#CBD5E1', marginTop: 1, fontWeight: 600 }}>
-          {form.gender === 'male' ? '♂ Nam' : '♀ Nữ'} · {fullDob}
+        <div style={{ fontSize: 9, color: '#CBD5E1', marginTop: 2, fontWeight: 600 }}>
+          {info.AmDuong || (form.gender === 'male' ? '♂ Nam' : '♀ Nữ')} · {fullDob}
         </div>
       </div>
 
-      <div style={{ position: 'relative', flex: 1, overflow: 'auto', padding: '4px 0 0' }} className="scroll-area">
-        {rows.map((r) => (
-          <div key={r.l} style={{ display: 'flex', justifyContent: 'space-between', gap: 4, padding: '2px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-            <span style={{ fontSize: 7.5, color: '#64748B', fontWeight: 600, whiteSpace: 'nowrap' }}>{r.l}</span>
-            <span style={{ fontSize: 8.5, color: '#fff', fontWeight: 700, textAlign: 'right', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '70%' }}>{r.v}</span>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 3, padding: '6px 0', borderTop: '1px solid rgba(255,255,255,0.08)', borderBottom: '1px solid rgba(255,255,255,0.08)', marginTop: 6 }}>
+        {[
+          { l: 'Bản mệnh', v: info.MenhCuc },
+          { l: 'Cục', v: info.Cuc },
+          { l: 'Năm xem', v: info.NamHan ? `${info.NamHan} · ${info.Tuoi}t` : null },
+        ].filter((r) => r.v).map((r) => (
+          <div key={r.l} style={{ display: 'flex', justifyContent: 'space-between', gap: 4 }}>
+            <span style={{ fontSize: 8, color: '#94A3B8', fontWeight: 600 }}>{r.l}</span>
+            <span style={{ fontSize: 9, color: '#fff', fontWeight: 700, textAlign: 'right', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '70%' }}>{r.v}</span>
           </div>
         ))}
       </div>
-    </div>
+
+      <div style={{ position: 'relative', textAlign: 'center', marginTop: 4 }}>
+        <span style={{ fontSize: 8.5, color: '#A78BFA', fontWeight: 700, letterSpacing: 0.3 }}>
+          Xem đầy đủ →
+        </span>
+      </div>
+    </button>
   );
 }
 
@@ -563,6 +655,94 @@ function CungDetail({ cung }) {
           )}
         </div>
       ))}
+    </div>
+  );
+}
+
+function PersonalInfoSheet({ info, form }) {
+  const slbt = sinhLaoBenhTu(form.hoten);
+  const cungMenh = getCungMenhInfo(form.dobYear, form.gender);
+  const phiCung = calculateCungPhi(form.dobYear, form.gender);
+  const fullDob = `${form.dobDay}/${form.dobMonth}/${form.dobYear}`;
+  const time = `${form.hour}:${form.minute}`;
+
+  const rows = [
+    {
+      label: 'Họ và tên',
+      value: form.hoten || '—',
+      sub: slbt ? `Sanh - Lão - Bệnh - Tử: ${slbt}` : null,
+    },
+    { label: 'Năm sinh', value: form.dobYear, sub: info.Nam ? `(${info.Nam})` : null },
+    {
+      label: 'Tháng sinh',
+      value: form.dobMonth,
+      sub: info.Thang != null ? `(${info.Thang}${info.ThangCC ? ` - ${info.ThangCC}` : ''})` : null,
+    },
+    {
+      label: 'Ngày sinh',
+      value: form.dobDay,
+      sub: info.Ngay != null ? `(${info.Ngay}${info.NgayCC ? ` - ${info.NgayCC}` : ''})` : null,
+    },
+    {
+      label: 'Giờ sinh',
+      value: time,
+      sub: info.Gio ? `(${info.Gio}${info.GioCC ? ` - ${info.GioCC}` : ''})` : null,
+    },
+    cungMenh && {
+      label: 'Hướng tốt',
+      value: cungMenh.saoTot,
+      multi: true,
+      color: '#15803D',
+    },
+    { label: 'Âm dương', value: info.AmDuong || (form.gender === 'male' ? 'Dương Nam' : 'Âm Nữ') },
+    {
+      label: 'Bản mệnh',
+      value: info.MenhCuc ? `${info.MenhCuc}${info.Cuc ? ` — ${info.Cuc}` : ''}` : '—',
+      sub: info.NguyenThan ? `Nguyên thần: ${info.NguyenThan}` : null,
+    },
+    info.NamHan && {
+      label: 'Năm xem',
+      value: `${info.NamHan}${info.Tuoi ? ` - ${info.Tuoi} tuổi` : ''}`,
+    },
+    phiCung && { label: 'Phi Cung', value: phiCung },
+    cungMenh && {
+      label: 'Hướng xấu',
+      value: cungMenh.saoXau,
+      multi: true,
+      color: '#B91C1C',
+    },
+  ].filter(Boolean);
+
+  return (
+    <div style={{ padding: '0 20px 24px', maxHeight: 520, overflow: 'auto' }} className="scroll-area">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {rows.map((r, i) => (
+          <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: 0.4 }}>
+              {r.label}
+            </div>
+            {r.multi ? (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 4 }}>
+                {String(r.value).split(' · ').map((seg, j) => (
+                  <span key={j} style={{
+                    display: 'inline-block', padding: '4px 10px', borderRadius: 999,
+                    background: `${r.color}1A`, color: r.color, fontSize: 12, fontWeight: 700,
+                  }}>{seg}</span>
+                ))}
+              </div>
+            ) : (
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', lineHeight: 1.4 }}>
+                {r.value}
+              </div>
+            )}
+            {r.sub && (
+              <div style={{ fontSize: 12, color: '#475569', fontWeight: 500, lineHeight: 1.4, marginTop: 1 }}>
+                {r.sub}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
