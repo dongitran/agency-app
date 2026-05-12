@@ -1,0 +1,7 @@
+name = "tu-vi-proxy"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+account_id = "f86b641fda0b922e6ad93daac908f89a"
+
+[observability]
+enabled = true
