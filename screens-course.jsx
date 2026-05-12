@@ -6,7 +6,7 @@ function CourseListScreen({ nav, brand, cardStyle }) {
   const cats = ['Tất cả', 'Bán hàng', 'Marketing', 'Đại lý', 'Tài chính', 'Mới'];
 
   return (
-    <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column' }} className="anim-slide-in">
+    <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column' }} className="anim-fade">
       <div className="screen-hero" style={{
         background: `linear-gradient(160deg, ${b.grad[0]}, ${b.grad[1]})`,
         padding: '64px 18px 22px', color: '#fff', borderRadius: '0 0 28px 28px',

@@ -8,7 +8,7 @@ function SimListScreen({ nav, brand, cardStyle, addToCart }) {
   const list = filter === 'Tất cả' ? MOCK_SIMS : MOCK_SIMS.filter(s => s.carrier === filter || (filter === 'Số đẹp' && s.tag === 'Phong thủy') || (filter === 'Sinh viên' && s.name.includes('Sinh')));
 
   return (
-    <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column' }} className="anim-slide-in">
+    <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column' }} className="anim-fade">
       <div className="screen-hero" style={{
         background: `linear-gradient(160deg, ${b.grad[0]}, ${b.grad[1]})`,
         padding: '64px 18px 22px', color: '#fff', borderRadius: '0 0 28px 28px',
