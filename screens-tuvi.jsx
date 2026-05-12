@@ -361,8 +361,8 @@ function TuViResult({ data, source, brand, form, onReset, onCungSelect }) {
         <StarField count={14}/>
         <TuViChart cungByChi={cungByChi} info={info} form={form} brand={brand} onCungSelect={onCungSelect}/>
 
-        <div style={{ marginTop: 12, padding: '0 6px' }}>
-          <Legend/>
+        <div style={{ marginTop: 12, padding: '0 6px', textAlign: 'center', fontSize: 11, color: '#64748B' }}>
+          Chạm vào cung để xem chi tiết sao
         </div>
 
         <button onClick={onReset} className="tap" style={{
@@ -409,16 +409,7 @@ function TuViChart({ cungByChi, info, form, brand, onCungSelect }) {
 }
 
 function ChartCell({ cung, chiIdx, onClick }) {
-  const chinh = Array.isArray(cung.ChinhTinh) ? cung.ChinhTinh : [];
-  const tot = Array.isArray(cung.Saotot) ? cung.Saotot : [];
-  const xau = Array.isArray(cung.Saoxau) ? cung.Saoxau : [];
-
   const isMenh = cung.Name === 'Mệnh';
-  const isThan = cung.Than === 1;
-  const hasTuan = cung.Tuan === 1 || cung.LuuTuan === 1;
-  const hasTriet = cung.Triet === 1 || cung.LuuTriet === 1;
-  const canChiStr = canChi(cung.CanCung, cung.ChiCung);
-
   return (
     <button onClick={onClick} className="tap" style={{
       width: '100%', height: '100%',
@@ -426,74 +417,20 @@ function ChartCell({ cung, chiIdx, onClick }) {
         ? 'linear-gradient(160deg, #2A1F47 0%, #1A1530 100%)'
         : 'linear-gradient(160deg, #13182A 0%, #0B0F1E 100%)',
       border: `1px solid ${isMenh ? '#F59E0B' : '#252B3D'}`,
-      borderRadius: 7, padding: '4px 4px 3px',
-      color: '#fff', cursor: 'pointer', position: 'relative',
-      display: 'flex', flexDirection: 'column', textAlign: 'left',
-      overflow: 'hidden', boxShadow: isMenh ? '0 0 8px rgba(245,158,11,0.25)' : 'none',
+      borderRadius: 8, padding: 6,
+      color: '#fff', cursor: 'pointer',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      textAlign: 'center', overflow: 'hidden',
+      boxShadow: isMenh ? '0 0 10px rgba(245,158,11,0.3)' : 'none',
     }}>
-      {/* Top: cung name + can-chi */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 2 }}>
-        <span style={{ fontSize: 8.5, fontWeight: 800, color: isMenh ? '#FCD34D' : '#C4B5FD', textTransform: 'uppercase', letterSpacing: 0.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {cung.Name}
-        </span>
-        <span style={{ fontSize: 7.5, color: '#64748B', fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0 }}>{canChiStr}</span>
-      </div>
-
-      {/* Tuần/Triệt/Thân markers — tiny top right */}
-      {(isThan || hasTuan || hasTriet) && (
-        <div style={{ position: 'absolute', top: 2, right: 2, display: 'flex', gap: 2 }}>
-          {isThan && <Mark color="#F59E0B">T</Mark>}
-          {hasTuan && <Mark color="#FB923C">Tu</Mark>}
-          {hasTriet && <Mark color="#EF4444">Tr</Mark>}
-        </div>
-      )}
-
-      {/* Stars */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0, overflow: 'hidden', marginTop: 3 }}>
-        {chinh.slice(0, 3).map((s, i) => {
-          const st = STATUS_COLORS[s.Status] || { c: '#FCD34D' };
-          return (
-            <div key={'c'+i} style={{ fontSize: 9.5, fontWeight: 700, color: st.c, lineHeight: 1.18, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {s.Name}{s.Status ? <span style={{ fontSize: 7, opacity: 0.85, marginLeft: 2 }}>({s.Status})</span> : ''}
-            </div>
-          );
-        })}
-        {chinh.length === 0 && (
-          <div style={{ fontSize: 8.5, color: '#475569', fontStyle: 'italic' }}>vô chính diện</div>
-        )}
-
-        {tot.slice(0, 3).map((s, i) => (
-          <div key={'t'+i} style={{ fontSize: 8.5, color: '#86EFAC', lineHeight: 1.18, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {s.Name}
-          </div>
-        ))}
-        {xau.slice(0, 2).map((s, i) => (
-          <div key={'x'+i} style={{ fontSize: 8.5, color: '#FCA5A5', lineHeight: 1.18, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {s.Name}
-          </div>
-        ))}
-      </div>
-
-      {/* Bottom: lưu đại hạn / tiểu hạn */}
-      {(cung.LuuDaiHanTen || cung.LuuTieuHanTen) && (
-        <div style={{ marginTop: 2, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-          {cung.LuuDaiHanTen && (
-            <span style={{ fontSize: 7, padding: '1px 4px', borderRadius: 3, background: 'rgba(167,139,250,0.18)', color: '#A78BFA', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
-              {cung.LuuDaiHanTen}
-            </span>
-          )}
-        </div>
-      )}
+      <span style={{
+        fontSize: 13, fontWeight: 700, lineHeight: 1.2,
+        color: isMenh ? '#FCD34D' : '#E2E8F0',
+        letterSpacing: -0.2,
+      }}>
+        {cung.Name}
+      </span>
     </button>
-  );
-}
-
-function Mark({ color, children }) {
-  return (
-    <span style={{
-      fontSize: 7, fontWeight: 800, padding: '1px 3px', borderRadius: 3,
-      background: color, color: '#000', letterSpacing: 0.2,
-    }}>{children}</span>
   );
 }
 
@@ -552,25 +489,6 @@ function CenterInfo({ info, form, brand }) {
           </div>
         ))}
       </div>
-    </div>
-  );
-}
-
-function Legend() {
-  const items = [
-    { c: '#FCD34D', l: 'Chính tinh' },
-    { c: '#86EFAC', l: 'Sao tốt' },
-    { c: '#FCA5A5', l: 'Sao xấu' },
-    { c: '#A78BFA', l: 'Lưu hạn' },
-  ];
-  return (
-    <div style={{ display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
-      {items.map((x) => (
-        <div key={x.l} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#94A3B8' }}>
-          <span style={{ width: 8, height: 8, borderRadius: '50%', background: x.c, boxShadow: `0 0 6px ${x.c}66` }}/>
-          {x.l}
-        </div>
-      ))}
     </div>
   );
 }
