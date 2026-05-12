@@ -40,4 +40,5 @@ const Ic = {
 };
 
 Ic.Bag = Ic.Cart;
+Ic.Grid = (p) => <svg width={p.s||22} height={p.s||22} viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5" stroke={p.c||'currentColor'} strokeWidth={p.w||1.8}/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5" stroke={p.c||'currentColor'} strokeWidth={p.w||1.8}/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5" stroke={p.c||'currentColor'} strokeWidth={p.w||1.8}/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5" stroke={p.c||'currentColor'} strokeWidth={p.w||1.8}/></svg>;
 Object.assign(window, { Ic });

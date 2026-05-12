@@ -27,8 +27,7 @@ function BottomNav({ active, onChange, brand }) {
   const b = getBrand(brand);
   const tabs = [
     { k: 'home', l: 'Trang chủ', i: Ic.Home },
-    { k: 'sim', l: 'SIM', i: Ic.Sim },
-    { k: 'course', l: 'Khóa học', i: Ic.Book },
+    { k: 'products', l: 'Sản phẩm', i: Ic.Grid },
     { k: 'orders', l: 'Đơn hàng', i: Ic.Cart },
     { k: 'profile', l: 'Tôi', i: Ic.User },
   ];
@@ -67,7 +66,7 @@ function AppShell() {
 
   useEffect(() => {
     const cur = nav.current.name;
-    if (['home', 'sim', 'course', 'orders', 'profile'].includes(cur)) setTab(cur);
+    if (['home', 'products', 'orders', 'profile'].includes(cur)) setTab(cur);
   }, [nav.current.name]);
 
   const onLogin = (u = {}) => { setAuth(true); setUser({ ...user, ...u }); nav.reset('home'); };
@@ -90,9 +89,8 @@ function AppShell() {
       case 'login': return <LoginScreen {...common} onLogin={onLogin}/>;
       case 'signup': return <SignupScreen {...common} onLogin={onLogin}/>;
       case 'home': return <HomeScreen {...common} homeHero={tweaks.homeHero}/>;
-      case 'sim': return <SimListScreen {...common} cardStyle={tweaks.cardStyle}/>;
+      case 'products': return <ProductsScreen {...common} cardStyle={tweaks.cardStyle}/>;
       case 'sim-detail': return <SimDetailScreen {...common} item={params.item}/>;
-      case 'course': return <CourseListScreen {...common} cardStyle={tweaks.cardStyle}/>;
       case 'course-detail': return <CourseDetailScreen {...common} item={params.item}/>;
       case 'cart': return <CartScreen {...common}/>;
       case 'checkout': return <CheckoutQRScreen {...common} {...params}/>;
@@ -107,7 +105,7 @@ function AppShell() {
     }
   };
 
-  const showBottomNav = auth && ['home', 'sim', 'course', 'orders', 'profile'].includes(nav.current.name);
+  const showBottomNav = auth && ['home', 'products', 'orders', 'profile'].includes(nav.current.name);
   const onTabChange = (k) => { setTab(k); nav.reset(k); };
 
   return (

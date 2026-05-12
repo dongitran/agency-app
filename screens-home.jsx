@@ -153,12 +153,12 @@ function HomeScreen({ nav, user, brand, homeHero, addToCart, cartCount }) {
       {/* Quick actions */}
       <div style={{ padding: '14px 18px 4px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
         {[
-          { icon: <Ic.Sim s={22}/>, label: 'Mua SIM', c: '#3B82F6', to: 'sim-list' },
-          { icon: <Ic.Book s={22}/>, label: 'Khóa học', c: '#8B5CF6', to: 'course-list' },
-          { icon: <Ic.Agent s={22}/>, label: 'Đại lý', c: '#10B981', to: 'agent-packages' },
-          { icon: <Ic.Wallet s={22}/>, label: 'Nạp/Rút', c: '#F59E0B', to: 'wallet' },
+          { icon: <Ic.Sim s={22}/>, label: 'Mua SIM', c: '#3B82F6', go: () => nav.reset('products', { seg: 'sim' }) },
+          { icon: <Ic.Book s={22}/>, label: 'Khóa học', c: '#8B5CF6', go: () => nav.reset('products', { seg: 'course' }) },
+          { icon: <Ic.Agent s={22}/>, label: 'Đại lý', c: '#10B981', go: () => nav.push('agent-packages') },
+          { icon: <Ic.Wallet s={22}/>, label: 'Nạp/Rút', c: '#F59E0B', go: () => nav.push('wallet') },
         ].map((a) => (
-          <button key={a.label} onClick={() => nav.push(a.to)} className="tap" style={{
+          <button key={a.label} onClick={a.go} className="tap" style={{
             background: 'none', border: 'none', padding: 0,
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
           }}>
@@ -191,7 +191,7 @@ function HomeScreen({ nav, user, brand, homeHero, addToCart, cartCount }) {
 
       {/* SIM section */}
       <div style={{ marginTop: 14 }}>
-        <SectionHead title="SIM nổi bật" action="Xem tất cả" onAction={() => nav.push('sim-list')}/>
+        <SectionHead title="SIM nổi bật" action="Xem tất cả" onAction={() => nav.reset('products', { seg: 'sim' })}/>
         <div style={{ display: 'flex', gap: 12, padding: '0 18px 4px', overflowX: 'auto', scrollbarWidth: 'none' }} className="scroll-area">
           {MOCK_SIMS.slice(0,3).map((s) => (
             <div key={s.id} onClick={() => nav.push('sim-detail', { item: s })} className="tap" style={{ width: 200, flexShrink: 0 }}>
@@ -217,7 +217,7 @@ function HomeScreen({ nav, user, brand, homeHero, addToCart, cartCount }) {
 
       {/* Courses section */}
       <div style={{ marginTop: 18 }}>
-        <SectionHead title="Khóa học bán chạy" action="Xem tất cả" onAction={() => nav.push('course-list')}/>
+        <SectionHead title="Khóa học bán chạy" action="Xem tất cả" onAction={() => nav.reset('products', { seg: 'course' })}/>
         <div style={{ padding: '0 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
           {MOCK_COURSES.slice(0,2).map((c) => (
             <Card key={c.id} onClick={() => nav.push('course-detail', { item: c })} style={{ padding: 10, display: 'flex', gap: 12, alignItems: 'center' }}>
