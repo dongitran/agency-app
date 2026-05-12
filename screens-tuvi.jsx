@@ -163,9 +163,11 @@ function TuViForm({ form, errors, setField, onSubmit, brand, nowYear }) {
       }}>
         <StarField count={32}/>
         <div style={{ position: 'relative' }}>
-          <Badge color="amber">⭐ TỬ VI ĐẨU SỐ</Badge>
-          <div style={{ fontSize: 24, fontWeight: 800, marginTop: 10, letterSpacing: -0.5 }}>Lập lá số tử vi</div>
-          <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4, lineHeight: 1.5 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+            <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>Lập lá số tử vi</div>
+            <Badge color="amber">⭐ TỬ VI ĐẨU SỐ</Badge>
+          </div>
+          <div style={{ fontSize: 12, opacity: 0.8, marginTop: 6, lineHeight: 1.5 }}>
             12 cung mệnh · sao chính tinh · sao tốt xấu — luận giải bởi chuyên gia phong thủy
           </div>
         </div>
