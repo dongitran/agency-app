@@ -28,6 +28,7 @@ function BottomNav({ active, onChange, brand }) {
   const tabs = [
     { k: 'home', l: 'Trang chủ', i: Ic.Home },
     { k: 'products', l: 'Sản phẩm', i: Ic.Grid },
+    { k: 'tuvi', l: 'Tử vi', i: Ic.Sparkles },
     { k: 'orders', l: 'Đơn hàng', i: Ic.Cart },
     { k: 'profile', l: 'Tôi', i: Ic.User },
   ];
@@ -66,7 +67,7 @@ function AppShell() {
 
   useEffect(() => {
     const cur = nav.current.name;
-    if (['home', 'products', 'orders', 'profile'].includes(cur)) setTab(cur);
+    if (['home', 'products', 'tuvi', 'orders', 'profile'].includes(cur)) setTab(cur);
   }, [nav.current.name]);
 
   const onLogin = (u = {}) => { setAuth(true); setUser({ ...user, ...u }); nav.reset('home'); };
@@ -90,6 +91,7 @@ function AppShell() {
       case 'signup': return <SignupScreen {...common} onLogin={onLogin}/>;
       case 'home': return <HomeScreen {...common} homeHero={tweaks.homeHero}/>;
       case 'products': return <ProductsScreen {...common} cardStyle={tweaks.cardStyle}/>;
+      case 'tuvi': return <TuViScreen {...common}/>;
       case 'sim-detail': return <SimDetailScreen {...common} item={params.item}/>;
       case 'course-detail': return <CourseDetailScreen {...common} item={params.item}/>;
       case 'cart': return <CartScreen {...common}/>;
@@ -105,7 +107,7 @@ function AppShell() {
     }
   };
 
-  const showBottomNav = auth && ['home', 'products', 'orders', 'profile'].includes(nav.current.name);
+  const showBottomNav = auth && ['home', 'products', 'tuvi', 'orders', 'profile'].includes(nav.current.name);
   const onTabChange = (k) => { setTab(k); nav.reset(k); };
 
   return (
