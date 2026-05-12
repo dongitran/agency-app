@@ -4,8 +4,8 @@ function SimListScreen({ nav, brand, cardStyle, addToCart }) {
   const b = getBrand(brand);
   const [filter, setFilter] = React.useState('Tất cả');
   const [sortOpen, setSortOpen] = React.useState(false);
-  const filters = ['Tất cả', 'Viettel', 'MobiFone', 'Vinaphone', 'Số đẹp', 'Sinh viên'];
-  const list = filter === 'Tất cả' ? MOCK_SIMS : MOCK_SIMS.filter(s => s.carrier === filter || (filter === 'Số đẹp' && s.tag === 'Phong thủy') || (filter === 'Sinh viên' && s.name.includes('Sinh')));
+  const filters = ['Tất cả', 'Tam hoa', 'Tứ quý', 'Ngũ quý', 'Lộc phát', 'Thần tài', 'Hợp mệnh'];
+  const list = filter === 'Tất cả' ? MOCK_SIMS : MOCK_SIMS.filter(s => s.tag === filter);
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column' }} className="anim-fade">
@@ -17,8 +17,8 @@ function SimListScreen({ nav, brand, cardStyle, addToCart }) {
         <div style={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }}/>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
           <div>
-            <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>Mua SIM</div>
-            <div style={{ fontSize: 12, opacity: 0.85, marginTop: 4 }}>Kho số 4G·5G từ 3 nhà mạng</div>
+            <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>SIM phong thủy</div>
+            <div style={{ fontSize: 12, opacity: 0.85, marginTop: 4 }}>Số hợp tuổi · hợp mệnh · hợp tài lộc</div>
           </div>
           <button onClick={() => setSortOpen(true)} className="tap" style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.2)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Ic.Filter s={18} c="#fff"/>
@@ -184,10 +184,10 @@ function SimDetailScreen({ nav, item, brand, addToCart, showToast }) {
           <div style={{ padding: '14px 18px' }} className="anim-fade">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               {[
+                { l: 'Tổng nút', v: item.sum || '—', i: <Ic.Star s={18}/> },
+                { l: 'Mệnh hợp', v: item.element || '—', i: <Ic.Trend s={18}/> },
                 { l: 'Loại sim', v: '5G eSIM', i: <Ic.Sim s={18}/> },
-                { l: 'Data tháng', v: item.data, i: <Ic.Trend s={18}/> },
-                { l: 'Gọi/SMS', v: item.call, i: <Ic.Phone s={18}/> },
-                { l: 'Phong thủy', v: item.tag === 'Phong thủy' ? 'Lộc phát' : 'Trung tính', i: <Ic.Star s={18}/> },
+                { l: 'Data tháng', v: item.data, i: <Ic.Phone s={18}/> },
               ].map((x) => (
                 <Card key={x.l} style={{ padding: 12 }}>
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center', color: b.solid }}>{x.i}<span style={{ fontSize: 11, color: '#64748B', fontWeight: 600 }}>{x.l}</span></div>
@@ -197,16 +197,16 @@ function SimDetailScreen({ nav, item, brand, addToCart, showToast }) {
             </div>
 
             <Card style={{ padding: 16, marginTop: 12 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>Đặc điểm số</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>Ý nghĩa phong thủy</div>
               <div style={{ fontSize: 13, color: '#475569', lineHeight: 1.6, marginTop: 6 }}>
-                Đầu số <strong>{item.number.slice(0,4)}</strong> thuộc dải số đẹp của {item.carrier}. Dễ nhớ, hợp phong thủy người mệnh Hỏa và Thổ. Giao SIM tận nơi trong 24h, kích hoạt online qua VNeID.
+                Số <strong>{item.number}</strong> có tổng nút <strong>{item.sum || '—'}</strong>, thuộc dải <strong>{item.tag}</strong>, hợp mệnh <strong>{item.element || '—'}</strong>. {item.meaning || 'Số đẹp, dễ nhớ, mang nhiều ý nghĩa tốt lành.'} Giao SIM tận nơi 24h, kích hoạt online qua VNeID.
               </div>
             </Card>
 
             <Card style={{ padding: 16, marginTop: 10, display: 'flex', gap: 12, alignItems: 'center', background: b.soft, border: `1px solid ${b.solid}20` }}>
               <div style={{ width: 38, height: 38, borderRadius: 10, background: b.solid, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Ic.Gift s={20} c="#fff"/></div>
               <div style={{ flex: 1, fontSize: 12, color: '#475569' }}>
-                <strong style={{ color: '#0F172A' }}>Tặng tháng đầu miễn phí</strong> khi đăng ký qua app
+                <strong style={{ color: '#0F172A' }}>Tặng buổi luận giải miễn phí</strong> bởi chuyên gia phong thủy khi đăng ký
               </div>
             </Card>
           </div>

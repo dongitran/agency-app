@@ -1,11 +1,11 @@
 // screens-orders.jsx — Order history list + detail
 
 const MOCK_ORDERS = [
-  { id: 'SP12345678', date: '12/05/2026', items: [{ name: 'SIM 5G Pro · 0987 123 456', type: 'sim', price: 299000 }], total: 299000, status: 'completed' },
-  { id: 'SP12345677', date: '08/05/2026', items: [{ name: 'Khóa học · Xây team F1-F3', type: 'course', price: 1299000 }], total: 1299000, status: 'processing' },
-  { id: 'SP12345676', date: '02/05/2026', items: [{ name: 'SIM Sinh viên · 0901 222 333', type: 'sim', price: 99000 }, { name: 'Khóa học · Content viral', type: 'course', price: 299000 }], total: 398000, status: 'waiting-payment' },
+  { id: 'SP12345678', date: '12/05/2026', items: [{ name: 'SIM Lộc Phát · 0868 86 86 86', type: 'sim', price: 5990000 }], total: 5990000, status: 'completed' },
+  { id: 'SP12345677', date: '08/05/2026', items: [{ name: 'Khóa học · Tư vấn SIM hợp tuổi · hợp mệnh', type: 'course', price: 1299000 }], total: 1299000, status: 'processing' },
+  { id: 'SP12345676', date: '02/05/2026', items: [{ name: 'SIM Hợp Mệnh · 0911 26 36 86', type: 'sim', price: 2990000 }, { name: 'Khóa học · Phong thủy số học cơ bản', type: 'course', price: 499000 }], total: 3489000, status: 'waiting-payment' },
   { id: 'SP12345675', date: '28/04/2026', items: [{ name: 'Gói đại lý Bạc', type: 'agent', price: 1990000 }], total: 1990000, status: 'completed' },
-  { id: 'SP12345674', date: '15/04/2026', items: [{ name: 'SIM Số đẹp · 0966 86 86 86', type: 'sim', price: 5990000 }], total: 5990000, status: 'cancelled' },
+  { id: 'SP12345674', date: '15/04/2026', items: [{ name: 'SIM Thần Tài · 0979 39 39 79', type: 'sim', price: 12990000 }], total: 12990000, status: 'cancelled' },
 ];
 
 const STATUS = {
@@ -37,7 +37,7 @@ function OrdersScreen({ nav, brand }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
           <div>
             <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>Đơn hàng</div>
-            <div style={{ fontSize: 12, opacity: 0.85, marginTop: 4 }}>{MOCK_ORDERS.length} đơn · Theo dõi & quản lý mua hàng</div>
+            <div style={{ fontSize: 12, opacity: 0.85, marginTop: 4 }}>{MOCK_ORDERS.length} đơn · Lịch sử mua SIM & khóa học</div>
           </div>
           <button className="tap" style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.2)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Ic.Search s={18} c="#fff"/>

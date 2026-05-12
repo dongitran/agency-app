@@ -1,17 +1,21 @@
 // screens-home.jsx — Home tab with hero variants + featured
 
 const MOCK_SIMS = [
-  { id: 's1', name: 'SIM 5G Pro', carrier: 'Viettel', number: '0987 123 456', price: 299000, oldPrice: 399000, data: '120GB/tháng', call: 'Miễn phí nội mạng', tag: 'Hot', color: '#16A34A', img: 'V' },
-  { id: 's2', name: 'SIM Sinh viên', carrier: 'MobiFone', number: '0901 222 333', price: 99000, oldPrice: 149000, data: '60GB/tháng', call: '1000 phút', tag: 'Sale', color: '#2563EB', img: 'M' },
-  { id: 's3', name: 'SIM Doanh nhân', carrier: 'Vinaphone', number: '0888 99 77 99', price: 1990000, data: 'Không giới hạn', call: 'Không giới hạn', tag: 'VIP', color: '#7C3AED', img: 'V' },
-  { id: 's4', name: 'SIM Số đẹp', carrier: 'Viettel', number: '0966 86 86 86', price: 5990000, data: '50GB/tháng', call: 'Miễn phí', tag: 'Phong thủy', color: '#16A34A', img: 'V' },
+  { id: 's1', name: 'Lộc Phát Tam Hoa', carrier: 'Viettel', number: '0868 86 86 86', price: 5990000, oldPrice: 7990000, data: '120GB/tháng', call: 'Miễn phí nội mạng', tag: 'Lộc phát', color: '#16A34A', img: 'V', element: 'Hỏa', sum: 68, meaning: 'Lộc về dồi dào, công danh hanh thông' },
+  { id: 's2', name: 'Thần Tài Đại Cát', carrier: 'MobiFone', number: '0979 39 39 79', price: 12990000, data: 'Không giới hạn', call: 'Không giới hạn', tag: 'Thần tài', color: '#7C3AED', img: 'M', element: 'Kim', sum: 70, meaning: 'Thần tài độ mệnh, làm ăn phát đạt' },
+  { id: 's3', name: 'Phát Lộc Ngũ Quý', carrier: 'Viettel', number: '0988 88 88 88', price: 89990000, data: 'Không giới hạn', call: 'Không giới hạn', tag: 'Ngũ quý', color: '#DC2626', img: 'V', element: 'Hỏa', sum: 65, meaning: 'Đại phát đại quý, sự nghiệp viên mãn' },
+  { id: 's4', name: 'Bình An Hợp Mệnh', carrier: 'Vinaphone', number: '0911 26 36 86', price: 2990000, oldPrice: 3990000, data: '90GB/tháng', call: 'Miễn phí mọi mạng', tag: 'Hợp mệnh', color: '#0EA5E9', img: 'V', element: 'Thủy', sum: 50, meaning: 'An khang thịnh vượng, gia đạo bình yên' },
+  { id: 's5', name: 'Tài Lộc Tứ Quý', carrier: 'MobiFone', number: '0903 6668 6668', price: 8990000, data: '120GB/tháng', call: 'Miễn phí', tag: 'Tứ quý', color: '#F59E0B', img: 'M', element: 'Thổ', sum: 62, meaning: 'Lộc đến nhà, công việc thuận buồm' },
+  { id: 's6', name: 'Quý Nhân Tam Hoa', carrier: 'Vinaphone', number: '0916 79 79 79', price: 4990000, oldPrice: 6990000, data: 'Không giới hạn', call: 'Miễn phí', tag: 'Tam hoa', color: '#10B981', img: 'V', element: 'Mộc', sum: 67, meaning: 'Quý nhân phù trợ, đường tài lộc rộng mở' },
 ];
 
 const MOCK_COURSES = [
-  { id: 'c1', name: 'Bán SIM hiệu quả 2026', mentor: 'Nguyễn Hoàng', price: 499000, oldPrice: 799000, rating: 4.9, students: 1284, duration: '12 giờ', lessons: 36, level: 'Cơ bản', cover: '#2563EB' },
-  { id: 'c2', name: 'Xây team đại lý F1·F2·F3', mentor: 'Trần Mai Linh', price: 1299000, rating: 4.8, students: 568, duration: '18 giờ', lessons: 52, level: 'Nâng cao', cover: '#7C3AED' },
-  { id: 'c3', name: 'Content viral cho đại lý', mentor: 'Lê Quang Vũ', price: 299000, rating: 4.7, students: 2103, duration: '6 giờ', lessons: 18, level: 'Cơ bản', cover: '#EC4899' },
-  { id: 'c4', name: 'Quản lý dòng tiền MMO', mentor: 'Phạm Đức Anh', price: 699000, rating: 4.9, students: 423, duration: '10 giờ', lessons: 28, level: 'Trung cấp', cover: '#0EA5E9' },
+  { id: 'c1', name: 'Phong thủy số học cơ bản', mentor: 'Master Nguyễn Hoàng', price: 499000, oldPrice: 799000, rating: 4.9, students: 2840, duration: '14 giờ', lessons: 42, level: 'Nhập môn', cover: '#DC2626', topic: 'Phong thủy' },
+  { id: 'c2', name: 'Tư vấn SIM hợp tuổi · hợp mệnh', mentor: 'Master Trần Mai Linh', price: 1299000, rating: 4.8, students: 1568, duration: '20 giờ', lessons: 58, level: 'Nâng cao', cover: '#7C3AED', topic: 'Phong thủy' },
+  { id: 'c3', name: 'Tư duy thịnh vượng & năng lượng tích cực', mentor: 'Coach Lê Quang Vũ', price: 599000, oldPrice: 899000, rating: 4.9, students: 4103, duration: '10 giờ', lessons: 24, level: 'Cơ bản', cover: '#EC4899', topic: 'Tư duy' },
+  { id: 'c4', name: 'Tư duy phục vụ khách hàng đẳng cấp', mentor: 'Coach Phạm Đức Anh', price: 399000, rating: 4.7, students: 1823, duration: '8 giờ', lessons: 18, level: 'Cơ bản', cover: '#F59E0B', topic: 'Tư duy' },
+  { id: 'c5', name: 'Khởi nghiệp kinh doanh SIM phong thủy', mentor: 'Nguyễn Thành Đạt', price: 999000, oldPrice: 1499000, rating: 4.8, students: 1245, duration: '16 giờ', lessons: 48, level: 'Trung cấp', cover: '#0EA5E9', topic: 'Kinh doanh' },
+  { id: 'c6', name: 'Xây hệ thống đại lý F1·F2·F3', mentor: 'Trần Hoàng Việt', price: 1499000, rating: 4.9, students: 568, duration: '20 giờ', lessons: 52, level: 'Nâng cao', cover: '#16A34A', topic: 'Kinh doanh' },
 ];
 
 function HomeScreen({ nav, user, brand, homeHero, addToCart, cartCount }) {
@@ -142,7 +146,7 @@ function HomeScreen({ nav, user, brand, homeHero, addToCart, cartCount }) {
           border: '1px solid #E2E8F0', color: '#94A3B8',
         }}>
           <Ic.Search s={20} c="#94A3B8"/>
-          <span style={{ fontSize: 14 }}>Tìm SIM số đẹp, khóa học, đại lý…</span>
+          <span style={{ fontSize: 14 }}>Tìm SIM hợp tuổi · mệnh · tổng nút…</span>
         </div>
       </div>
 

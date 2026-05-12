@@ -81,10 +81,10 @@ function WelcomeScreen({ nav, brand }) {
         {/* copy */}
         <div style={{ paddingBottom: 20 }}>
           <div style={{ fontSize: 32, fontWeight: 800, lineHeight: 1.15, letterSpacing: -0.8 }}>
-            Bán SIM,<br/>học khóa học,<br/>kiếm hoa hồng.
+            SIM phong thủy.<br/>Số hợp tuổi.<br/>Lộc cả đời.
           </div>
           <div style={{ fontSize: 14, opacity: 0.85, marginTop: 12, lineHeight: 1.55 }}>
-            Mua SIM 4G/5G, đăng ký khóa học và xây dựng team đại lý F1·F2·F3 trên cùng một ứng dụng.
+            Chọn SIM theo tuổi · mệnh · tổng nút. Học phong thủy số, tư duy & kinh doanh để xây team đại lý F1·F2·F3.
           </div>
         </div>
 

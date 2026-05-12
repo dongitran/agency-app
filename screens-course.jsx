@@ -3,7 +3,8 @@
 function CourseListScreen({ nav, brand, cardStyle }) {
   const b = getBrand(brand);
   const [cat, setCat] = React.useState('Tất cả');
-  const cats = ['Tất cả', 'Bán hàng', 'Marketing', 'Đại lý', 'Tài chính', 'Mới'];
+  const cats = ['Tất cả', 'Tư duy', 'Phong thủy', 'Kinh doanh'];
+  const list = cat === 'Tất cả' ? MOCK_COURSES : MOCK_COURSES.filter(c => c.topic === cat);
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column' }} className="anim-fade">
@@ -16,7 +17,7 @@ function CourseListScreen({ nav, brand, cardStyle }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
           <div>
             <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>Khóa học</div>
-            <div style={{ fontSize: 12, opacity: 0.85, marginTop: 4 }}>Học bán hàng & xây team từ chuyên gia</div>
+            <div style={{ fontSize: 12, opacity: 0.85, marginTop: 4 }}>Tư duy · Phong thủy · Kinh doanh</div>
           </div>
           <button className="tap" style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.2)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Ic.Search s={18} c="#fff"/>
@@ -54,7 +55,7 @@ function CourseListScreen({ nav, brand, cardStyle }) {
 
         <SectionHead title="Tất cả khóa học"/>
         <div style={{ display: cardStyle === 'grid' ? 'grid' : 'flex', flexDirection: 'column', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          {MOCK_COURSES.map((c) => (
+          {list.map((c) => (
             cardStyle === 'grid' ? (
               <Card key={c.id} onClick={() => nav.push('course-detail', { item: c })} style={{ overflow: 'hidden' }}>
                 <div style={{ height: 100, background: `linear-gradient(135deg, ${c.cover}, ${c.cover}aa)`, padding: 10, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', color: '#fff' }}>
@@ -98,12 +99,27 @@ function CourseDetailScreen({ nav, item, brand, addToCart, showToast }) {
   const b = getBrand(brand);
   const [tab, setTab] = React.useState('about');
 
-  const chapters = [
-    { n: 'Chương 1 · Tổng quan thị trường SIM 2026', l: ['Toàn cảnh ngành viễn thông VN', 'Cấu trúc giá & hoa hồng', 'Khung pháp lý mới'], unlocked: true },
-    { n: 'Chương 2 · Tư duy bán hàng', l: ['Hiểu khách hàng B2C vs B2B', 'Quy trình AIDA cho SIM', 'Đối phó từ chối'], unlocked: true },
-    { n: 'Chương 3 · Xây dựng kênh F1', l: ['Mô hình hoa hồng đa cấp', 'Cấu trúc team', 'Onboard đại lý mới'], unlocked: false },
-    { n: 'Chương 4 · Quản lý dòng tiền', l: ['Theo dõi commission', 'Tối ưu thuế cho đại lý'], unlocked: false },
-  ];
+  const chaptersByTopic = {
+    'Phong thủy': [
+      { n: 'Chương 1 · Nhập môn phong thủy số học', l: ['Khái niệm tổng nút & quẻ số', 'Ngũ hành cơ bản', 'Bát hình toàn'], unlocked: true },
+      { n: 'Chương 2 · Tính tổng nút & ý nghĩa', l: ['Cách cộng dồn số điện thoại', 'Ý nghĩa số 0-9', 'Bát Quái ứng dụng'], unlocked: true },
+      { n: 'Chương 3 · Số hợp mệnh & hợp tuổi', l: ['Bảng đối chiếu mệnh - số', 'Tuổi nào - số nào', 'Tránh số xung'], unlocked: false },
+      { n: 'Chương 4 · Tam hoa, Tứ quý, Thần tài', l: ['Phân loại dải số quý', 'Giá trị thị trường', 'Cách định giá'], unlocked: false },
+    ],
+    'Tư duy': [
+      { n: 'Chương 1 · Tâm thức thịnh vượng', l: ['Niềm tin về tiền bạc', 'Năng lượng & tần số', 'Luật hấp dẫn'], unlocked: true },
+      { n: 'Chương 2 · Lắng nghe khách hàng', l: ['Active listening', 'Đặt câu hỏi sâu', 'Đồng cảm thực sự'], unlocked: true },
+      { n: 'Chương 3 · Xử lý từ chối', l: ['5 lý do khách từ chối', 'Reframing', 'Chốt sale tự nhiên'], unlocked: false },
+      { n: 'Chương 4 · Xây thương hiệu cá nhân', l: ['Personal branding 101', 'Story telling', 'Tự tin trên camera'], unlocked: false },
+    ],
+    'Kinh doanh': [
+      { n: 'Chương 1 · Tổng quan thị trường SIM phong thủy', l: ['Quy mô ngành', 'Phân khúc khách hàng', 'Cơ hội phong thủy số'], unlocked: true },
+      { n: 'Chương 2 · Vận hành cửa hàng SIM', l: ['Setup kho số', 'Quy trình bán', 'Chăm sóc khách hàng'], unlocked: true },
+      { n: 'Chương 3 · Mô hình đại lý F1·F2·F3', l: ['Cấu trúc hoa hồng', 'Tuyển F1', 'Đào tạo F2-F3'], unlocked: false },
+      { n: 'Chương 4 · Quản lý dòng tiền', l: ['Theo dõi commission', 'Tối ưu thuế', 'Tái đầu tư'], unlocked: false },
+    ],
+  };
+  const chapters = chaptersByTopic[item.topic] || chaptersByTopic['Kinh doanh'];
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column', paddingBottom: 90 }} className="anim-slide-in">
@@ -176,14 +192,30 @@ function CourseDetailScreen({ nav, item, brand, addToCart, showToast }) {
             ))}
           </div>
 
-          {tab === 'about' && (
+          {tab === 'about' && (() => {
+            const aboutByTopic = {
+              'Phong thủy': {
+                desc: 'Khóa học giúp bạn nắm vững phong thủy số học: từ tổng nút, ngũ hành, bát quái đến cách đối chiếu số hợp mệnh - hợp tuổi. Áp dụng ngay vào tư vấn SIM phong thủy chuyên nghiệp.',
+                learn: ['Tính tổng nút & quẻ số chính xác', 'Đối chiếu mệnh - số - tuổi', 'Định giá SIM phong thủy theo dải', 'Luận giải ý nghĩa cho khách hàng'],
+              },
+              'Tư duy': {
+                desc: 'Khóa học rèn luyện tâm thế và kỹ năng mềm cốt lõi để trở thành người tư vấn SIM phong thủy đẳng cấp. Từ tâm thức thịnh vượng đến kỹ năng lắng nghe, xử lý từ chối.',
+                learn: ['Tâm thức thịnh vượng & năng lượng tích cực', 'Lắng nghe & đồng cảm thực sự', 'Xử lý từ chối chuyên nghiệp', 'Xây thương hiệu cá nhân tin cậy'],
+              },
+              'Kinh doanh': {
+                desc: 'Khóa học cung cấp toàn bộ quy trình vận hành & nhân rộng kinh doanh SIM phong thủy: từ setup kho số, quy trình bán đến triển khai mạng lưới đại lý F1·F2·F3.',
+                learn: ['Vận hành cửa hàng SIM phong thủy', 'Xây hệ thống đại lý F1·F2·F3', 'Tối ưu hoa hồng & dòng tiền', 'Marketing & content viral'],
+              },
+            };
+            const a = aboutByTopic[item.topic] || aboutByTopic['Kinh doanh'];
+            return (
             <div className="anim-fade" style={{ marginTop: 14 }}>
               <div style={{ fontSize: 14, color: '#334155', lineHeight: 1.6 }}>
-                Khóa học giúp bạn nắm vững quy trình bán SIM hiệu quả: từ tâm lý khách hàng, kịch bản tư vấn, xử lý từ chối đến triển khai mạng lưới đại lý F1·F2·F3. <strong style={{ color: '#0F172A' }}>{item.lessons} bài học</strong> trên ứng dụng, kèm template & case-study thật.
+                {a.desc} <strong style={{ color: '#0F172A' }}>{item.lessons} bài học</strong> trên ứng dụng, kèm template & case-study thật.
               </div>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', marginTop: 18 }}>Bạn sẽ học được</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 10 }}>
-                {['Phân khúc khách hàng SIM & khóa học', 'Quy trình tư vấn chuyển đổi cao', 'Cách phát triển team F1 → F3', 'Quản lý hoa hồng & dòng tiền'].map((x) => (
+                {a.learn.map((x) => (
                   <div key={x} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                     <div style={{ width: 22, height: 22, borderRadius: 8, background: b.soft, color: b.solid, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><Ic.Check s={14} c={b.solid} w={2.4}/></div>
                     <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.5 }}>{x}</div>
@@ -191,7 +223,8 @@ function CourseDetailScreen({ nav, item, brand, addToCart, showToast }) {
                 ))}
               </div>
             </div>
-          )}
+            );
+          })()}
 
           {tab === 'curriculum' && (
             <div className="anim-fade" style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
