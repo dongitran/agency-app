@@ -110,13 +110,15 @@ function TuViScreen({ nav, brand, user, showToast }) {
   const onSubmit = async () => {
     if (!validate()) { showToast && showToast('Thiếu thông tin'); return; }
     setPhase('loading');
+    const minDelay = new Promise((r) => setTimeout(r, 1500));
     try {
-      const { data, source: src } = await fetchTuVi(form);
+      const [{ data, source: src }] = await Promise.all([fetchTuVi(form), minDelay]);
       setResult(data);
       setSource(src);
       setPhase('result');
       if (src === 'mock') showToast && showToast('API timeout — đang dùng mock');
     } catch (e) {
+      await minDelay;
       setPhase('form');
       showToast && showToast('Không tính được lá số. Thử lại.');
     }
