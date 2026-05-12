@@ -33,7 +33,7 @@ function HomeScreen({ nav, user, brand, homeHero, addToCart, cartCount }) {
 
       {/* Hero variants */}
       {homeHero === 'gradient' && (
-        <div style={{
+        <div className="screen-hero" style={{
           position: 'relative',
           background: `linear-gradient(160deg, ${b.grad[0]} 0%, ${b.grad[1]} 100%)`,
           color: '#fff', padding: '64px 18px 26px', borderRadius: '0 0 28px 28px',
@@ -83,7 +83,7 @@ function HomeScreen({ nav, user, brand, homeHero, addToCart, cartCount }) {
       )}
 
       {homeHero === 'stats' && (
-        <div style={{ padding: '64px 18px 16px', background: '#fff', borderRadius: '0 0 28px 28px', borderBottom: '1px solid #F1F5F9' }}>
+        <div className="screen-hero" style={{ padding: '64px 18px 16px', background: '#fff', borderRadius: '0 0 28px 28px', borderBottom: '1px solid #F1F5F9' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <Avatar name={user.name} size={42}/>
@@ -117,7 +117,7 @@ function HomeScreen({ nav, user, brand, homeHero, addToCart, cartCount }) {
       )}
 
       {homeHero === 'minimal' && (
-        <div style={{ padding: '60px 18px 12px', background: '#F4F6FB' }}>
+        <div className="screen-hero" style={{ padding: '60px 18px 12px', background: '#F4F6FB' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <div style={{ fontSize: 13, color: '#64748B', fontWeight: 600 }}>{greeting},</div>

@@ -121,7 +121,7 @@ function SimDetailScreen({ nav, item, brand, addToCart, showToast }) {
     <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column', paddingBottom: 90 }} className="anim-slide-in">
       <div style={{ flex: 1, overflow: 'auto' }} className="scroll-area">
         {/* hero */}
-        <div style={{
+        <div className="screen-hero" style={{
           padding: '54px 20px 30px', position: 'relative',
           background: `linear-gradient(160deg, ${item.color}, ${item.color}cc)`,
           color: '#fff', borderRadius: '0 0 32px 32px',

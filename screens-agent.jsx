@@ -102,7 +102,7 @@ function AgentDashboardScreen({ nav, brand, user, agentLayout }) {
     <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', overflow: 'auto', paddingBottom: 100 }} className="scroll-area anim-fade">
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 5 }}><IOSStatusBar dark={true}/></div>
 
-      <div style={{ background: `linear-gradient(165deg, ${b.grad[0]}, ${b.grad[1]})`, padding: '60px 18px 80px', color: '#fff', borderRadius: '0 0 28px 28px', position: 'relative', overflow: 'hidden' }}>
+      <div className="screen-hero" style={{ background: `linear-gradient(165deg, ${b.grad[0]}, ${b.grad[1]})`, padding: '60px 18px 80px', color: '#fff', borderRadius: '0 0 28px 28px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -50, right: -50, width: 220, height: 220, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }}/>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
           <div>

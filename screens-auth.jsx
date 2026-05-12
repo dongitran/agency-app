@@ -19,7 +19,7 @@ function WelcomeScreen({ nav, brand }) {
       </div>
 
       {/* content */}
-      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', padding: '80px 28px 30px' }}>
+      <div className="screen-hero" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', padding: '80px 28px 30px' }}>
         {/* logo mark */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12 }}>
           <div style={{
