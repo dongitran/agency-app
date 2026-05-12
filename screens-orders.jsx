@@ -28,7 +28,22 @@ function OrdersScreen({ nav, brand }) {
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column', paddingBottom: 80 }} className="anim-fade">
-      <ScreenHeader title="Đơn hàng" subtitle={`${MOCK_ORDERS.length} đơn`}/>
+      <div className="screen-hero" style={{
+        background: `linear-gradient(160deg, ${b.grad[0]}, ${b.grad[1]})`,
+        padding: '64px 18px 22px', color: '#fff', borderRadius: '0 0 28px 28px',
+        position: 'relative', overflow: 'hidden', flexShrink: 0,
+      }}>
+        <div style={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }}/>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
+          <div>
+            <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>Đơn hàng</div>
+            <div style={{ fontSize: 12, opacity: 0.85, marginTop: 4 }}>{MOCK_ORDERS.length} đơn · Theo dõi & quản lý mua hàng</div>
+          </div>
+          <button className="tap" style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.2)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Ic.Search s={18} c="#fff"/>
+          </button>
+        </div>
+      </div>
       <div style={{ display: 'flex', gap: 6, padding: '12px 18px 6px', overflowX: 'auto', flexShrink: 0 }} className="scroll-area">
         {tabs.map(t => <Chip key={t.k} active={t.k===tab} onClick={() => setTab(t.k)} brand={brand}>{t.l}</Chip>)}
       </div>

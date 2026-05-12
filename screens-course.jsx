@@ -7,7 +7,22 @@ function CourseListScreen({ nav, brand, cardStyle }) {
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column' }} className="anim-slide-in">
-      <ScreenHeader title="Khóa học" subtitle="Học bán hàng & xây team từ chuyên gia" onBack={() => nav.pop()}/>
+      <div className="screen-hero" style={{
+        background: `linear-gradient(160deg, ${b.grad[0]}, ${b.grad[1]})`,
+        padding: '64px 18px 22px', color: '#fff', borderRadius: '0 0 28px 28px',
+        position: 'relative', overflow: 'hidden', flexShrink: 0,
+      }}>
+        <div style={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }}/>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
+          <div>
+            <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>Khóa học</div>
+            <div style={{ fontSize: 12, opacity: 0.85, marginTop: 4 }}>Học bán hàng & xây team từ chuyên gia</div>
+          </div>
+          <button className="tap" style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.2)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Ic.Search s={18} c="#fff"/>
+          </button>
+        </div>
+      </div>
       <div style={{ display: 'flex', gap: 8, padding: '12px 18px 6px', overflowX: 'auto', flexShrink: 0 }} className="scroll-area">
         {cats.map(f => <Chip key={f} active={f===cat} onClick={() => setCat(f)} brand={brand}>{f}</Chip>)}
       </div>

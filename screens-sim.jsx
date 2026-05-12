@@ -9,7 +9,22 @@ function SimListScreen({ nav, brand, cardStyle, addToCart }) {
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column' }} className="anim-slide-in">
-      <ScreenHeader title="Mua SIM" subtitle="Kho số 4G·5G từ 3 nhà mạng" onBack={() => nav.pop()} trailing={<button onClick={() => setSortOpen(true)} className="tap" style={{ width: 38, height: 38, borderRadius: 12, background: '#F1F5F9', border: 'none' }}><Ic.Filter s={18}/></button>}/>
+      <div className="screen-hero" style={{
+        background: `linear-gradient(160deg, ${b.grad[0]}, ${b.grad[1]})`,
+        padding: '64px 18px 22px', color: '#fff', borderRadius: '0 0 28px 28px',
+        position: 'relative', overflow: 'hidden', flexShrink: 0,
+      }}>
+        <div style={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }}/>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
+          <div>
+            <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>Mua SIM</div>
+            <div style={{ fontSize: 12, opacity: 0.85, marginTop: 4 }}>Kho số 4G·5G từ 3 nhà mạng</div>
+          </div>
+          <button onClick={() => setSortOpen(true)} className="tap" style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.2)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Ic.Filter s={18} c="#fff"/>
+          </button>
+        </div>
+      </div>
 
       {/* filter chips */}
       <div style={{ display: 'flex', gap: 8, padding: '12px 18px 6px', overflowX: 'auto', flexShrink: 0 }} className="scroll-area">
