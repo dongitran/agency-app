@@ -90,7 +90,7 @@ function AppShell() {
       case 'login': return <LoginScreen {...common} onLogin={onLogin}/>;
       case 'signup': return <SignupScreen {...common} onLogin={onLogin}/>;
       case 'home': return <HomeScreen {...common} homeHero={tweaks.homeHero}/>;
-      case 'products': return <ProductsScreen {...common} cardStyle={tweaks.cardStyle}/>;
+      case 'products': return <ProductsScreen {...common} cardStyle={tweaks.cardStyle} user={user}/>;
       case 'tuvi': return <TuViScreen {...common}/>;
       case 'sim-detail': return <SimDetailScreen {...common} item={params.item}/>;
       case 'course-detail': return <CourseDetailScreen {...common} item={params.item}/>;
@@ -102,7 +102,9 @@ function AppShell() {
       case 'agent-dashboard': return <AgentDashboardScreen {...common} agentLayout={tweaks.agentLayout}/>;
       case 'agent-team': return <AgentTeamScreen {...common}/>;
       case 'agent-referral': return <AgentReferralScreen {...common}/>;
+      case 'agent-history': return <AgentHistoryScreen {...common}/>;
       case 'wallet': return <WalletScreen {...common}/>;
+      case 'shipping': return <ShippingScreen {...common} {...params}/>;
       default: return <HomeScreen {...common} homeHero={tweaks.homeHero}/>;
     }
   };

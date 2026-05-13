@@ -1,6 +1,6 @@
 // screens-products.jsx — Sản phẩm: SIM phong thủy + Khóa học (segmented)
 
-function ProductsScreen({ nav, brand, cardStyle, addToCart }) {
+function ProductsScreen({ nav, brand, cardStyle, addToCart, user }) {
   const b = getBrand(brand);
   const initialSeg = (nav.current && nav.current.params && nav.current.params.seg) || 'sim';
   const [seg, setSeg] = React.useState(initialSeg);
@@ -12,6 +12,9 @@ function ProductsScreen({ nav, brand, cardStyle, addToCart }) {
 
   const [courseCat, setCourseCat] = React.useState('Tất cả');
   const courseCats = ['Tất cả', 'Tư duy', 'Phong thủy', 'Kinh doanh'];
+
+  const [accFilter, setAccFilter] = React.useState('Tất cả');
+  const accFilters = ['Tất cả', 'Bán chạy', 'Cao cấp', 'Phổ biến', 'Limited'];
 
   const q = query.trim().toLowerCase();
   const matchSim = (s) =>
@@ -25,12 +28,20 @@ function ProductsScreen({ nav, brand, cardStyle, addToCart }) {
     (c.mentor || '').toLowerCase().includes(q) ||
     (c.topic || '').toLowerCase().includes(q);
 
+  const matchAcc = (a) =>
+    !q ||
+    (a.name || '').toLowerCase().includes(q) ||
+    (a.material || '').toLowerCase().includes(q) ||
+    (a.purpose || '').toLowerCase().includes(q);
+
   const simList = MOCK_SIMS.filter((s) => (simFilter === 'Tất cả' ? true : s.tag === simFilter) && matchSim(s));
   const courseList = MOCK_COURSES.filter((c) => (courseCat === 'Tất cả' ? true : c.topic === courseCat) && matchCourse(c));
+  const accList = (typeof MOCK_ACCESSORIES !== 'undefined' ? MOCK_ACCESSORIES : []).filter((a) => (accFilter === 'Tất cả' ? true : a.tag === accFilter) && matchAcc(a));
 
   const segs = [
     { k: 'sim', l: 'SIM phong thủy', sub: `${MOCK_SIMS.length} số đẹp`, i: Ic.Sim },
     { k: 'course', l: 'Khóa học', sub: `${MOCK_COURSES.length} chuyên gia`, i: Ic.Book },
+    { k: 'accessory', l: 'Vật phẩm', sub: `${accList.length} sản phẩm`, i: Ic.Gift },
   ];
 
   const onSwitchSeg = (k) => {
@@ -117,11 +128,11 @@ function ProductsScreen({ nav, brand, cardStyle, addToCart }) {
 
       {/* Filter chips */}
       <div style={{ display: 'flex', gap: 8, padding: '12px 18px 6px', overflowX: 'auto', flexShrink: 0 }} className="scroll-area">
-        {(seg === 'sim' ? simFilters : courseCats).map((f) => (
+        {(seg === 'sim' ? simFilters : seg === 'course' ? courseCats : accFilters).map((f) => (
           <Chip
             key={f}
-            active={seg === 'sim' ? f === simFilter : f === courseCat}
-            onClick={() => (seg === 'sim' ? setSimFilter(f) : setCourseCat(f))}
+            active={seg === 'sim' ? f === simFilter : seg === 'course' ? f === courseCat : f === accFilter}
+            onClick={() => seg === 'sim' ? setSimFilter(f) : seg === 'course' ? setCourseCat(f) : setAccFilter(f)}
             brand={brand}
           >
             {f}
@@ -132,10 +143,13 @@ function ProductsScreen({ nav, brand, cardStyle, addToCart }) {
       {/* Content pane */}
       <div key={seg} style={{ flex: 1, overflow: 'auto', padding: '8px 18px 30px' }} className="scroll-area anim-fade">
         {seg === 'sim' && (
-          <SimSection list={simList} cardStyle={cardStyle} brand={brand} nav={nav} onSort={() => setSheetOpen(true)}/>
+          <SimSection list={simList} cardStyle={cardStyle} brand={brand} nav={nav} onSort={() => setSheetOpen(true)} user={user}/>
         )}
         {seg === 'course' && (
-          <CourseSection list={courseList} cardStyle={cardStyle} brand={brand} nav={nav}/>
+          <CourseSection list={courseList} cardStyle={cardStyle} brand={brand} nav={nav} user={user}/>
+        )}
+        {seg === 'accessory' && (
+          <AccessorySection list={accList} brand={brand} nav={nav} user={user}/>
         )}
       </div>
 
@@ -160,7 +174,20 @@ function ProductsScreen({ nav, brand, cardStyle, addToCart }) {
   );
 }
 
-function SimSection({ list, cardStyle, brand, nav, onSort }) {
+function CommissionBadge({ item, brand, size = 'sm' }) {
+  if (!item || !item.commission) return null;
+  const amt = estCommission(item);
+  if (size === 'sm') {
+    return (
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 7px', borderRadius: 6, background: 'rgba(245,158,11,0.14)', color: '#B45309', fontSize: 10, fontWeight: 800 }}>
+        <span>🎁</span>+{vndShort(amt)}
+      </div>
+    );
+  }
+  return null;
+}
+
+function SimSection({ list, cardStyle, brand, nav, onSort, user }) {
   const b = getBrand(brand);
   if (list.length === 0) return <EmptyState label="Không có SIM phù hợp"/>;
 
@@ -195,6 +222,7 @@ function SimSection({ list, cardStyle, brand, nav, onSort }) {
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: 16, fontWeight: 800, color: b.solid, letterSpacing: -0.3 }}>{vnd(s.price)}</div>
                   {s.oldPrice && <div style={{ fontSize: 11, color: '#94A3B8', textDecoration: 'line-through' }}>{vnd(s.oldPrice)}</div>}
+                  {user?.isAgent && <div style={{ marginTop: 3 }}><CommissionBadge item={s} brand={brand}/></div>}
                 </div>
               </div>
             </Card>
@@ -243,7 +271,7 @@ function SimSection({ list, cardStyle, brand, nav, onSort }) {
   );
 }
 
-function CourseSection({ list, cardStyle, brand, nav }) {
+function CourseSection({ list, cardStyle, brand, nav, user }) {
   const b = getBrand(brand);
   if (list.length === 0) return <EmptyState label="Không có khóa học phù hợp"/>;
 
@@ -313,6 +341,34 @@ function CourseSection({ list, cardStyle, brand, nav }) {
         ))}
       </div>
     </>
+  );
+}
+
+function AccessorySection({ list, brand, nav, user }) {
+  const b = getBrand(brand);
+  if (list.length === 0) return <EmptyState label="Không có vật phẩm phù hợp"/>;
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+      {list.map((a) => (
+        <Card key={a.id} onClick={() => nav.push('sim-detail', { item: { ...a, type: 'accessory', number: a.material, tag: a.tag, simType: a.material, data: a.purpose, call: '—', luanGiai: { tongNut: null, nguHanh: { element: a.element, meaning: `Mệnh ${a.element} · ${a.purpose}` }, daiDep: null, digitMeanings: [], expertNote: `Vật phẩm "${a.name}" được chế tác thủ công, ${a.purpose.toLowerCase()}.` } } })} style={{ overflow: 'hidden' }}>
+          <div style={{ height: 110, background: `linear-gradient(135deg, ${a.color}, ${a.color}cc)`, padding: 10, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', color: '#fff', position: 'relative' }}>
+            {a.tag && <Badge color="amber" style={{ alignSelf: 'flex-start' }}>{a.tag}</Badge>}
+            <div style={{ fontSize: 56, lineHeight: 1, alignSelf: 'flex-end' }}>{a.image}</div>
+          </div>
+          <div style={{ padding: 10 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', lineHeight: 1.3, height: 34, overflow: 'hidden' }}>{a.name}</div>
+            <div style={{ fontSize: 10, color: '#64748B', marginTop: 4 }}>{a.material}</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 6 }}>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: b.solid }}>{vnd(a.price)}</div>
+                {a.oldPrice && <div style={{ fontSize: 10, color: '#94A3B8', textDecoration: 'line-through' }}>{vnd(a.oldPrice)}</div>}
+              </div>
+              {user?.isAgent && <CommissionBadge item={a} brand={brand}/>}
+            </div>
+          </div>
+        </Card>
+      ))}
+    </div>
   );
 }
 

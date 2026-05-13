@@ -1,4 +1,4 @@
-// screens-agent.jsx — Agent packages, dashboard, team, wallet, referral
+// screens-agent.jsx — Agent application 5-step wizard, dashboard, team, wallet, referral
 
 const AGENT_PACKAGES = [
   { id: 'bronze', name: 'Đại lý Đồng', price: 990000, period: '12 tháng', commission: { f1: 15, f2: 5, f3: 2 }, color: '#B45309', gradFrom: '#F59E0B', gradTo: '#B45309', perks: ['Link giới thiệu riêng', 'Hoa hồng F1 15%', 'Báo cáo cơ bản', 'Hỗ trợ Zalo nhóm'] },
@@ -6,89 +6,388 @@ const AGENT_PACKAGES = [
   { id: 'gold', name: 'Đại lý Vàng', price: 4990000, period: '12 tháng', commission: { f1: 25, f2: 10, f3: 5 }, color: '#B45309', gradFrom: '#FBBF24', gradTo: '#D97706', perks: ['Tất cả gói Bạc', 'Hoa hồng F1 25% · F2 10% · F3 5%', 'Mentor 1-1 hàng tháng', 'Tất cả khóa học miễn phí', 'Co-branding marketing'] },
 ];
 
+// Admin-config for withdrawals — shown to user on wallet
+const WITHDRAW_CONFIG = {
+  minAmount: 200000,
+  allowedDays: [1, 15],
+  cutoffHour: 17,
+  feeType: 'none',
+  feeValue: 0,
+  processingDays: 2,
+};
+
+// Mock user's package purchase history
+const MOCK_PACKAGE_HISTORY = [
+  { id: 'p1', pkg: 'Đại lý Bạc', price: 1990000, type: 'Mua mới', boughtAt: '15/01/2026', from: '15/01/2026', until: '15/01/2027', status: 'Đang hiệu lực' },
+  { id: 'p2', pkg: 'Đại lý Đồng', price: 990000, type: 'Mua mới', boughtAt: '20/12/2024', from: '20/12/2024', until: '20/12/2025', status: 'Hết hạn' },
+];
+
+// === 5-STEP AGENT APPLICATION WIZARD ===
 function AgentPackagesScreen({ nav, brand, user, setUser, showToast }) {
   const b = getBrand(brand);
-  const [picked, setPicked] = React.useState(user.isAgent ? null : 'silver');
+  const [step, setStep] = React.useState(0);
+  const [data, setData] = React.useState({
+    packageId: user.isAgent ? null : 'silver',
+    fullName: user.name || '',
+    cccd: '',
+    birthDate: '',
+    gender: 'male',
+    address: '',
+    phone: user.phone || '',
+    email: user.email || '',
+    bankName: 'Vietcombank',
+    bankAccount: '',
+    bankHolder: user.name || '',
+    contractAgreed: false,
+    signature: '',
+    paid: false,
+  });
 
-  const confirm = () => {
-    if (!picked) return;
-    const pkg = AGENT_PACKAGES.find(p => p.id === picked);
-    nav.push('checkout', { total: pkg.price, afterSuccess: () => {
+  const set = (k, v) => setData((d) => ({ ...d, [k]: v }));
+  const pkg = AGENT_PACKAGES.find(p => p.id === data.packageId);
+
+  const stepLabels = ['Chọn gói', 'Thông tin', 'Hợp đồng', 'Thanh toán', 'Chờ duyệt'];
+
+  const canNext = () => {
+    if (step === 0) return !!data.packageId;
+    if (step === 1) return data.fullName.trim() && data.cccd.trim().length >= 9 && data.address.trim() && data.bankAccount.trim().length >= 6;
+    if (step === 2) return data.contractAgreed && data.signature.trim();
+    if (step === 3) return data.paid;
+    return true;
+  };
+
+  const next = () => {
+    if (!canNext()) { showToast && showToast('Vui lòng hoàn tất bước này'); return; }
+    if (step < 4) setStep(step + 1);
+    else {
       setUser({ ...user, isAgent: true, agentTier: pkg.name.split(' ')[1] });
       nav.replace('agent-dashboard');
-    }});
+    }
   };
+  const prev = () => { if (step > 0) setStep(step - 1); else nav.pop(); };
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column', paddingBottom: 100 }} className="anim-slide-in">
-      <ScreenHeader title="Gói đại lý" subtitle="Chọn gói phù hợp để bắt đầu" onBack={() => nav.pop()}/>
-      <div style={{ flex: 1, overflow: 'auto', padding: '14px 18px 30px' }} className="scroll-area">
-        {/* benefits */}
-        <Card style={{ padding: 16, background: `linear-gradient(135deg, ${b.grad[0]}, ${b.grad[1]})`, color: '#fff' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <Ic.Crown s={22} c="#fff"/>
-            <div style={{ fontSize: 15, fontWeight: 800 }}>Tại sao làm đại lý SimPlus?</div>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 14 }}>
-            {[
-              { l: 'F1', v: '25%' },
-              { l: 'F2', v: '10%' },
-              { l: 'F3', v: '5%' },
-              { l: 'Hạn mức rút', v: '50tr/tháng' },
-            ].map((s) => (
-              <div key={s.l} style={{ padding: 10, background: 'rgba(255,255,255,0.15)', borderRadius: 10, backdropFilter: 'blur(8px)' }}>
-                <div style={{ fontSize: 11, opacity: 0.8 }}>{s.l}</div>
-                <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: -0.3 }}>{s.v}</div>
-              </div>
-            ))}
-          </div>
-        </Card>
+      <ScreenHeader title="Đăng ký đại lý" subtitle={`Bước ${step + 1}/5 · ${stepLabels[step]}`} onBack={prev}/>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 18 }}>
-          {AGENT_PACKAGES.map((p) => (
-            <Card key={p.id} onClick={() => setPicked(p.id)} style={{ overflow: 'hidden', border: picked === p.id ? `2.5px solid ${b.solid}` : '2.5px solid transparent', cursor: 'pointer' }}>
-              <div style={{ padding: 16, background: `linear-gradient(120deg, ${p.gradFrom}, ${p.gradTo})`, color: '#fff', position: 'relative' }}>
-                {p.featured && <Badge color="amber" style={{ position: 'absolute', top: 12, right: 12 }}>⭐ Phổ biến</Badge>}
-                <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                  <Ic.Crown s={22} c="#fff"/>
-                  <div style={{ fontSize: 17, fontWeight: 800 }}>{p.name}</div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 10 }}>
-                  <span style={{ fontSize: 26, fontWeight: 800, letterSpacing: -0.6 }}>{vnd(p.price)}</span>
-                  <span style={{ fontSize: 12, opacity: 0.85 }}>/ {p.period}</span>
-                </div>
-              </div>
-              <div style={{ padding: 14 }}>
-                <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-                  {Object.entries(p.commission).map(([k, v]) => (
-                    <div key={k} style={{ flex: 1, padding: '6px 8px', borderRadius: 8, background: b.soft, textAlign: 'center' }}>
-                      <div style={{ fontSize: 11, color: b.text, fontWeight: 700 }}>{k.toUpperCase()}</div>
-                      <div style={{ fontSize: 15, fontWeight: 800, color: b.solid }}>{v}%</div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {p.perks.map((perk) => (
-                    <div key={perk} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-                      <div style={{ width: 18, height: 18, borderRadius: 6, background: b.soft, color: b.solid, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}><Ic.Check s={12} c={b.solid} w={2.4}/></div>
-                      <div style={{ fontSize: 12, color: '#334155', lineHeight: 1.45 }}>{perk}</div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ marginTop: 12, padding: '10px 12px', background: picked === p.id ? b.solid : '#F1F5F9', color: picked === p.id ? '#fff' : '#475569', borderRadius: 12, fontSize: 13, fontWeight: 700, textAlign: 'center', transition: 'all .15s' }}>
-                  {picked === p.id ? '✓ Đã chọn' : 'Chọn gói này'}
-                </div>
-              </div>
-            </Card>
+      {/* progress bar */}
+      <div style={{ padding: '0 18px 12px', background: '#fff', borderBottom: '1px solid #F1F5F9' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+          {stepLabels.map((l, i) => (
+            <React.Fragment key={l}>
+              <div style={{ flex: 1, height: 4, borderRadius: 2, background: i <= step ? b.solid : '#E2E8F0', transition: 'background .25s' }}/>
+            </React.Fragment>
+          ))}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
+          {stepLabels.map((l, i) => (
+            <div key={l} style={{ fontSize: 9, fontWeight: i === step ? 800 : 600, color: i <= step ? b.solid : '#94A3B8', flex: 1, textAlign: 'center' }}>{l}</div>
           ))}
         </div>
       </div>
+
+      <div style={{ flex: 1, overflow: 'auto', padding: '14px 18px 30px' }} className="scroll-area">
+        {step === 0 && <Step1Package data={data} set={set} brand={brand}/>}
+        {step === 1 && <Step2BasicInfo data={data} set={set} brand={brand}/>}
+        {step === 2 && <Step3Contract data={data} set={set} pkg={pkg} brand={brand}/>}
+        {step === 3 && <Step4Payment data={data} set={set} pkg={pkg} brand={brand} showToast={showToast}/>}
+        {step === 4 && <Step5Pending pkg={pkg} data={data} brand={brand}/>}
+      </div>
+
       <ActionBar>
-        <PrimaryButton fullWidth onClick={confirm} disabled={!picked} brand={brand}>
-          {picked ? `Đăng ký · ${vnd(AGENT_PACKAGES.find(p => p.id === picked).price)}` : 'Chọn một gói'}
+        <PrimaryButton fullWidth onClick={next} disabled={!canNext()} brand={brand}>
+          {step < 3 ? 'Tiếp tục' : step === 3 ? 'Hoàn tất gửi yêu cầu' : 'Vào dashboard'}
         </PrimaryButton>
       </ActionBar>
     </div>
+  );
+}
+
+function Step1Package({ data, set, brand }) {
+  const b = getBrand(brand);
+  return (
+    <>
+      <Card style={{ padding: 14, background: `linear-gradient(135deg, ${b.grad[0]}, ${b.grad[1]})`, color: '#fff' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Ic.Crown s={20} c="#fff"/>
+          <div style={{ fontSize: 14, fontWeight: 800 }}>Chọn gói phù hợp</div>
+        </div>
+        <div style={{ fontSize: 12, opacity: 0.85, marginTop: 4 }}>Mỗi gói có quyền lợi và mức hoa hồng F1·F2·F3 khác nhau</div>
+      </Card>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 14 }}>
+        {AGENT_PACKAGES.map((p) => (
+          <Card key={p.id} onClick={() => set('packageId', p.id)} style={{ overflow: 'hidden', border: data.packageId === p.id ? `2.5px solid ${b.solid}` : '2.5px solid transparent', cursor: 'pointer' }}>
+            <div style={{ padding: 14, background: `linear-gradient(120deg, ${p.gradFrom}, ${p.gradTo})`, color: '#fff', position: 'relative' }}>
+              {p.featured && <Badge color="amber" style={{ position: 'absolute', top: 12, right: 12 }}>⭐ Phổ biến</Badge>}
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <Ic.Crown s={20} c="#fff"/>
+                <div style={{ fontSize: 16, fontWeight: 800 }}>{p.name}</div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 8 }}>
+                <span style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.6 }}>{vnd(p.price)}</span>
+                <span style={{ fontSize: 11, opacity: 0.85 }}>/ {p.period}</span>
+              </div>
+            </div>
+            <div style={{ padding: 12 }}>
+              <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+                {Object.entries(p.commission).map(([k, v]) => (
+                  <div key={k} style={{ flex: 1, padding: '5px 6px', borderRadius: 7, background: b.soft, textAlign: 'center' }}>
+                    <div style={{ fontSize: 9, color: b.text, fontWeight: 700 }}>{k.toUpperCase()}</div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: b.solid }}>{v}%</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                {p.perks.slice(0, 3).map((perk) => (
+                  <div key={perk} style={{ display: 'flex', gap: 6, alignItems: 'flex-start', fontSize: 11, color: '#334155' }}>
+                    <Ic.Check s={12} c={b.solid} w={2.4}/> {perk}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function Step2BasicInfo({ data, set, brand }) {
+  const b = getBrand(brand);
+  return (
+    <>
+      <Card style={{ padding: 14, marginBottom: 10 }}>
+        <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>Thông tin cá nhân</div>
+        <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>Thông tin trên CCCD/CMND</div>
+      </Card>
+
+      <WField label="Họ và tên" required>
+        <WInput value={data.fullName} onChange={(v) => set('fullName', v)} placeholder="Nguyễn Văn A"/>
+      </WField>
+      <WField label="Số CCCD/CMND" required>
+        <WInput value={data.cccd} onChange={(v) => set('cccd', v)} placeholder="012345678901" type="number"/>
+      </WField>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        <WField label="Ngày sinh">
+          <WInput value={data.birthDate} onChange={(v) => set('birthDate', v)} placeholder="dd/mm/yyyy"/>
+        </WField>
+        <WField label="Giới tính">
+          <div style={{ display: 'flex', background: '#F1F5F9', borderRadius: 10, padding: 3 }}>
+            {[{ k: 'male', l: '♂ Nam' }, { k: 'female', l: '♀ Nữ' }].map(g => {
+              const a = data.gender === g.k;
+              return <button key={g.k} onClick={() => set('gender', g.k)} className="tap" style={{ flex: 1, height: 36, borderRadius: 8, border: 'none', background: a ? '#fff' : 'transparent', color: a ? b.solid : '#64748B', fontSize: 12, fontWeight: 700 }}>{g.l}</button>;
+            })}
+          </div>
+        </WField>
+      </div>
+      <WField label="Địa chỉ thường trú" required>
+        <WInput value={data.address} onChange={(v) => set('address', v)} placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"/>
+      </WField>
+      <WField label="Số điện thoại" required>
+        <WInput value={data.phone} onChange={(v) => set('phone', v)} placeholder="09xx xxx xxx"/>
+      </WField>
+      <WField label="Email" required>
+        <WInput value={data.email} onChange={(v) => set('email', v)} placeholder="abc@gmail.com"/>
+      </WField>
+
+      <Card style={{ padding: 14, marginTop: 12, background: '#F8FAFC' }}>
+        <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>Tài khoản nhận hoa hồng</div>
+        <div style={{ fontSize: 11, color: '#64748B', marginTop: 2, marginBottom: 10 }}>Hoa hồng sẽ được chuyển vào tài khoản này khi rút tiền</div>
+        <WField label="Ngân hàng" required>
+          <select value={data.bankName} onChange={(e) => set('bankName', e.target.value)} style={{ width: '100%', height: 46, padding: '0 14px', borderRadius: 10, background: '#fff', border: '1.5px solid #E2E8F0', fontSize: 14, color: '#0F172A', fontWeight: 600, appearance: 'none', WebkitAppearance: 'none' }}>
+            {['Vietcombank', 'Techcombank', 'MBBank', 'TPBank', 'BIDV', 'VPBank', 'ACB', 'Sacombank'].map(n => <option key={n}>{n}</option>)}
+          </select>
+        </WField>
+        <WField label="Số tài khoản" required>
+          <WInput value={data.bankAccount} onChange={(v) => set('bankAccount', v)} placeholder="Số tài khoản 9-14 số" type="number"/>
+        </WField>
+        <WField label="Tên chủ tài khoản" required>
+          <WInput value={data.bankHolder} onChange={(v) => set('bankHolder', v)} placeholder="NGUYEN VAN A (không dấu)"/>
+        </WField>
+      </Card>
+    </>
+  );
+}
+
+function Step3Contract({ data, set, pkg, brand }) {
+  const b = getBrand(brand);
+  return (
+    <>
+      <Card style={{ padding: 14, marginBottom: 10 }}>
+        <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>Ký hợp đồng đại lý</div>
+        <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>Vui lòng đọc kỹ và ký xác nhận</div>
+      </Card>
+
+      <Card style={{ padding: 16, maxHeight: 280, overflow: 'auto' }} className="scroll-area">
+        <div style={{ fontSize: 14, fontWeight: 800, color: '#0F172A', textAlign: 'center', marginBottom: 12 }}>HỢP ĐỒNG ĐẠI LÝ SIMPLUS</div>
+        <div style={{ fontSize: 12, color: '#334155', lineHeight: 1.7 }}>
+          <p>Hôm nay, <strong>{new Date().toLocaleDateString('vi-VN')}</strong>, giữa các bên:</p>
+          <p><strong>Bên A — Công ty TNHH SimPlus Việt Nam</strong> (sau đây gọi là "Công ty").</p>
+          <p><strong>Bên B — {data.fullName || '<Họ tên đại lý>'}</strong>, CCCD {data.cccd || '<số CCCD>'}, địa chỉ {data.address || '<địa chỉ>'} (sau đây gọi là "Đại lý").</p>
+          <p><strong>Điều 1 — Gói đại lý:</strong> Đại lý đăng ký gói <strong>{pkg?.name || '—'}</strong> với giá {vnd(pkg?.price || 0)}, thời hạn {pkg?.period || '—'}.</p>
+          <p><strong>Điều 2 — Hoa hồng:</strong> Đại lý được hưởng hoa hồng F1 {pkg?.commission.f1 || 0}%, F2 {pkg?.commission.f2 || 0}%, F3 {pkg?.commission.f3 || 0}% trên doanh thu đơn hàng hợp lệ từ link giới thiệu của Đại lý và các đại lý tuyến dưới.</p>
+          <p><strong>Điều 3 — Quyền và nghĩa vụ:</strong> Đại lý có quyền truy cập hệ thống quản lý, link giới thiệu riêng và báo cáo doanh thu. Đại lý cam kết bán hàng đúng giá niêm yết và không vi phạm chính sách công ty.</p>
+          <p><strong>Điều 4 — Thanh toán hoa hồng:</strong> Hoa hồng được cộng vào ví đại lý sau khi đơn hàng hoàn tất giao hàng. Đại lý có thể yêu cầu rút tiền vào ngày 1 và ngày 15 hàng tháng, tối thiểu 200.000đ mỗi lần.</p>
+          <p><strong>Điều 5 — Chấm dứt:</strong> Hợp đồng có hiệu lực từ ngày ký và kéo dài theo thời hạn của gói. Một trong hai bên có quyền chấm dứt hợp đồng trước thời hạn nếu bên còn lại vi phạm.</p>
+          <p style={{ fontStyle: 'italic', color: '#64748B', marginTop: 14 }}>Đầy đủ điều khoản chi tiết tại simplus.vn/contract</p>
+        </div>
+      </Card>
+
+      <div style={{ marginTop: 12 }}>
+        <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: 12, background: '#fff', borderRadius: 12, border: `1.5px solid ${data.contractAgreed ? b.solid : '#E2E8F0'}`, cursor: 'pointer' }}>
+          <input type="checkbox" checked={data.contractAgreed} onChange={(e) => set('contractAgreed', e.target.checked)} style={{ marginTop: 2 }}/>
+          <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.5 }}>
+            Tôi đã đọc và đồng ý toàn bộ điều khoản trong <strong>Hợp đồng đại lý SimPlus</strong> và chính sách bảo mật thông tin.
+          </div>
+        </label>
+      </div>
+
+      <Card style={{ marginTop: 12, padding: 14 }}>
+        <div style={{ fontSize: 12, color: '#475569', fontWeight: 700, marginBottom: 6 }}>Chữ ký xác nhận</div>
+        <WInput value={data.signature} onChange={(v) => set('signature', v)} placeholder="Gõ họ tên đầy đủ thay cho chữ ký"/>
+        <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 6, fontStyle: 'italic' }}>Bản prototype dùng gõ tên — bản chính thức sẽ có canvas vẽ chữ ký hoặc eKYC + chữ ký số</div>
+      </Card>
+    </>
+  );
+}
+
+function Step4Payment({ data, set, pkg, brand, showToast }) {
+  const b = getBrand(brand);
+  if (!pkg) return null;
+  React.useEffect(() => {
+    if (data.paid) return;
+    const t = setTimeout(() => { set('paid', true); showToast && showToast('Hệ thống đã ghi nhận thanh toán'); }, 6000);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <>
+      <Card style={{ padding: 16 }}>
+        <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A', marginBottom: 10 }}>Tóm tắt</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: 13 }}>
+          <span style={{ color: '#64748B' }}>Gói</span>
+          <span style={{ color: '#0F172A', fontWeight: 700 }}>{pkg.name}</span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: 13 }}>
+          <span style={{ color: '#64748B' }}>Thời hạn</span>
+          <span style={{ color: '#0F172A', fontWeight: 700 }}>{pkg.period}</span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: 13 }}>
+          <span style={{ color: '#64748B' }}>Tên đại lý</span>
+          <span style={{ color: '#0F172A', fontWeight: 700 }}>{data.fullName}</span>
+        </div>
+        <div style={{ height: 1, background: '#E2E8F0', margin: '8px 0' }}/>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <span style={{ fontSize: 14, fontWeight: 700 }}>Tổng cộng</span>
+          <span style={{ fontSize: 20, fontWeight: 800, color: b.solid }}>{vnd(pkg.price)}</span>
+        </div>
+      </Card>
+
+      <Card style={{ marginTop: 12, padding: 18, textAlign: 'center' }}>
+        <div style={{ fontSize: 12, color: '#64748B', fontWeight: 600 }}>QUÉT MÃ ĐỂ THANH TOÁN</div>
+        <div style={{ marginTop: 14, display: 'flex', justifyContent: 'center' }}>
+          <div style={{ padding: 12, background: '#fff', borderRadius: 14, border: '2px solid #0F172A', position: 'relative' }}>
+            <FakeQR/>
+          </div>
+        </div>
+        <div style={{ marginTop: 12, padding: 12, background: b.soft, borderRadius: 12, fontSize: 11, color: b.text, textAlign: 'left' }}>
+          <strong>Nội dung CK:</strong> DLP{pkg.id.toUpperCase()}{data.phone.replace(/\D/g, '').slice(-4)}
+        </div>
+        {!data.paid && (
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center', justifyContent: 'center', marginTop: 12 }}>
+            <div className="spin" style={{ width: 12, height: 12, border: `2px solid ${b.solid}44`, borderTopColor: b.solid, borderRadius: '50%' }}/>
+            <div style={{ fontSize: 11, color: '#64748B' }}>Đang chờ chuyển khoản… (demo tự xác nhận 6s)</div>
+          </div>
+        )}
+        {data.paid && (
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center', justifyContent: 'center', marginTop: 12, padding: '8px 12px', background: '#DCFCE7', borderRadius: 10 }}>
+            <Ic.Check s={16} c="#15803D"/>
+            <div style={{ fontSize: 12, color: '#15803D', fontWeight: 700 }}>Đã ghi nhận thanh toán</div>
+          </div>
+        )}
+      </Card>
+    </>
+  );
+}
+
+function Step5Pending({ pkg, data, brand }) {
+  const b = getBrand(brand);
+  return (
+    <>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 0 14px' }}>
+        <div className="anim-scale" style={{
+          width: 90, height: 90, borderRadius: 30,
+          background: 'linear-gradient(135deg, #F59E0B, #D97706)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 16px 36px -10px #F59E0B80',
+        }}>
+          <Ic.Clock s={44} c="#fff" w={2.5}/>
+        </div>
+        <div style={{ fontSize: 19, fontWeight: 800, color: '#0F172A', marginTop: 18 }}>Đang chờ admin duyệt</div>
+        <div style={{ fontSize: 13, color: '#64748B', marginTop: 6, textAlign: 'center', maxWidth: 280, lineHeight: 1.5 }}>
+          Yêu cầu đăng ký <strong>{pkg?.name}</strong> đã gửi. Admin sẽ đối soát trong vòng <strong>1-2 ngày làm việc</strong>.
+        </div>
+      </div>
+
+      <Card style={{ padding: 14 }}>
+        <div style={{ fontSize: 12, fontWeight: 800, color: '#64748B', letterSpacing: 0.3, marginBottom: 10 }}>TRẠNG THÁI</div>
+        {[
+          { l: 'Đã chọn gói', done: true },
+          { l: 'Đã gửi thông tin', done: true },
+          { l: 'Đã ký hợp đồng', done: true },
+          { l: 'Đã thanh toán', done: true },
+          { l: 'Chờ admin đối soát', done: false, active: true },
+          { l: 'Kích hoạt đại lý', done: false },
+        ].map((s, i, arr) => (
+          <div key={s.l} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: i < arr.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
+            <div style={{ width: 24, height: 24, borderRadius: '50%', background: s.done ? '#10B981' : s.active ? '#F59E0B' : '#E2E8F0', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              {s.done ? <Ic.Check s={14} c="#fff" w={2.6}/> : s.active ? <div className="spin" style={{ width: 10, height: 10, border: '2px solid #fff', borderRightColor: 'transparent', borderRadius: '50%' }}/> : <span style={{ fontSize: 11, fontWeight: 800 }}>{i + 1}</span>}
+            </div>
+            <div style={{ flex: 1, fontSize: 13, fontWeight: s.active ? 700 : 600, color: s.done || s.active ? '#0F172A' : '#94A3B8' }}>{s.l}</div>
+            {s.done && <div style={{ fontSize: 11, color: '#15803D', fontWeight: 700 }}>Hoàn tất</div>}
+            {s.active && <div style={{ fontSize: 11, color: '#B45309', fontWeight: 700 }}>Đang xử lý</div>}
+          </div>
+        ))}
+      </Card>
+
+      <Card style={{ marginTop: 10, padding: 14, background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+          <span style={{ fontSize: 16 }}>💡</span>
+          <div style={{ fontSize: 12, color: '#1E40AF', lineHeight: 1.5 }}>
+            Trong khi chờ duyệt, bạn có thể bấm <strong>"Vào dashboard"</strong> bên dưới để xem demo các chức năng dành cho đại lý.
+          </div>
+        </div>
+      </Card>
+    </>
+  );
+}
+
+function WField({ label, required, children }) {
+  return (
+    <div style={{ marginBottom: 10 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 6 }}>
+        {label}{required && <span style={{ color: '#DC2626' }}> *</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function WInput({ value, onChange, placeholder, type = 'text' }) {
+  return (
+    <input
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      type={type}
+      inputMode={type === 'number' ? 'numeric' : 'text'}
+      style={{
+        width: '100%', height: 46, padding: '0 14px', borderRadius: 10,
+        background: '#fff', border: '1.5px solid #E2E8F0',
+        color: '#0F172A', fontSize: 14, outline: 'none', boxSizing: 'border-box',
+      }}
+    />
   );
 }
 
@@ -236,28 +535,34 @@ function AgentDashboardScreen({ nav, brand, user, agentLayout }) {
   );
 }
 
-function AgentTeamScreen({ nav, brand }) {
+function AgentTeamScreen({ nav, brand, showToast }) {
   const b = getBrand(brand);
   const [level, setLevel] = React.useState('F1');
   const team = {
     F1: [
-      { n: 'Lê Văn Bình', joined: '12/03', sales: 12, comm: 1840000, tier: 'Bạc' },
-      { n: 'Nguyễn Mai', joined: '28/02', sales: 24, comm: 3920000, tier: 'Vàng' },
-      { n: 'Trần Hùng', joined: '15/02', sales: 8, comm: 1100000, tier: 'Đồng' },
-      { n: 'Đỗ Quốc', joined: '02/02', sales: 18, comm: 2890000, tier: 'Bạc' },
-      { n: 'Vũ Hà', joined: '20/01', sales: 6, comm: 740000, tier: 'Đồng' },
+      { n: 'Lê Văn Bình', phone: '0912 345 678', joined: '12/03/2025', sales: 12, revenue: 28400000, comm: 1840000, tier: 'Bạc', expires: '12/03/2026', active: true },
+      { n: 'Nguyễn Mai', phone: '0987 654 321', joined: '28/02/2025', sales: 24, revenue: 58900000, comm: 3920000, tier: 'Vàng', expires: '28/02/2026', active: true },
+      { n: 'Trần Hùng', phone: '0901 234 567', joined: '15/02/2025', sales: 8, revenue: 17500000, comm: 1100000, tier: 'Đồng', expires: '15/02/2026', active: true },
+      { n: 'Đỗ Quốc', phone: '0978 456 123', joined: '02/02/2025', sales: 18, revenue: 41200000, comm: 2890000, tier: 'Bạc', expires: '02/02/2026', active: true },
+      { n: 'Vũ Hà', phone: '0935 678 901', joined: '20/01/2025', sales: 6, revenue: 11800000, comm: 740000, tier: 'Đồng', expires: '20/01/2026', active: false },
     ],
     F2: [
-      { n: 'Phạm Tuấn', joined: '08/03', sales: 5, comm: 380000, tier: 'Đồng', via: 'Lê Văn Bình' },
-      { n: 'Hoàng My', joined: '14/02', sales: 11, comm: 920000, tier: 'Bạc', via: 'Nguyễn Mai' },
-      { n: 'Bùi Đức', joined: '30/01', sales: 7, comm: 540000, tier: 'Đồng', via: 'Đỗ Quốc' },
+      { n: 'Phạm Tuấn', phone: '0908 123 456', joined: '08/03/2025', sales: 5, revenue: 8900000, comm: 380000, tier: 'Đồng', via: 'Lê Văn Bình', expires: '08/03/2026', active: true },
+      { n: 'Hoàng My', phone: '0967 234 568', joined: '14/02/2025', sales: 11, revenue: 24200000, comm: 920000, tier: 'Bạc', via: 'Nguyễn Mai', expires: '14/02/2026', active: true },
+      { n: 'Bùi Đức', phone: '0915 345 670', joined: '30/01/2025', sales: 7, revenue: 14800000, comm: 540000, tier: 'Đồng', via: 'Đỗ Quốc', expires: '30/01/2026', active: true },
     ],
     F3: [
-      { n: 'Lý Hồng', joined: '20/03', sales: 3, comm: 95000, tier: 'Đồng', via: 'Phạm Tuấn' },
-      { n: 'Ngô Khôi', joined: '12/03', sales: 4, comm: 145000, tier: 'Đồng', via: 'Hoàng My' },
+      { n: 'Lý Hồng', phone: '0974 567 890', joined: '20/03/2025', sales: 3, revenue: 6500000, comm: 95000, tier: 'Đồng', via: 'Phạm Tuấn', expires: '20/03/2026', active: true },
+      { n: 'Ngô Khôi', phone: '0902 678 901', joined: '12/03/2025', sales: 4, revenue: 9200000, comm: 145000, tier: 'Đồng', via: 'Hoàng My', expires: '12/03/2026', active: true },
     ],
   };
   const list = team[level];
+  const totals = {
+    members: list.length,
+    revenue: list.reduce((s, m) => s + m.revenue, 0),
+    comm: list.reduce((s, m) => s + m.comm, 0),
+    sales: list.reduce((s, m) => s + m.sales, 0),
+  };
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column', paddingBottom: 100 }} className="anim-slide-in">
@@ -291,22 +596,63 @@ function AgentTeamScreen({ nav, brand }) {
         {['F1', 'F2', 'F3'].map(f => <Chip key={f} active={f===level} onClick={() => setLevel(f)} brand={brand}>Cấp {f} ({team[f].length})</Chip>)}
       </div>
 
-      <div style={{ flex: 1, overflow: 'auto', padding: '0 18px 30px' }} className="scroll-area">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {/* Aggregate stats card for active level */}
+      <div style={{ padding: '0 18px 8px' }}>
+        <Card style={{ padding: 14 }}>
+          <div style={{ fontSize: 11, fontWeight: 800, color: '#64748B', letterSpacing: 0.3, marginBottom: 8 }}>TỔNG HỢP TẦNG {level}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div style={{ padding: 10, background: '#EFF6FF', borderRadius: 10 }}>
+              <div style={{ fontSize: 10, color: '#1E40AF', fontWeight: 700 }}>Doanh thu nhánh</div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', marginTop: 2, letterSpacing: -0.3 }}>{vnd(totals.revenue)}</div>
+            </div>
+            <div style={{ padding: 10, background: '#F0FDF4', borderRadius: 10 }}>
+              <div style={{ fontSize: 10, color: '#15803D', fontWeight: 700 }}>HH đóng góp</div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', marginTop: 2, letterSpacing: -0.3 }}>{vnd(totals.comm)}</div>
+            </div>
+          </div>
+          <div style={{ marginTop: 8, fontSize: 11, color: '#64748B' }}>
+            <strong style={{ color: '#0F172A' }}>{totals.members}</strong> thành viên · <strong style={{ color: '#0F172A' }}>{totals.sales}</strong> đơn
+          </div>
+        </Card>
+      </div>
+
+      <div style={{ flex: 1, overflow: 'auto', padding: '4px 18px 30px' }} className="scroll-area">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {list.map((m, i) => (
-            <Card key={i} style={{ padding: 12, display: 'flex', gap: 12, alignItems: 'center' }}>
-              <Avatar name={m.n} size={44}/>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>{m.n}</span>
-                  <Badge color={m.tier === 'Vàng' ? 'amber' : m.tier === 'Bạc' ? 'slate' : 'red'}>{m.tier}</Badge>
+            <Card key={i} onClick={() => showToast && showToast(`Sẽ mở chi tiết ${m.n}`)} style={{ padding: 14, position: 'relative', overflow: 'hidden' }}>
+              {!m.active && (
+                <div style={{ position: 'absolute', top: 0, right: 0, padding: '3px 10px', background: '#FEE2E2', color: '#991B1B', fontSize: 10, fontWeight: 800, borderBottomLeftRadius: 10 }}>Hết hạn gói</div>
+              )}
+              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                <Avatar name={m.n} size={46}/>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>{m.n}</span>
+                    <Badge color={m.tier === 'Vàng' ? 'amber' : m.tier === 'Bạc' ? 'slate' : 'red'}>{m.tier}</Badge>
+                  </div>
+                  <div style={{ fontSize: 11, color: '#64748B', marginTop: 3 }}>
+                    📞 {m.phone}
+                  </div>
+                  <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>
+                    Join {m.joined}{m.via ? ` · qua ${m.via}` : ''} · hết hạn {m.expires}
+                  </div>
                 </div>
-                <div style={{ fontSize: 11, color: '#64748B', marginTop: 3 }}>
-                  Tham gia {m.joined}{m.via ? ` · qua ${m.via}` : ''}
-                </div>
-                <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{m.sales} đơn · Hoa hồng: <strong style={{ color: '#10B981' }}>{vnd(m.comm)}</strong></div>
               </div>
-              <Ic.Chevron s={14} c="#94A3B8"/>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginTop: 12, paddingTop: 10, borderTop: '1px solid #F1F5F9' }}>
+                <div>
+                  <div style={{ fontSize: 10, color: '#64748B' }}>Đơn</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A', marginTop: 2 }}>{m.sales}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, color: '#64748B' }}>Doanh thu</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A', marginTop: 2, letterSpacing: -0.2 }}>{vndShort(m.revenue)}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, color: '#64748B' }}>HH cho bạn</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#10B981', marginTop: 2, letterSpacing: -0.2 }}>+{vndShort(m.comm)}</div>
+                </div>
+              </div>
             </Card>
           ))}
         </div>
@@ -366,6 +712,23 @@ function WalletScreen({ nav, brand, user, showToast }) {
     { t: 'Hoa hồng F2 · Phạm Tuấn', amt: 47920, in: true, d: '06/05 11:08' },
     { t: 'Yêu cầu rút tiền', amt: 3000000, in: false, d: '02/05 16:40', s: 'Chờ duyệt' },
   ];
+
+  // Withdrawal eligibility based on admin config
+  const today = new Date();
+  const todayDay = today.getDate();
+  const cfg = WITHDRAW_CONFIG;
+  const isAllowedDay = cfg.allowedDays.length === 0 || cfg.allowedDays.includes(todayDay);
+  const isBeforeCutoff = today.getHours() < cfg.cutoffHour;
+  const canWithdraw = isAllowedDay && isBeforeCutoff && user.balance >= cfg.minAmount;
+  const nextAllowedDay = (() => {
+    if (cfg.allowedDays.length === 0) return null;
+    const nextThis = cfg.allowedDays.find(d => d > todayDay);
+    if (nextThis) return nextThis + '/' + (today.getMonth() + 1);
+    return cfg.allowedDays[0] + '/' + (((today.getMonth() + 1) % 12) + 1);
+  })();
+  const requestedAmount = Number(amount.replace(/\D/g, '')) || 0;
+  const amountValid = requestedAmount >= cfg.minAmount && requestedAmount <= user.balance;
+
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column', paddingBottom: 100 }} className="anim-slide-in">
       <ScreenHeader title="Ví đại lý" onBack={() => nav.pop()}/>
@@ -379,9 +742,46 @@ function WalletScreen({ nav, brand, user, showToast }) {
             <div><span style={{ opacity: 0.75 }}>Đã rút (T5)</span><div style={{ fontWeight: 700, marginTop: 2 }}>{vnd(5000000)}</div></div>
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-            <button onClick={() => setSheetOpen(true)} className="tap" style={{ flex: 1, height: 44, borderRadius: 12, border: 'none', background: '#fff', color: b.solid, fontSize: 13, fontWeight: 700 }}>Rút tiền</button>
+            <button onClick={() => canWithdraw && setSheetOpen(true)} disabled={!canWithdraw} className="tap" style={{ flex: 1, height: 44, borderRadius: 12, border: 'none', background: canWithdraw ? '#fff' : 'rgba(255,255,255,0.4)', color: canWithdraw ? b.solid : 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 700, cursor: canWithdraw ? 'pointer' : 'not-allowed' }}>Rút tiền</button>
             <button className="tap" style={{ flex: 1, height: 44, borderRadius: 12, border: '1.5px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 13, fontWeight: 700 }}>Lịch sử</button>
           </div>
+        </Card>
+
+        {/* Withdrawal eligibility info card */}
+        <Card style={{ marginTop: 12, padding: 14, background: canWithdraw ? '#F0FDF4' : '#FEF3C7', border: `1px solid ${canWithdraw ? '#BBF7D0' : '#FCD34D'}` }}>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+            <div style={{ width: 32, height: 32, borderRadius: 10, background: canWithdraw ? '#10B981' : '#F59E0B', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              {canWithdraw ? <Ic.Check s={16} c="#fff" w={2.6}/> : <Ic.Clock s={16} c="#fff"/>}
+            </div>
+            <div style={{ flex: 1, fontSize: 12, color: canWithdraw ? '#15803D' : '#92400E', lineHeight: 1.5 }}>
+              {canWithdraw ? (
+                <><strong>Đủ điều kiện rút tiền hôm nay.</strong> Yêu cầu trước {cfg.cutoffHour}h để được xử lý trong ngày.</>
+              ) : !isAllowedDay ? (
+                <><strong>Chưa đến ngày rút.</strong> Theo cấu hình của admin, được rút vào ngày <strong>{cfg.allowedDays.join(' và ')}</strong> hàng tháng. Lần tiếp theo: <strong>{nextAllowedDay}</strong>.</>
+              ) : !isBeforeCutoff ? (
+                <><strong>Quá giờ cut-off {cfg.cutoffHour}h.</strong> Vui lòng đợi ngày được rút tiếp theo.</>
+              ) : (
+                <><strong>Số dư chưa đủ.</strong> Cần tối thiểu <strong>{vnd(cfg.minAmount)}</strong> để gửi yêu cầu rút.</>
+              )}
+            </div>
+          </div>
+        </Card>
+
+        {/* Config visibility */}
+        <Card style={{ marginTop: 10, padding: 14 }}>
+          <div style={{ fontSize: 11, color: '#64748B', fontWeight: 800, letterSpacing: 0.3, marginBottom: 8 }}>QUY ĐỊNH RÚT TIỀN (DO ADMIN CẤU HÌNH)</div>
+          {[
+            { l: 'Số tiền tối thiểu', v: vnd(cfg.minAmount) },
+            { l: 'Ngày được rút', v: cfg.allowedDays.length === 0 ? 'Mọi ngày' : `Ngày ${cfg.allowedDays.join(', ')} hàng tháng` },
+            { l: 'Giờ cut-off', v: `Trước ${cfg.cutoffHour}:00` },
+            { l: 'Phí rút', v: cfg.feeType === 'none' ? 'Miễn phí' : `${cfg.feeValue}${cfg.feeType === 'percent' ? '%' : 'đ'}` },
+            { l: 'Thời gian xử lý', v: `${cfg.processingDays} ngày làm việc` },
+          ].map((r) => (
+            <div key={r.l} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 12 }}>
+              <span style={{ color: '#64748B' }}>{r.l}</span>
+              <span style={{ color: '#0F172A', fontWeight: 700 }}>{r.v}</span>
+            </div>
+          ))}
         </Card>
 
         <SectionHead title="Lịch sử giao dịch"/>
@@ -401,8 +801,13 @@ function WalletScreen({ nav, brand, user, showToast }) {
 
       <Sheet open={sheetOpen} onClose={() => setSheetOpen(false)} title="Yêu cầu rút tiền">
         <div style={{ padding: '6px 20px 20px' }}>
-          <div style={{ fontSize: 13, color: '#64748B', marginBottom: 12 }}>Khả dụng: <strong style={{ color: '#0F172A' }}>{vnd(user.balance)}</strong> · Tối thiểu 200.000đ</div>
+          <div style={{ fontSize: 13, color: '#64748B', marginBottom: 12 }}>Khả dụng: <strong style={{ color: '#0F172A' }}>{vnd(user.balance)}</strong> · Tối thiểu {vnd(cfg.minAmount)}</div>
           <Input value={amount} onChange={setAmount} placeholder="Nhập số tiền" icon={<Ic.Wallet s={18}/>}/>
+          {amount && !amountValid && (
+            <div style={{ fontSize: 11, color: '#DC2626', marginTop: 4 }}>
+              {requestedAmount < cfg.minAmount ? `Số tiền phải ≥ ${vnd(cfg.minAmount)}` : `Vượt số dư khả dụng`}
+            </div>
+          )}
           <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
             {[500000, 1000000, 3000000, 5000000].map(v => (
               <Chip key={v} active={false} onClick={() => setAmount(String(v))} brand={brand}>{vndShort(v)}</Chip>
@@ -416,11 +821,78 @@ function WalletScreen({ nav, brand, user, showToast }) {
             </div>
             <Ic.Chevron s={14} c="#94A3B8"/>
           </Card>
-          <PrimaryButton fullWidth brand={brand} style={{ marginTop: 16 }} onClick={() => { setSheetOpen(false); showToast('Yêu cầu rút tiền đã gửi'); }}>Gửi yêu cầu</PrimaryButton>
+          <PrimaryButton fullWidth brand={brand} disabled={!amountValid} style={{ marginTop: 16 }} onClick={() => { setSheetOpen(false); setAmount(''); showToast(`Đã gửi yêu cầu rút ${vnd(requestedAmount)}`); }}>Gửi yêu cầu</PrimaryButton>
         </div>
       </Sheet>
     </div>
   );
 }
 
-Object.assign(window, { AgentPackagesScreen, AgentDashboardScreen, AgentTeamScreen, AgentReferralScreen, WalletScreen, AGENT_PACKAGES });
+// === Lịch sử mua gói đại lý ===
+function AgentHistoryScreen({ nav, brand, user, showToast }) {
+  const b = getBrand(brand);
+  return (
+    <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column', paddingBottom: 30 }} className="anim-slide-in">
+      <ScreenHeader title="Lịch sử mua gói" subtitle={`${MOCK_PACKAGE_HISTORY.length} giao dịch`} onBack={() => nav.pop()}/>
+      <div style={{ flex: 1, overflow: 'auto', padding: '14px 18px 30px' }} className="scroll-area">
+        {MOCK_PACKAGE_HISTORY.length === 0 ? (
+          <div style={{ padding: 40, textAlign: 'center', color: '#64748B' }}>
+            <Ic.Crown s={48} c="#CBD5E1"/>
+            <div style={{ marginTop: 12, fontSize: 14 }}>Chưa có gói nào</div>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {MOCK_PACKAGE_HISTORY.map((h) => {
+              const active = h.status === 'Đang hiệu lực';
+              return (
+                <Card key={h.id} style={{ padding: 14, border: active ? `1.5px solid ${b.solid}` : '1.5px solid transparent' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <div style={{ width: 38, height: 38, borderRadius: 10, background: active ? b.solid : '#E2E8F0', color: active ? '#fff' : '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Ic.Crown s={20} c={active ? '#fff' : '#64748B'}/>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: '#0F172A' }}>{h.pkg}</div>
+                        <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{h.type} · {h.boughtAt}</div>
+                      </div>
+                    </div>
+                    <Badge color={active ? 'green' : 'slate'}>{h.status}</Badge>
+                  </div>
+
+                  <div style={{ padding: '10px 0', borderTop: '1px solid #F1F5F9', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#475569' }}>
+                    <span>Hiệu lực</span>
+                    <span style={{ color: '#0F172A', fontWeight: 700 }}>{h.from} → {h.until}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 11, color: '#64748B' }}>Giá thanh toán</div>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: b.solid }}>{vnd(h.price)}</div>
+                    </div>
+                    <button onClick={() => showToast && showToast('Đang mở hợp đồng')} className="tap" style={{ padding: '8px 14px', borderRadius: 10, border: '1.5px solid #E2E8F0', background: '#fff', fontSize: 12, fontWeight: 700, color: '#475569', display: 'flex', gap: 5, alignItems: 'center' }}>
+                      <Ic.Doc s={14}/>Hợp đồng
+                    </button>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+
+        <Card style={{ marginTop: 14, padding: 14, background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+            <span style={{ fontSize: 16 }}>💡</span>
+            <div style={{ fontSize: 12, color: '#1E40AF', lineHeight: 1.5 }}>
+              Bạn có thể nâng cấp lên gói cao hơn bất kỳ lúc nào. Hệ thống sẽ tính tiền chênh lệch theo thời gian còn lại.
+            </div>
+          </div>
+        </Card>
+
+        <button onClick={() => nav.push('agent-packages')} className="tap" style={{ marginTop: 14, width: '100%', height: 50, borderRadius: 14, background: `linear-gradient(135deg, ${b.grad[0]}, ${b.grad[1]})`, color: '#fff', border: 'none', fontSize: 14, fontWeight: 800, letterSpacing: 0.3, boxShadow: `0 8px 20px ${b.solid}30` }}>
+          Mua / nâng cấp gói
+        </button>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { AgentPackagesScreen, AgentDashboardScreen, AgentTeamScreen, AgentReferralScreen, WalletScreen, AgentHistoryScreen, AGENT_PACKAGES, WITHDRAW_CONFIG, MOCK_PACKAGE_HISTORY });

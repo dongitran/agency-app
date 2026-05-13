@@ -1,10 +1,12 @@
-// screens-checkout.jsx — Cart, QR checkout, success
+// screens-checkout.jsx — Cart, shipping, QR checkout, success
 
-function CartScreen({ nav, brand, cart, setCart, showToast }) {
+function CartScreen({ nav, brand, cart, setCart, showToast, user }) {
   const b = getBrand(brand);
   const subtotal = cart.reduce((s, it) => s + it.price * (it.qty||1), 0);
   const discount = subtotal > 500000 ? 50000 : 0;
   const total = subtotal - discount;
+  const totalCommission = cart.reduce((s, it) => s + (estCommission(it) || 0) * (it.qty||1), 0);
+  const hasPhysical = cart.some((it) => it.type !== 'course');
 
   const updateQty = (id, delta) => {
     setCart(cart.map(it => it.id === id ? {...it, qty: Math.max(1, (it.qty||1) + delta)} : it).filter(it => it.qty > 0));
@@ -82,6 +84,18 @@ function CartScreen({ nav, brand, cart, setCart, showToast }) {
             <span style={{ fontSize: 20, fontWeight: 800, color: b.solid, letterSpacing: -0.4 }}>{vnd(total)}</span>
           </div>
         </Card>
+
+        {/* Commission preview total for agents */}
+        {user?.isAgent && totalCommission > 0 && (
+          <Card style={{ marginTop: 10, padding: 14, background: 'linear-gradient(135deg, #FEF3C7, #FED7AA)', border: '1px solid #FBBF24', display: 'flex', gap: 10, alignItems: 'center' }}>
+            <div style={{ width: 38, height: 38, borderRadius: 10, background: '#F59E0B', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🎁</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 11, color: '#92400E', fontWeight: 700 }}>HOA HỒNG BẠN SẼ NHẬN</div>
+              <div style={{ fontSize: 17, fontWeight: 800, color: '#0F172A', marginTop: 2, letterSpacing: -0.3 }}>{vnd(totalCommission)}</div>
+              <div style={{ fontSize: 10, color: '#7C2D12', marginTop: 2 }}>Cộng vào ví sau khi đơn hoàn tất giao hàng</div>
+            </div>
+          </Card>
+        )}
       </div>
 
       <ActionBar>
@@ -89,9 +103,146 @@ function CartScreen({ nav, brand, cart, setCart, showToast }) {
           <div style={{ fontSize: 11, color: '#64748B' }}>Tổng</div>
           <div style={{ fontSize: 18, fontWeight: 800, color: b.solid }}>{vnd(total)}</div>
         </div>
-        <PrimaryButton fullWidth onClick={() => nav.push('checkout', { total })} brand={brand}>Thanh toán</PrimaryButton>
+        <PrimaryButton fullWidth onClick={() => hasPhysical ? nav.push('shipping', { total, cart }) : nav.push('checkout', { total })} brand={brand}>
+          {hasPhysical ? 'Tiếp tục' : 'Thanh toán'}
+        </PrimaryButton>
       </ActionBar>
     </div>
+  );
+}
+
+// === Shipping screen — collect address for physical products before checkout ===
+function ShippingScreen({ nav, brand, total, cart, user, showToast }) {
+  const b = getBrand(brand);
+  const [data, setData] = React.useState({
+    name: user?.name || '',
+    phone: user?.phone || '',
+    province: 'Hồ Chí Minh',
+    district: '',
+    ward: '',
+    address: '',
+    note: '',
+    method: 'ghn',
+  });
+  const set = (k, v) => setData((d) => ({ ...d, [k]: v }));
+
+  const methods = [
+    { id: 'ghn', name: 'GHN Express', fee: 0, eta: '24-48h' },
+    { id: 'ghtk', name: 'GHTK Tiêu chuẩn', fee: 0, eta: '2-3 ngày' },
+    { id: 'vnp', name: 'Viettel Post', fee: 25000, eta: '1-2 ngày' },
+  ];
+  const method = methods.find(m => m.id === data.method);
+  const valid = data.name.trim() && data.phone.trim().length >= 9 && data.district.trim() && data.ward.trim() && data.address.trim();
+  const grandTotal = total + (method?.fee || 0);
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column', paddingBottom: 100 }} className="anim-slide-in">
+      <ScreenHeader title="Thông tin nhận hàng" onBack={() => nav.pop()}/>
+      <div style={{ flex: 1, overflow: 'auto', padding: '14px 18px 30px' }} className="scroll-area">
+        <Card style={{ padding: 14, marginBottom: 12 }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A', marginBottom: 10 }}>Người nhận</div>
+          <ShField label="Họ và tên" required>
+            <ShInput value={data.name} onChange={(v) => set('name', v)} placeholder="Nguyễn Văn A"/>
+          </ShField>
+          <ShField label="Số điện thoại" required>
+            <ShInput value={data.phone} onChange={(v) => set('phone', v)} placeholder="09xx xxx xxx" type="number"/>
+          </ShField>
+        </Card>
+
+        <Card style={{ padding: 14, marginBottom: 12 }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A', marginBottom: 10 }}>Địa chỉ giao hàng</div>
+          <ShField label="Tỉnh / Thành phố" required>
+            <select value={data.province} onChange={(e) => set('province', e.target.value)} style={{ width: '100%', height: 46, padding: '0 14px', borderRadius: 10, background: '#fff', border: '1.5px solid #E2E8F0', fontSize: 14, color: '#0F172A', fontWeight: 600, appearance: 'none', WebkitAppearance: 'none' }}>
+              {['Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng', 'Hải Phòng', 'Cần Thơ', 'Nha Trang', 'Vũng Tàu', 'Huế'].map(n => <option key={n}>{n}</option>)}
+            </select>
+          </ShField>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <ShField label="Quận / Huyện" required>
+              <ShInput value={data.district} onChange={(v) => set('district', v)} placeholder="Quận 1"/>
+            </ShField>
+            <ShField label="Phường / Xã" required>
+              <ShInput value={data.ward} onChange={(v) => set('ward', v)} placeholder="Phường Bến Nghé"/>
+            </ShField>
+          </div>
+          <ShField label="Địa chỉ chi tiết" required>
+            <ShInput value={data.address} onChange={(v) => set('address', v)} placeholder="Số nhà, tên đường, tòa nhà…"/>
+          </ShField>
+          <ShField label="Ghi chú giao hàng">
+            <ShInput value={data.note} onChange={(v) => set('note', v)} placeholder="VD: Giờ giao thuận tiện, gọi trước khi giao…"/>
+          </ShField>
+        </Card>
+
+        <Card style={{ padding: 14, marginBottom: 12 }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>Đơn vị vận chuyển</div>
+          <div style={{ fontSize: 11, color: '#64748B', marginBottom: 10 }}>Kết nối API fulfillment để tracking real-time</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {methods.map((m) => {
+              const a = data.method === m.id;
+              return (
+                <button key={m.id} onClick={() => set('method', m.id)} className="tap" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 12, borderRadius: 12, border: `1.5px solid ${a ? b.solid : '#E2E8F0'}`, background: a ? b.soft : '#fff', textAlign: 'left' }}>
+                  <div style={{ width: 18, height: 18, borderRadius: '50%', border: `2px solid ${a ? b.solid : '#CBD5E1'}`, background: a ? b.solid : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {a && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff' }}/>}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>{m.name}</div>
+                    <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>Dự kiến giao {m.eta}</div>
+                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: m.fee === 0 ? '#10B981' : '#0F172A' }}>{m.fee === 0 ? 'Miễn phí' : vnd(m.fee)}</div>
+                </button>
+              );
+            })}
+          </div>
+        </Card>
+
+        <Card style={{ padding: 14 }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A', marginBottom: 10 }}>Tóm tắt</div>
+          {[
+            { l: 'Sản phẩm', v: vnd(total) },
+            { l: `Phí ship · ${method?.name}`, v: method?.fee === 0 ? 'Miễn phí' : vnd(method?.fee) },
+          ].map((r) => (
+            <div key={r.l} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 12 }}>
+              <span style={{ color: '#64748B' }}>{r.l}</span>
+              <span style={{ color: '#0F172A', fontWeight: 700 }}>{r.v}</span>
+            </div>
+          ))}
+          <div style={{ height: 1, background: '#E2E8F0', margin: '8px 0' }}/>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <span style={{ fontSize: 13, fontWeight: 700 }}>Tổng thanh toán</span>
+            <span style={{ fontSize: 18, fontWeight: 800, color: b.solid, letterSpacing: -0.3 }}>{vnd(grandTotal)}</span>
+          </div>
+        </Card>
+      </div>
+
+      <ActionBar>
+        <PrimaryButton fullWidth disabled={!valid} onClick={() => nav.push('checkout', { total: grandTotal, shipping: data })} brand={brand}>
+          {valid ? 'Tiếp tục thanh toán' : 'Hoàn tất địa chỉ giao hàng'}
+        </PrimaryButton>
+      </ActionBar>
+    </div>
+  );
+}
+
+function ShField({ label, required, children }) {
+  return (
+    <div style={{ marginBottom: 10 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 6 }}>
+        {label}{required && <span style={{ color: '#DC2626' }}> *</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function ShInput({ value, onChange, placeholder, type = 'text' }) {
+  return (
+    <input
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      type={type}
+      inputMode={type === 'number' ? 'numeric' : 'text'}
+      style={{ width: '100%', height: 46, padding: '0 14px', borderRadius: 10, background: '#fff', border: '1.5px solid #E2E8F0', color: '#0F172A', fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
+    />
   );
 }
 
@@ -226,4 +377,4 @@ function FakeQR() {
   );
 }
 
-Object.assign(window, { CartScreen, CheckoutQRScreen });
+Object.assign(window, { CartScreen, CheckoutQRScreen, ShippingScreen, FakeQR });

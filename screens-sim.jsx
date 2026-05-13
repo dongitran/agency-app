@@ -1,9 +1,11 @@
 // screens-sim.jsx — SIM detail (list moved into screens-products.jsx)
 
-function SimDetailScreen({ nav, item, brand, addToCart, showToast }) {
+function SimDetailScreen({ nav, item, brand, user, addToCart, showToast }) {
   const b = getBrand(brand);
-  const [tab, setTab] = React.useState('info');
+  const [tab, setTab] = React.useState('luangiai');
   const [liked, setLiked] = React.useState(false);
+  const lg = item.luanGiai || {};
+  const commValue = estCommission(item);
 
   const handleAdd = () => { addToCart({ ...item, type: 'sim' }); showToast('Đã thêm vào giỏ'); };
   const handleBuy = () => { addToCart({ ...item, type: 'sim' }); nav.push('cart'); };
@@ -36,10 +38,24 @@ function SimDetailScreen({ nav, item, brand, addToCart, showToast }) {
           </div>
         </div>
 
+        {/* Commission preview banner — only if user is agent */}
+        {user?.isAgent && commValue > 0 && (
+          <div style={{ padding: '14px 18px 0' }}>
+            <Card style={{ padding: 12, display: 'flex', gap: 10, alignItems: 'center', background: 'linear-gradient(135deg, #FEF3C7, #FED7AA)', border: '1px solid #FBBF24' }}>
+              <div style={{ width: 38, height: 38, borderRadius: 10, background: '#F59E0B', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🎁</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, color: '#92400E', fontWeight: 700, letterSpacing: 0.3 }}>HOA HỒNG DỰ KIẾN (F1)</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', letterSpacing: -0.3, marginTop: 2 }}>{vnd(commValue)} <span style={{ fontSize: 11, color: '#92400E', fontWeight: 600 }}>· {item.commission}%</span></div>
+              </div>
+            </Card>
+          </div>
+        )}
+
         {/* segmented tabs */}
-        <div style={{ padding: '16px 18px 0' }}>
+        <div style={{ padding: '14px 18px 0' }}>
           <div style={{ display: 'flex', gap: 0, background: '#E2E8F0', borderRadius: 12, padding: 3 }}>
             {[
+              { k: 'luangiai', l: 'Luận giải' },
               { k: 'info', l: 'Thông tin' },
               { k: 'pack', l: 'Gói cước' },
               { k: 'qa', l: 'Hỏi đáp' },
@@ -48,22 +64,122 @@ function SimDetailScreen({ nav, item, brand, addToCart, showToast }) {
                 flex: 1, height: 38, borderRadius: 10, border: 'none',
                 background: tab === t.k ? '#fff' : 'transparent',
                 color: tab === t.k ? '#0F172A' : '#64748B',
-                fontSize: 13, fontWeight: 700,
+                fontSize: 12, fontWeight: 700,
                 boxShadow: tab === t.k ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
               }}>{t.l}</button>
             ))}
           </div>
         </div>
 
-        {/* tab content */}
+        {/* Luận giải tab — đầy đủ */}
+        {tab === 'luangiai' && (
+          <div style={{ padding: '14px 18px' }} className="anim-fade">
+            {/* Tổng nút */}
+            {lg.tongNut && (
+              <Card style={{ padding: 16, marginBottom: 10 }}>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 8 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg, #FCD34D, #F59E0B)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 800, letterSpacing: -0.5 }}>{lg.tongNut.value}</div>
+                  <div>
+                    <div style={{ fontSize: 11, color: '#64748B', fontWeight: 700, letterSpacing: 0.3 }}>TỔNG NÚT</div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: '#0F172A' }}>Số {lg.tongNut.value}</div>
+                  </div>
+                </div>
+                <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.6 }}>{lg.tongNut.meaning}</div>
+              </Card>
+            )}
+
+            {/* Ngũ hành */}
+            {lg.nguHanh && (
+              <Card style={{ padding: 16, marginBottom: 10 }}>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 8 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg, #A78BFA, #7C3AED)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800 }}>{lg.nguHanh.element}</div>
+                  <div>
+                    <div style={{ fontSize: 11, color: '#64748B', fontWeight: 700, letterSpacing: 0.3 }}>NGŨ HÀNH</div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: '#0F172A' }}>Mệnh {lg.nguHanh.element}</div>
+                  </div>
+                </div>
+                <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.6 }}>{lg.nguHanh.meaning}</div>
+              </Card>
+            )}
+
+            {/* Dải đẹp */}
+            {lg.daiDep && (
+              <Card style={{ padding: 16, marginBottom: 10 }}>
+                <div style={{ fontSize: 11, color: '#64748B', fontWeight: 700, letterSpacing: 0.3 }}>DẢI ĐẸP</div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', marginTop: 4 }}>{lg.daiDep.group}</div>
+                <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.6, marginTop: 8 }}>{lg.daiDep.meaning}</div>
+              </Card>
+            )}
+
+            {/* Ý nghĩa từng chữ số */}
+            {lg.digitMeanings && lg.digitMeanings.length > 0 && (
+              <Card style={{ padding: 16, marginBottom: 10 }}>
+                <div style={{ fontSize: 11, color: '#64748B', fontWeight: 700, letterSpacing: 0.3, marginBottom: 10 }}>Ý NGHĨA TỪNG CHỮ SỐ</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {lg.digitMeanings.map((d, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                      <div style={{ width: 32, height: 32, borderRadius: 9, background: b.soft, color: b.solid, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, fontWeight: 800, flexShrink: 0 }}>{d.digit}</div>
+                      <div style={{ flex: 1, fontSize: 13, color: '#334155', lineHeight: 1.5, paddingTop: 4 }}>{d.meaning}</div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+
+            {/* Hợp mệnh / hợp tuổi */}
+            {(item.compatibleElements || item.compatibleAges) && (
+              <Card style={{ padding: 16, marginBottom: 10 }}>
+                <div style={{ fontSize: 11, color: '#64748B', fontWeight: 700, letterSpacing: 0.3, marginBottom: 8 }}>HỢP MỆNH · HỢP TUỔI</div>
+                {item.compatibleElements && (
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+                    <span style={{ fontSize: 11, color: '#64748B', alignSelf: 'center' }}>Mệnh hợp:</span>
+                    {item.compatibleElements.map((e) => (
+                      <span key={e} style={{ padding: '4px 10px', borderRadius: 999, background: '#EDE9FE', color: '#6D28D9', fontSize: 12, fontWeight: 700 }}>{e}</span>
+                    ))}
+                  </div>
+                )}
+                {item.compatibleAges && (
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 11, color: '#64748B', alignSelf: 'center' }}>Tuổi hợp:</span>
+                    {item.compatibleAges.map((a) => (
+                      <span key={a} style={{ padding: '4px 10px', borderRadius: 999, background: '#DCFCE7', color: '#15803D', fontSize: 12, fontWeight: 700 }}>{a}</span>
+                    ))}
+                  </div>
+                )}
+              </Card>
+            )}
+
+            {/* Chuyên gia */}
+            {lg.expertNote && (
+              <Card style={{ padding: 16, marginBottom: 10, background: 'linear-gradient(135deg, #FEF3C7, #FED7AA)', border: '1px solid #FBBF24' }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 6 }}>
+                  <span style={{ fontSize: 16 }}>👨‍🏫</span>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: '#92400E', letterSpacing: 0.3 }}>LỜI CHUYÊN GIA</div>
+                </div>
+                <div style={{ fontSize: 13, color: '#7C2D12', lineHeight: 1.6, fontStyle: 'italic' }}>"{lg.expertNote}"</div>
+              </Card>
+            )}
+
+            {/* CTA chuyên gia */}
+            <Card style={{ padding: 16, display: 'flex', gap: 12, alignItems: 'center', background: b.soft, border: `1px solid ${b.solid}20` }}>
+              <div style={{ width: 38, height: 38, borderRadius: 10, background: b.solid, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Ic.Gift s={20} c="#fff"/></div>
+              <div style={{ flex: 1, fontSize: 12, color: '#475569' }}>
+                <strong style={{ color: '#0F172A' }}>Tặng buổi luận giải 1-1</strong> với chuyên gia phong thủy khi mua SIM
+              </div>
+            </Card>
+          </div>
+        )}
+
         {tab === 'info' && (
           <div style={{ padding: '14px 18px' }} className="anim-fade">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               {[
                 { l: 'Tổng nút', v: item.sum || '—', i: <Ic.Star s={18}/> },
                 { l: 'Mệnh hợp', v: item.element || '—', i: <Ic.Trend s={18}/> },
-                { l: 'Loại sim', v: '5G eSIM', i: <Ic.Sim s={18}/> },
-                { l: 'Data tháng', v: item.data, i: <Ic.Phone s={18}/> },
+                { l: 'Nhà mạng', v: item.carrier, i: <Ic.Sim s={18}/> },
+                { l: 'Loại SIM', v: item.simType || '5G eSIM', i: <Ic.Sim s={18}/> },
+                { l: 'Đầu số', v: item.prefix || '—', i: <Ic.Phone s={18}/> },
+                { l: 'Data', v: item.data, i: <Ic.Phone s={18}/> },
               ].map((x) => (
                 <Card key={x.l} style={{ padding: 12 }}>
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center', color: b.solid }}>{x.i}<span style={{ fontSize: 11, color: '#64748B', fontWeight: 600 }}>{x.l}</span></div>
@@ -71,20 +187,6 @@ function SimDetailScreen({ nav, item, brand, addToCart, showToast }) {
                 </Card>
               ))}
             </div>
-
-            <Card style={{ padding: 16, marginTop: 12 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>Ý nghĩa phong thủy</div>
-              <div style={{ fontSize: 13, color: '#475569', lineHeight: 1.6, marginTop: 6 }}>
-                Số <strong>{item.number}</strong> có tổng nút <strong>{item.sum || '—'}</strong>, thuộc dải <strong>{item.tag}</strong>, hợp mệnh <strong>{item.element || '—'}</strong>. {item.meaning || 'Số đẹp, dễ nhớ, mang nhiều ý nghĩa tốt lành.'} Giao SIM tận nơi 24h, kích hoạt online qua VNeID.
-              </div>
-            </Card>
-
-            <Card style={{ padding: 16, marginTop: 10, display: 'flex', gap: 12, alignItems: 'center', background: b.soft, border: `1px solid ${b.solid}20` }}>
-              <div style={{ width: 38, height: 38, borderRadius: 10, background: b.solid, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Ic.Gift s={20} c="#fff"/></div>
-              <div style={{ flex: 1, fontSize: 12, color: '#475569' }}>
-                <strong style={{ color: '#0F172A' }}>Tặng buổi luận giải miễn phí</strong> bởi chuyên gia phong thủy khi đăng ký
-              </div>
-            </Card>
           </div>
         )}
 

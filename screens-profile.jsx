@@ -64,6 +64,7 @@ function ProfileScreen({ nav, user, brand, onLogout }) {
             { l: user.isAgent ? 'Dashboard đại lý' : 'Đăng ký làm đại lý', i: <Ic.Crown s={20}/>, c: '#F59E0B', to: user.isAgent ? 'agent-dashboard' : 'agent-packages' },
             { l: 'Link giới thiệu của tôi', i: <Ic.Share s={20}/>, c: '#0EA5E9', to: 'agent-referral' },
             { l: 'Team & cây đại lý', i: <Ic.Users s={20}/>, c: '#10B981', to: 'agent-team' },
+            { l: 'Lịch sử mua gói đại lý', i: <Ic.Doc s={20}/>, c: '#8B5CF6', to: 'agent-history' },
             { l: 'Yêu cầu rút tiền', i: <Ic.Trend s={20}/>, c: '#EC4899', to: 'wallet' },
           ].map((r, i, arr) => (
             <div key={r.l} onClick={() => nav.push(r.to)} className="tap" style={{ padding: '14px 14px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: i < arr.length-1 ? '1px solid #F1F5F9' : 'none' }}>
