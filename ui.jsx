@@ -212,7 +212,7 @@ function Sheet({ open, onClose, children, title, maxHeight = '85%' }) {
   if (!open) return null;
   return (
     <div style={{
-      position: 'absolute', inset: 0, zIndex: 50,
+      position: 'absolute', inset: 0, zIndex: 80,
     }}>
       <div onClick={onClose} className="anim-fade" style={{
         position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.5)',
@@ -220,13 +220,15 @@ function Sheet({ open, onClose, children, title, maxHeight = '85%' }) {
       <div className="anim-slide-up scroll-area" style={{
         position: 'absolute', bottom: 0, left: 0, right: 0,
         background: '#fff', borderRadius: '24px 24px 0 0',
-        maxHeight, overflow: 'auto', WebkitOverflowScrolling: 'touch',
+        maxHeight, overflowY: 'auto', overflowX: 'hidden',
+        WebkitOverflowScrolling: 'touch',
+        touchAction: 'pan-y', overscrollBehavior: 'contain',
         paddingBottom: 'calc(28px + env(safe-area-inset-bottom))',
       }}>
-        <div style={{ paddingTop: 10, display: 'flex', justifyContent: 'center' }}>
+        <div style={{ paddingTop: 10, display: 'flex', justifyContent: 'center', position: 'sticky', top: 0, background: '#fff', zIndex: 2 }}>
           <div style={{ width: 44, height: 4, borderRadius: 2, background: '#CBD5E1' }} />
         </div>
-        {title && <div style={{ fontSize: 17, fontWeight: 700, padding: '16px 20px 6px', color: '#0F172A' }}>{title}</div>}
+        {title && <div style={{ fontSize: 17, fontWeight: 700, padding: '12px 20px 8px', color: '#0F172A', position: 'sticky', top: 14, background: '#fff', zIndex: 2 }}>{title}</div>}
         {children}
       </div>
     </div>
