@@ -22,6 +22,98 @@ function inferUserElement(user) {
 
 const ELEMENT_COLOR = { Hỏa: '#DC2626', Thủy: '#0EA5E9', Mộc: '#10B981', Kim: '#F59E0B', Thổ: '#A16207' };
 
+// Auto-rotating promo carousel.
+// Pauses for 6s after any user interaction (tap dot, swipe, tap slide) so the
+// content doesn't slide away while they're reading or about to tap CTA.
+function PromoCarousel({ slides, brand }) {
+  const b = getBrand(brand);
+  const [idx, setIdx] = React.useState(0);
+  const [paused, setPaused] = React.useState(false);
+  const touchStart = React.useRef(null);
+  const resumeTimer = React.useRef(null);
+
+  const n = slides.length;
+  const pauseBriefly = () => {
+    setPaused(true);
+    if (resumeTimer.current) clearTimeout(resumeTimer.current);
+    resumeTimer.current = setTimeout(() => setPaused(false), 6000);
+  };
+
+  React.useEffect(() => {
+    if (paused || n <= 1) return undefined;
+    const t = setInterval(() => setIdx((i) => (i + 1) % n), 4500);
+    return () => clearInterval(t);
+  }, [paused, n]);
+
+  React.useEffect(() => () => { if (resumeTimer.current) clearTimeout(resumeTimer.current); }, []);
+
+  const onTouchStart = (e) => { touchStart.current = e.touches[0].clientX; };
+  const onTouchEnd = (e) => {
+    if (touchStart.current == null) return;
+    const dx = e.changedTouches[0].clientX - touchStart.current;
+    touchStart.current = null;
+    if (Math.abs(dx) > 40) {
+      setIdx((i) => (dx < 0 ? (i + 1) % n : (i - 1 + n) % n));
+      pauseBriefly();
+    }
+  };
+
+  return (
+    <div style={{ padding: '16px 18px 6px' }}>
+      <div
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+        style={{ position: 'relative', overflow: 'hidden', borderRadius: 20 }}
+      >
+        <div style={{
+          display: 'flex',
+          transition: 'transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1)',
+          transform: `translateX(-${idx * 100}%)`,
+          willChange: 'transform',
+        }}>
+          {slides.map((s, i) => (
+            <div key={i} onClick={s.onClick} className="tap" style={{
+              flex: '0 0 100%',
+              padding: 18, position: 'relative', overflow: 'hidden',
+              background: s.bg, color: '#fff', minHeight: 122,
+              borderRadius: 20,
+            }}>
+              <div style={{ position: 'absolute', top: -30, right: -30, width: 160, height: 160, borderRadius: '50%', background: 'rgba(255,255,255,0.12)', filter: 'blur(20px)' }}/>
+              <div style={{ position: 'absolute', bottom: -16, right: 14, fontSize: 56, opacity: 0.16, lineHeight: 1 }}>{s.icon}</div>
+              <Badge color="amber" style={{ position: 'relative' }}>{s.tag}</Badge>
+              <div style={{ fontSize: 17, fontWeight: 800, marginTop: 8, letterSpacing: -0.3, lineHeight: 1.25, position: 'relative' }}>{s.title}</div>
+              {s.subtitle && <div style={{ fontSize: 12.5, opacity: 0.9, fontWeight: 500, marginTop: 3, position: 'relative' }}>{s.subtitle}</div>}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, position: 'relative' }}>
+                <span style={{ fontSize: 11.5, opacity: 0.95, fontWeight: 700 }}>{s.cta}</span>
+                <Ic.Chevron s={13} c="#fff"/>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {n > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 5, marginTop: 10 }}>
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => { setIdx(i); pauseBriefly(); }}
+              className="tap"
+              aria-label={`Slide ${i + 1}`}
+              style={{
+                width: i === idx ? 20 : 6, height: 6, borderRadius: 3,
+                background: i === idx ? b.solid : '#CBD5E1',
+                border: 'none', padding: 0,
+                transition: 'width 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), background 0.2s',
+              }}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function HomeConsumerScreen({ nav, user, brand, addToCart, cartCount }) {
   const b = getBrand(brand);
   const element = inferUserElement(user);
@@ -130,23 +222,17 @@ function HomeConsumerScreen({ nav, user, brand, addToCart, cartCount }) {
         ))}
       </div>
 
-      {/* Combo promo — consumer flavor */}
-      <div style={{ padding: '16px 18px 6px' }}>
-        <div onClick={() => nav.reset('products', { seg: 'sim' })} className="tap" style={{
-          padding: 18, borderRadius: 20, position: 'relative', overflow: 'hidden',
-          background: `linear-gradient(110deg, #831843 0%, #BE185D 100%)`,
-          color: '#fff',
-        }}>
-          <div style={{ position: 'absolute', top: -30, right: -30, width: 160, height: 160, borderRadius: '50%', background: 'rgba(255,255,255,0.12)', filter: 'blur(20px)' }}/>
-          <div style={{ position: 'absolute', bottom: -20, right: 20, fontSize: 50, opacity: 0.15 }}>🎁</div>
-          <Badge color="amber" style={{ position: 'relative' }}>🔥 ƯU ĐÃI</Badge>
-          <div style={{ fontSize: 18, fontWeight: 800, marginTop: 8, letterSpacing: -0.3, lineHeight: 1.25, position: 'relative' }}>Combo SIM + Khóa Phong Thủy<br/>Tặng Vòng Đá -30%</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, position: 'relative' }}>
-            <span style={{ fontSize: 12, opacity: 0.9, fontWeight: 600 }}>Còn 4 ngày · Đặt ngay</span>
-            <Ic.Chevron s={14} c="#fff"/>
-          </div>
-        </div>
-      </div>
+      {/* Promo carousel — auto-rotate, swipe + dot nav */}
+      <PromoCarousel
+        brand={brand}
+        slides={[
+          { tag: '🔥 ƯU ĐÃI', icon: '🎁', title: 'Combo SIM + Khóa Phong Thủy', subtitle: 'Tặng Vòng Đá · giảm 30%', cta: 'Còn 4 ngày · Đặt ngay', bg: 'linear-gradient(110deg, #831843 0%, #BE185D 100%)', onClick: () => nav.reset('products', { seg: 'sim' }) },
+          { tag: '🎯 SIM HOT',  icon: '💰', title: 'SIM Thần Tài 79·79·79', subtitle: 'Tặng kèm 12 tháng data 5G',     cta: 'Xem chi tiết',           bg: 'linear-gradient(110deg, #064E3B 0%, #059669 100%)', onClick: () => nav.reset('products', { seg: 'sim' }) },
+          { tag: '👨‍🏫 FREE',     icon: '🔮', title: 'Tư vấn 1-1 với Master',     subtitle: 'Chọn SIM hợp tuổi · mệnh', cta: 'Đặt lịch miễn phí',      bg: 'linear-gradient(110deg, #1E3A8A 0%, #3B82F6 100%)', onClick: () => nav.push('agent-referral') },
+          { tag: '🎓 KHÓA HỌC', icon: '📚', title: 'Phong thủy số học cơ bản',   subtitle: 'Giảm 40% · học trọn đời',  cta: 'Đăng ký ngay',           bg: 'linear-gradient(110deg, #4C1D95 0%, #7C3AED 100%)', onClick: () => nav.reset('products', { seg: 'course' }) },
+          { tag: '✨ MỚI',       icon: '📿', title: 'Vòng đá Thạch Anh Hồng',    subtitle: 'Mua kèm SIM · bói duyên miễn phí', cta: 'Khám phá',     bg: 'linear-gradient(110deg, #9F1239 0%, #F43F5E 100%)', onClick: () => nav.reset('products', { seg: 'accessory' }) },
+        ]}
+      />
 
       {/* SIM hợp mệnh — personalized */}
       <div style={{ marginTop: 14 }}>
