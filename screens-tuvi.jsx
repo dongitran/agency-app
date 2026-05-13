@@ -608,7 +608,7 @@ function CungDetail({ cung }) {
   ].filter(Boolean);
 
   return (
-    <div style={{ padding: '0 20px 20px', maxHeight: 480, overflow: 'auto' }} className="scroll-area">
+    <div style={{ padding: '0 20px 20px' }}>
       <div style={{ fontSize: 11, color: '#64748B', marginBottom: 8 }}>
         Vị trí: <strong style={{ color: '#0F172A' }}>{canChi(cung.CanCung, cung.ChiCung)}</strong>
       </div>
@@ -714,7 +714,7 @@ function PersonalInfoSheet({ info, form }) {
   ].filter(Boolean);
 
   return (
-    <div style={{ padding: '0 20px 24px', maxHeight: 520, overflow: 'auto' }} className="scroll-area">
+    <div style={{ padding: '0 20px 24px' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {rows.map((r, i) => (
           <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>

@@ -104,13 +104,14 @@ function AgentDashboardScreen({ nav, brand, user, agentLayout }) {
 
       <div className="screen-hero" style={{ background: `linear-gradient(165deg, ${b.grad[0]}, ${b.grad[1]})`, padding: '60px 18px 80px', color: '#fff', borderRadius: '0 0 28px 28px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -50, right: -50, width: 220, height: 220, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }}/>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
-          <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, position: 'relative' }}>
+          <button onClick={() => nav.pop()} className="tap" style={{...btnGlass, background: 'rgba(255,255,255,0.2)', flexShrink: 0}}><Ic.Back s={20} c="#fff"/></button>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 12, opacity: 0.85, fontWeight: 600 }}>DASHBOARD ĐẠI LÝ</div>
             <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.4, marginTop: 2 }}>Xin chào, {user.name.split(' ').slice(-1)[0]}</div>
             <div style={{ marginTop: 8 }}><Badge color="amber">⭐ Cấp {user.agentTier} · F1 20%</Badge></div>
           </div>
-          <button onClick={() => nav.push('agent-referral')} className="tap" style={{...btnGlass, background: 'rgba(255,255,255,0.2)'}}><Ic.Share s={18} c="#fff"/></button>
+          <button onClick={() => nav.push('agent-referral')} className="tap" style={{...btnGlass, background: 'rgba(255,255,255,0.2)', flexShrink: 0}}><Ic.Share s={18} c="#fff"/></button>
         </div>
 
         <div style={{ marginTop: 22, position: 'relative' }}>

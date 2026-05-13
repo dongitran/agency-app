@@ -78,26 +78,29 @@ function ActionBar({ children }) {
 function ScreenHeader({ title, onBack, trailing, subtitle, transparent=false, dark=false }) {
   return (
     <div style={{
-      paddingTop: 54, paddingBottom: 12, paddingLeft: 16, paddingRight: 16,
-      display: 'flex', alignItems: 'center', gap: 12,
       background: transparent ? 'transparent' : '#fff',
       borderBottom: transparent ? 'none' : '1px solid #F1F5F9',
       position: 'sticky', top: 0, zIndex: 10,
       color: dark ? '#fff' : '#0F172A',
     }}>
-      {onBack && (
-        <button className="tap" onClick={onBack} style={{
-          width: 38, height: 38, borderRadius: 12, border: 'none',
-          background: dark ? 'rgba(255,255,255,0.14)' : '#F1F5F9',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: dark ? '#fff' : '#0F172A',
-        }}><Ic.Back /></button>
-      )}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: -0.2, lineHeight: 1.2 }}>{title}</div>
-        {subtitle && <div style={{ fontSize: 12, color: dark ? 'rgba(255,255,255,0.7)' : '#64748B', marginTop: 2 }}>{subtitle}</div>}
+      <IOSStatusBar dark={dark}/>
+      <div style={{
+        padding: '6px 16px 12px', display: 'flex', alignItems: 'center', gap: 12,
+      }}>
+        {onBack && (
+          <button className="tap" onClick={onBack} style={{
+            width: 38, height: 38, borderRadius: 12, border: 'none',
+            background: dark ? 'rgba(255,255,255,0.14)' : '#F1F5F9',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: dark ? '#fff' : '#0F172A',
+          }}><Ic.Back /></button>
+        )}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: -0.2, lineHeight: 1.2 }}>{title}</div>
+          {subtitle && <div style={{ fontSize: 12, color: dark ? 'rgba(255,255,255,0.7)' : '#64748B', marginTop: 2 }}>{subtitle}</div>}
+        </div>
+        {trailing}
       </div>
-      {trailing}
     </div>
   );
 }
@@ -214,12 +217,12 @@ function Sheet({ open, onClose, children, title, maxHeight = '85%' }) {
       <div onClick={onClose} className="anim-fade" style={{
         position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.5)',
       }} />
-      <div className="anim-slide-up" style={{
+      <div className="anim-slide-up scroll-area" style={{
         position: 'absolute', bottom: 0, left: 0, right: 0,
         background: '#fff', borderRadius: '24px 24px 0 0',
-        maxHeight, overflow: 'auto',
+        maxHeight, overflow: 'auto', WebkitOverflowScrolling: 'touch',
         paddingBottom: 'calc(28px + env(safe-area-inset-bottom))',
-      }} className="scroll-area">
+      }}>
         <div style={{ paddingTop: 10, display: 'flex', justifyContent: 'center' }}>
           <div style={{ width: 44, height: 4, borderRadius: 2, background: '#CBD5E1' }} />
         </div>
