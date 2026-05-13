@@ -171,18 +171,20 @@ function HomeConsumerScreen({ nav, user, brand, addToCart, cartCount }) {
           </div>
         </div>
 
-        {/* Personalized tile: mệnh/tuổi suggestion */}
-        <div onClick={() => nav.reset('tuvi')} className="tap" style={{
+        {/* Agent program CTA — primary above-the-fold conversion */}
+        <div onClick={() => nav.push('agent-packages')} className="tap" style={{
           marginTop: 22, padding: 16, borderRadius: 20,
           background: 'rgba(255,255,255,0.16)',
           border: '1px solid rgba(255,255,255,0.22)',
           backdropFilter: 'blur(14px)', position: 'relative',
           display: 'flex', alignItems: 'center', gap: 14,
         }}>
-          <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(255,255,255,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>✨</div>
+          <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(255,255,255,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Ic.Crown s={26} c="#fff"/>
+          </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 11, opacity: 0.85, fontWeight: 600 }}>Gợi ý cho bạn · mệnh {element}</div>
-            <div style={{ fontSize: 16, fontWeight: 800, marginTop: 2, letterSpacing: -0.3 }}>{matchedSims.length} SIM hợp mệnh đã chờ sẵn</div>
+            <div style={{ fontSize: 11, opacity: 0.85, fontWeight: 600 }}>Trở thành đại lý SimPlus</div>
+            <div style={{ fontSize: 16, fontWeight: 800, marginTop: 2, letterSpacing: -0.3 }}>Kiếm hoa hồng đến 25% mỗi đơn</div>
           </div>
           <Ic.Chevron s={16} c="#fff"/>
         </div>
