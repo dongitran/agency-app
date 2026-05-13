@@ -84,12 +84,13 @@ function AppShell() {
 
   const renderScreen = () => {
     const { name, params } = nav.current;
-    const common = { nav, brand, user, setUser, cart, setCart, addToCart, showToast, tweaks };
+    const cartCount = cart.reduce((sum, x) => sum + (x.qty || 1), 0);
+    const common = { nav, brand, user, setUser, cart, setCart, addToCart, showToast, tweaks, cartCount };
     switch (name) {
       case 'welcome': return <WelcomeScreen {...common} onComplete={() => nav.replace('login')}/>;
       case 'login': return <LoginScreen {...common} onLogin={onLogin}/>;
       case 'signup': return <SignupScreen {...common} onLogin={onLogin}/>;
-      case 'home': return <HomeScreen {...common} homeHero={tweaks.homeHero}/>;
+      case 'home': return <HomeScreen {...common}/>;
       case 'products': return <ProductsScreen {...common} cardStyle={tweaks.cardStyle} user={user}/>;
       case 'tuvi': return <TuViScreen {...common}/>;
       case 'sim-detail': return <SimDetailScreen {...common} item={params.item}/>;
@@ -138,15 +139,14 @@ function AppShell() {
             options={['#2563EB','#7C3AED','#10B981','#DC2626','#EA580C','#0F172A']}
           />
         </TweakSection>
-        <TweakSection label="Style trang chủ">
+        <TweakSection label="Vai trò người dùng">
           <TweakRadio
-            label="Hero banner"
-            value={tweaks.homeHero}
-            onChange={(v) => setTweak('homeHero', v)}
+            label="Trang chủ"
+            value={user.isAgent ? 'agent' : 'consumer'}
+            onChange={(v) => setUser({ ...user, isAgent: v === 'agent' })}
             options={[
-              { value: 'gradient', label: 'Gradient' },
-              { value: 'mesh', label: 'Mesh' },
-              { value: 'minimal', label: 'Minimal' },
+              { value: 'consumer', label: 'Người dùng' },
+              { value: 'agent', label: 'Đại lý' },
             ]}
           />
         </TweakSection>
