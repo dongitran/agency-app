@@ -43,12 +43,12 @@ function ProfileScreen({ nav, user, brand, onLogout }) {
         <SectionHead title="Quản lý"/>
         <Card style={{ overflow: 'hidden' }}>
           {[
-            { l: 'Hồ sơ cá nhân', i: <Ic.User s={20}/>, c: '#3B82F6' },
-            { l: 'Địa chỉ giao SIM', i: <Ic.Doc s={20}/>, c: '#10B981' },
-            { l: 'Phương thức thanh toán', i: <Ic.Wallet s={20}/>, c: '#F59E0B' },
-            { l: 'Đổi mật khẩu', i: <Ic.Lock s={20}/>, c: '#8B5CF6' },
+            { l: 'Hồ sơ cá nhân', i: <Ic.User s={20}/>, c: '#3B82F6', to: 'profile-edit' },
+            { l: 'Địa chỉ giao hàng', i: <Ic.Doc s={20}/>, c: '#10B981', to: 'addresses' },
+            { l: 'Phương thức thanh toán', i: <Ic.Wallet s={20}/>, c: '#F59E0B', to: 'payment-methods' },
+            { l: 'Đổi mật khẩu', i: <Ic.Lock s={20}/>, c: '#8B5CF6', to: 'change-password' },
           ].map((r, i, arr) => (
-            <div key={r.l} className="tap" style={{ padding: '14px 14px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: i < arr.length-1 ? '1px solid #F1F5F9' : 'none' }}>
+            <div key={r.l} onClick={() => nav.push(r.to)} className="tap" style={{ padding: '14px 14px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: i < arr.length-1 ? '1px solid #F1F5F9' : 'none' }}>
               <div style={{ width: 36, height: 36, borderRadius: 10, background: r.c+'18', color: r.c, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{r.i}</div>
               <div style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#0F172A' }}>{r.l}</div>
               <Ic.Chevron s={14} c="#94A3B8"/>
@@ -86,4 +86,268 @@ function ProfileScreen({ nav, user, brand, onLogout }) {
   );
 }
 
-Object.assign(window, { ProfileScreen });
+// === Quản lý sub-screens ===
+
+function PField({ label, required, children, hint }) {
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 6 }}>
+        {label}{required && <span style={{ color: '#DC2626' }}> *</span>}
+      </div>
+      {children}
+      {hint && <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 4 }}>{hint}</div>}
+    </div>
+  );
+}
+
+function PInput({ value, onChange, placeholder, type = 'text' }) {
+  return (
+    <input
+      value={value || ''}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      type={type}
+      inputMode={type === 'number' ? 'numeric' : 'text'}
+      style={{ width: '100%', height: 46, padding: '0 14px', borderRadius: 10, background: '#fff', border: '1.5px solid #E2E8F0', color: '#0F172A', fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
+    />
+  );
+}
+
+// 1) Hồ sơ cá nhân
+function ProfileEditScreen({ nav, brand, user, setUser, showToast }) {
+  const b = getBrand(brand);
+  const [data, setData] = React.useState({
+    name: user.name || '',
+    phone: user.phone || '',
+    email: user.email || '',
+    birthDate: user.birthDate || '15/08/1990',
+    gender: user.gender || 'male',
+  });
+  const set = (k, v) => setData((d) => ({ ...d, [k]: v }));
+  const valid = data.name.trim() && data.phone.trim() && data.email.trim();
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column', paddingBottom: 100 }} className="anim-slide-in">
+      <ScreenHeader title="Hồ sơ cá nhân" onBack={() => nav.pop()}/>
+      <div style={{ flex: 1, overflow: 'auto', padding: '14px 18px 30px' }} className="scroll-area">
+        <Card style={{ padding: 18, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+          <Avatar name={data.name || 'A'} size={84}/>
+          <button onClick={() => showToast && showToast('Upload ảnh đại diện')} className="tap" style={{ padding: '6px 14px', borderRadius: 999, border: `1.5px solid ${b.solid}`, background: '#fff', color: b.solid, fontSize: 12, fontWeight: 700 }}>
+            Đổi ảnh
+          </button>
+        </Card>
+
+        <Card style={{ padding: 14 }}>
+          <PField label="Họ và tên" required>
+            <PInput value={data.name} onChange={(v) => set('name', v)} placeholder="Nguyễn Văn A"/>
+          </PField>
+          <PField label="Số điện thoại" required>
+            <PInput value={data.phone} onChange={(v) => set('phone', v)} placeholder="09xx xxx xxx" type="tel"/>
+          </PField>
+          <PField label="Email" required>
+            <PInput value={data.email} onChange={(v) => set('email', v)} placeholder="abc@gmail.com"/>
+          </PField>
+          <PField label="Ngày sinh">
+            <PInput value={data.birthDate} onChange={(v) => set('birthDate', v)} placeholder="dd/mm/yyyy"/>
+          </PField>
+          <PField label="Giới tính">
+            <div style={{ display: 'flex', background: '#F1F5F9', borderRadius: 10, padding: 3 }}>
+              {[{ k: 'male', l: '♂ Nam' }, { k: 'female', l: '♀ Nữ' }, { k: 'other', l: 'Khác' }].map(g => {
+                const a = data.gender === g.k;
+                return <button key={g.k} onClick={() => set('gender', g.k)} className="tap" style={{ flex: 1, height: 36, borderRadius: 8, border: 'none', background: a ? '#fff' : 'transparent', color: a ? b.solid : '#64748B', fontSize: 12, fontWeight: 700 }}>{g.l}</button>;
+              })}
+            </div>
+          </PField>
+        </Card>
+      </div>
+      <ActionBar>
+        <PrimaryButton fullWidth brand={brand} disabled={!valid} onClick={() => { setUser({ ...user, ...data }); showToast && showToast('Đã cập nhật hồ sơ'); nav.pop(); }}>Lưu thay đổi</PrimaryButton>
+      </ActionBar>
+    </div>
+  );
+}
+
+// 2) Sổ địa chỉ giao hàng
+const MOCK_ADDRESSES = [
+  { id: 'a1', name: 'Nguyễn Văn A', phone: '0901 234 567', address: 'Số 12 đường Lê Lợi, phường Bến Nghé, quận 1', city: 'TP. Hồ Chí Minh', isDefault: true, label: 'Nhà' },
+  { id: 'a2', name: 'Nguyễn Văn A', phone: '0901 234 567', address: 'Tầng 8, tòa Bitexco, 2 Hải Triều, phường Bến Nghé, quận 1', city: 'TP. Hồ Chí Minh', isDefault: false, label: 'Công ty' },
+  { id: 'a3', name: 'Trần Thị B (chị)', phone: '0987 654 321', address: '45 đường Trần Phú, phường Lộc Thọ', city: 'TP. Nha Trang', isDefault: false, label: 'Nhà chị' },
+];
+
+function AddressBookScreen({ nav, brand, showToast }) {
+  const b = getBrand(brand);
+  const [list, setList] = React.useState(MOCK_ADDRESSES);
+  const setDefault = (id) => setList(list.map(a => ({ ...a, isDefault: a.id === id })));
+  const remove = (id) => setList(list.filter(a => a.id !== id));
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column', paddingBottom: 100 }} className="anim-slide-in">
+      <ScreenHeader title="Địa chỉ giao hàng" subtitle={`${list.length} địa chỉ đã lưu`} onBack={() => nav.pop()}/>
+      <div style={{ flex: 1, overflow: 'auto', padding: '14px 18px 30px' }} className="scroll-area">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {list.map((a) => (
+            <Card key={a.id} style={{ padding: 14, border: a.isDefault ? `1.5px solid ${b.solid}` : '1.5px solid transparent' }}>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 6 }}>
+                <span style={{ fontSize: 14, fontWeight: 800, color: '#0F172A' }}>{a.name}</span>
+                <span style={{ fontSize: 11, color: '#64748B' }}>·</span>
+                <span style={{ fontSize: 12, color: '#475569', fontWeight: 600 }}>{a.phone}</span>
+                {a.isDefault && <Badge color="green">Mặc định</Badge>}
+                {a.label && <Badge color="slate">{a.label}</Badge>}
+              </div>
+              <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.5, marginBottom: 10 }}>
+                {a.address}, {a.city}
+              </div>
+              <div style={{ display: 'flex', gap: 8, borderTop: '1px solid #F1F5F9', paddingTop: 10 }}>
+                {!a.isDefault && (
+                  <button onClick={() => { setDefault(a.id); showToast && showToast('Đã đặt làm địa chỉ mặc định'); }} className="tap" style={{ flex: 1, padding: '8px 10px', borderRadius: 9, background: b.soft, color: b.solid, border: 'none', fontSize: 12, fontWeight: 700 }}>Đặt mặc định</button>
+                )}
+                <button onClick={() => showToast && showToast('Chỉnh sửa địa chỉ')} className="tap" style={{ flex: 1, padding: '8px 10px', borderRadius: 9, background: '#F1F5F9', color: '#475569', border: 'none', fontSize: 12, fontWeight: 700 }}>Sửa</button>
+                {!a.isDefault && (
+                  <button onClick={() => { if (confirm('Xóa địa chỉ này?')) remove(a.id); }} className="tap" style={{ padding: '8px 12px', borderRadius: 9, background: '#FEE2E2', color: '#DC2626', border: 'none', fontSize: 12, fontWeight: 700 }}>Xóa</button>
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+      <ActionBar>
+        <PrimaryButton fullWidth brand={brand} onClick={() => showToast && showToast('Mở form thêm địa chỉ mới')}>
+          <Ic.Plus s={18} c="#fff"/> Thêm địa chỉ mới
+        </PrimaryButton>
+      </ActionBar>
+    </div>
+  );
+}
+
+// 3) Phương thức thanh toán & nhận hoa hồng
+const MOCK_PAYMENT_METHODS = [
+  { id: 'pm1', type: 'bank', name: 'Vietcombank', number: '0123 4567 8900', holder: 'NGUYEN VAN A', isDefault: true, color: '#1B5E20' },
+  { id: 'pm2', type: 'bank', name: 'Techcombank', number: '1903 9999 8888', holder: 'NGUYEN VAN A', isDefault: false, color: '#E53935' },
+  { id: 'pm3', type: 'momo', name: 'Ví MoMo', number: '0901 234 567', holder: 'Nguyễn Văn A', isDefault: false, color: '#A50064' },
+];
+
+function PaymentMethodScreen({ nav, brand, showToast }) {
+  const b = getBrand(brand);
+  const [list, setList] = React.useState(MOCK_PAYMENT_METHODS);
+  const setDefault = (id) => setList(list.map(m => ({ ...m, isDefault: m.id === id })));
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column', paddingBottom: 100 }} className="anim-slide-in">
+      <ScreenHeader title="Phương thức thanh toán" onBack={() => nav.pop()}/>
+      <div style={{ flex: 1, overflow: 'auto', padding: '14px 18px 30px' }} className="scroll-area">
+        <Card style={{ padding: 12, marginBottom: 14, background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+            <span style={{ fontSize: 16 }}>💡</span>
+            <div style={{ fontSize: 12, color: '#1E40AF', lineHeight: 1.5 }}>
+              Tài khoản mặc định sẽ là tài khoản nhận hoa hồng khi bạn yêu cầu rút tiền.
+            </div>
+          </div>
+        </Card>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {list.map((m) => (
+            <Card key={m.id} style={{ overflow: 'hidden', border: m.isDefault ? `1.5px solid ${b.solid}` : '1.5px solid transparent' }}>
+              <div style={{ padding: 14, background: `linear-gradient(120deg, ${m.color}, ${m.color}cc)`, color: '#fff', position: 'relative' }}>
+                {m.isDefault && <Badge color="amber" style={{ position: 'absolute', top: 12, right: 12 }}>Mặc định</Badge>}
+                <div style={{ fontSize: 11, opacity: 0.85, fontWeight: 700, letterSpacing: 0.5 }}>{m.type === 'bank' ? 'NGÂN HÀNG' : m.type === 'momo' ? 'VÍ ĐIỆN TỬ' : 'THẺ'}</div>
+                <div style={{ fontSize: 17, fontWeight: 800, marginTop: 4 }}>{m.name}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, marginTop: 10, fontFamily: 'ui-monospace, monospace', letterSpacing: 1 }}>{m.number}</div>
+                <div style={{ fontSize: 11, opacity: 0.85, marginTop: 6 }}>{m.holder}</div>
+              </div>
+              <div style={{ padding: 10, display: 'flex', gap: 8 }}>
+                {!m.isDefault && (
+                  <button onClick={() => { setDefault(m.id); showToast && showToast(`Đã đặt ${m.name} làm mặc định`); }} className="tap" style={{ flex: 1, padding: '8px 10px', borderRadius: 9, background: b.soft, color: b.solid, border: 'none', fontSize: 12, fontWeight: 700 }}>Đặt mặc định</button>
+                )}
+                <button onClick={() => showToast && showToast('Chỉnh sửa thông tin')} className="tap" style={{ flex: 1, padding: '8px 10px', borderRadius: 9, background: '#F1F5F9', color: '#475569', border: 'none', fontSize: 12, fontWeight: 700 }}>Sửa</button>
+                {!m.isDefault && (
+                  <button onClick={() => showToast && showToast('Đã xóa')} className="tap" style={{ padding: '8px 12px', borderRadius: 9, background: '#FEE2E2', color: '#DC2626', border: 'none', fontSize: 12, fontWeight: 700 }}>Xóa</button>
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+      <ActionBar>
+        <PrimaryButton fullWidth brand={brand} onClick={() => showToast && showToast('Mở form thêm phương thức mới')}>
+          <Ic.Plus s={18} c="#fff"/> Thêm phương thức
+        </PrimaryButton>
+      </ActionBar>
+    </div>
+  );
+}
+
+// 4) Đổi mật khẩu
+function ChangePasswordScreen({ nav, brand, showToast }) {
+  const b = getBrand(brand);
+  const [data, setData] = React.useState({ old: '', neww: '', confirm: '' });
+  const [show, setShow] = React.useState({ old: false, neww: false, confirm: false });
+  const set = (k, v) => setData((d) => ({ ...d, [k]: v }));
+  const toggle = (k) => setShow((s) => ({ ...s, [k]: !s[k] }));
+
+  const strength = (() => {
+    const p = data.neww;
+    if (p.length < 6) return { l: 'Yếu', c: '#DC2626', w: 33 };
+    if (p.length < 10 || !/[A-Z]/.test(p) || !/\d/.test(p)) return { l: 'Trung bình', c: '#F59E0B', w: 66 };
+    return { l: 'Mạnh', c: '#10B981', w: 100 };
+  })();
+
+  const matchError = data.confirm && data.neww !== data.confirm;
+  const valid = data.old.length >= 6 && data.neww.length >= 6 && data.neww === data.confirm;
+
+  const renderPwInput = (k, placeholder) => (
+    <div style={{ position: 'relative' }}>
+      <input
+        value={data[k]}
+        onChange={(e) => set(k, e.target.value)}
+        placeholder={placeholder}
+        type={show[k] ? 'text' : 'password'}
+        style={{ width: '100%', height: 46, padding: '0 44px 0 14px', borderRadius: 10, background: '#fff', border: '1.5px solid #E2E8F0', color: '#0F172A', fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
+      />
+      <button onClick={() => toggle(k)} className="tap" style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', width: 32, height: 32, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8' }}>
+        <Ic.Eye s={18}/>
+      </button>
+    </div>
+  );
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column', paddingBottom: 100 }} className="anim-slide-in">
+      <ScreenHeader title="Đổi mật khẩu" onBack={() => nav.pop()}/>
+      <div style={{ flex: 1, overflow: 'auto', padding: '14px 18px 30px' }} className="scroll-area">
+        <Card style={{ padding: 14 }}>
+          <PField label="Mật khẩu hiện tại" required>
+            {renderPwInput('old', 'Nhập mật khẩu cũ')}
+          </PField>
+          <PField label="Mật khẩu mới" required hint="Tối thiểu 6 ký tự, nên có chữ hoa và số">
+            {renderPwInput('neww', 'Nhập mật khẩu mới')}
+            {data.neww && (
+              <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ flex: 1, height: 4, background: '#E2E8F0', borderRadius: 2, overflow: 'hidden' }}>
+                  <div style={{ width: `${strength.w}%`, height: '100%', background: strength.c, transition: 'width .25s' }}/>
+                </div>
+                <span style={{ fontSize: 11, color: strength.c, fontWeight: 700 }}>{strength.l}</span>
+              </div>
+            )}
+          </PField>
+          <PField label="Xác nhận mật khẩu mới" required>
+            {renderPwInput('confirm', 'Nhập lại mật khẩu mới')}
+            {matchError && <div style={{ fontSize: 11, color: '#DC2626', marginTop: 4 }}>Mật khẩu xác nhận không khớp</div>}
+          </PField>
+        </Card>
+
+        <Card style={{ marginTop: 12, padding: 12, background: '#FEF3C7', border: '1px solid #FCD34D' }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+            <span style={{ fontSize: 16 }}>🔐</span>
+            <div style={{ fontSize: 12, color: '#92400E', lineHeight: 1.5 }}>
+              Sau khi đổi mật khẩu thành công, bạn sẽ được đăng xuất khỏi các thiết bị khác.
+            </div>
+          </div>
+        </Card>
+      </div>
+      <ActionBar>
+        <PrimaryButton fullWidth brand={brand} disabled={!valid} onClick={() => { showToast && showToast('Đã đổi mật khẩu'); nav.pop(); }}>Đổi mật khẩu</PrimaryButton>
+      </ActionBar>
+    </div>
+  );
+}
+
+Object.assign(window, { ProfileScreen, ProfileEditScreen, AddressBookScreen, PaymentMethodScreen, ChangePasswordScreen, MOCK_ADDRESSES, MOCK_PAYMENT_METHODS });

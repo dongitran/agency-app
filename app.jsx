@@ -99,6 +99,10 @@ function AppShell() {
       case 'orders': return <OrdersScreen {...common}/>;
       case 'order-detail': return <OrderDetailScreen {...common} order={params.order}/>;
       case 'profile': return <ProfileScreen {...common} onLogout={onLogout}/>;
+      case 'profile-edit': return <ProfileEditScreen {...common}/>;
+      case 'addresses': return <AddressBookScreen {...common}/>;
+      case 'payment-methods': return <PaymentMethodScreen {...common}/>;
+      case 'change-password': return <ChangePasswordScreen {...common}/>;
       case 'agent-packages': return <AgentPackagesScreen {...common}/>;
       case 'agent-dashboard': return <AgentDashboardScreen {...common} agentLayout={tweaks.agentLayout}/>;
       case 'agent-team': return <AgentTeamScreen {...common}/>;
