@@ -134,6 +134,29 @@ function PInput({ value, onChange, placeholder, type = 'text' }) {
   );
 }
 
+function SubHero({ title, subtitle, nav, brand, children, trailing }) {
+  const b = getBrand(brand);
+  return (
+    <div className="screen-hero" style={{
+      background: `linear-gradient(160deg, ${b.grad[0]}, ${b.grad[1]})`,
+      padding: '54px 18px 24px', color: '#fff', borderRadius: '0 0 28px 28px',
+      position: 'relative', overflow: 'hidden', flexShrink: 0,
+    }}>
+      <div style={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }}/>
+      <IOSStatusBar dark={true}/>
+      <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, marginTop: 4 }}>
+        <button onClick={() => nav.pop()} className="tap" style={{...btnGlass, background: 'rgba(255,255,255,0.2)', flexShrink: 0}}><Ic.Back s={20} c="#fff"/></button>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: -0.3 }}>{title}</div>
+          {subtitle && <div style={{ fontSize: 12, opacity: 0.85, marginTop: 4, lineHeight: 1.4 }}>{subtitle}</div>}
+        </div>
+        {trailing}
+      </div>
+      {children && <div style={{ position: 'relative', marginTop: 18 }}>{children}</div>}
+    </div>
+  );
+}
+
 // 1) Hồ sơ cá nhân
 function ProfileEditScreen({ nav, brand, user, setUser, showToast }) {
   const b = getBrand(brand);
@@ -149,16 +172,24 @@ function ProfileEditScreen({ nav, brand, user, setUser, showToast }) {
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column', paddingBottom: 100 }} className="anim-slide-in">
-      <ScreenHeader title="Hồ sơ cá nhân" onBack={() => nav.pop()}/>
-      <div style={{ flex: 1, overflow: 'auto', padding: '14px 18px 30px' }} className="scroll-area">
-        <Card style={{ padding: 18, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-          <Avatar name={data.name || 'A'} size={84}/>
-          <button onClick={() => showToast && showToast('Upload ảnh đại diện')} className="tap" style={{ padding: '6px 14px', borderRadius: 999, border: `1.5px solid ${b.solid}`, background: '#fff', color: b.solid, fontSize: 12, fontWeight: 700 }}>
-            Đổi ảnh
-          </button>
-        </Card>
+      <SubHero nav={nav} brand={brand} title="Hồ sơ cá nhân" subtitle="Cập nhật thông tin tài khoản">
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: '6px 0' }}>
+          <div style={{ position: 'relative' }}>
+            <div style={{ padding: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.3)' }}>
+              <Avatar name={data.name || 'A'} size={84}/>
+            </div>
+            <button onClick={() => showToast && showToast('Upload ảnh đại diện')} className="tap" style={{ position: 'absolute', bottom: 0, right: 0, width: 30, height: 30, borderRadius: '50%', background: '#fff', color: b.solid, border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.15)' }}>
+              <Ic.Plus s={16} w={2.6}/>
+            </button>
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', letterSpacing: -0.2 }}>{data.name || 'Quý khách'}</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.85)' }}>{data.email || data.phone}</div>
+        </div>
+      </SubHero>
 
+      <div style={{ flex: 1, overflow: 'auto', padding: '14px 18px 30px' }} className="scroll-area">
         <Card style={{ padding: 14 }}>
+          <div style={{ fontSize: 11, color: '#64748B', fontWeight: 800, letterSpacing: 0.3, marginBottom: 12 }}>THÔNG TIN LIÊN HỆ</div>
           <PField label="Họ và tên" required>
             <PInput value={data.name} onChange={(v) => set('name', v)} placeholder="Nguyễn Văn A"/>
           </PField>
@@ -168,6 +199,10 @@ function ProfileEditScreen({ nav, brand, user, setUser, showToast }) {
           <PField label="Email" required>
             <PInput value={data.email} onChange={(v) => set('email', v)} placeholder="abc@gmail.com"/>
           </PField>
+        </Card>
+
+        <Card style={{ padding: 14, marginTop: 12 }}>
+          <div style={{ fontSize: 11, color: '#64748B', fontWeight: 800, letterSpacing: 0.3, marginBottom: 12 }}>THÔNG TIN CÁ NHÂN</div>
           <PField label="Ngày sinh">
             <PInput value={data.birthDate} onChange={(v) => set('birthDate', v)} placeholder="dd/mm/yyyy"/>
           </PField>
@@ -200,10 +235,21 @@ function AddressBookScreen({ nav, brand, showToast }) {
   const [list, setList] = React.useState(MOCK_ADDRESSES);
   const setDefault = (id) => setList(list.map(a => ({ ...a, isDefault: a.id === id })));
   const remove = (id) => setList(list.filter(a => a.id !== id));
+  const def = list.find(a => a.isDefault);
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column', paddingBottom: 100 }} className="anim-slide-in">
-      <ScreenHeader title="Địa chỉ giao hàng" subtitle={`${list.length} địa chỉ đã lưu`} onBack={() => nav.pop()}/>
+      <SubHero nav={nav} brand={brand} title="Địa chỉ giao hàng" subtitle={`${list.length} địa chỉ đã lưu · sẵn sàng giao SIM`}>
+        {def && (
+          <div style={{ padding: 12, background: 'rgba(255,255,255,0.15)', borderRadius: 12, backdropFilter: 'blur(8px)' }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 6 }}>
+              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', fontWeight: 700, letterSpacing: 0.4 }}>📍 ĐỊA CHỈ MẶC ĐỊNH</span>
+            </div>
+            <div style={{ fontSize: 13, fontWeight: 700 }}>{def.name} · {def.phone}</div>
+            <div style={{ fontSize: 11, opacity: 0.85, marginTop: 4, lineHeight: 1.4 }}>{def.address}, {def.city}</div>
+          </div>
+        )}
+      </SubHero>
       <div style={{ flex: 1, overflow: 'auto', padding: '14px 18px 30px' }} className="scroll-area">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {list.map((a) => (
@@ -251,19 +297,24 @@ function PaymentMethodScreen({ nav, brand, showToast }) {
   const b = getBrand(brand);
   const [list, setList] = React.useState(MOCK_PAYMENT_METHODS);
   const setDefault = (id) => setList(list.map(m => ({ ...m, isDefault: m.id === id })));
+  const def = list.find(m => m.isDefault);
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column', paddingBottom: 100 }} className="anim-slide-in">
-      <ScreenHeader title="Phương thức thanh toán" onBack={() => nav.pop()}/>
-      <div style={{ flex: 1, overflow: 'auto', padding: '14px 18px 30px' }} className="scroll-area">
-        <Card style={{ padding: 12, marginBottom: 14, background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-            <span style={{ fontSize: 16 }}>💡</span>
-            <div style={{ fontSize: 12, color: '#1E40AF', lineHeight: 1.5 }}>
-              Tài khoản mặc định sẽ là tài khoản nhận hoa hồng khi bạn yêu cầu rút tiền.
+      <SubHero nav={nav} brand={brand} title="Phương thức thanh toán" subtitle={`${list.length} phương thức · để nhận hoa hồng`}>
+        {def && (
+          <div style={{ padding: 12, background: 'rgba(255,255,255,0.15)', borderRadius: 12, backdropFilter: 'blur(8px)' }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+              <div style={{ width: 38, height: 38, borderRadius: 10, background: '#fff', color: def.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 12 }}>{def.name.slice(0, 3).toUpperCase()}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', fontWeight: 700, letterSpacing: 0.3 }}>NHẬN HOA HỒNG QUA</div>
+                <div style={{ fontSize: 13, fontWeight: 700, marginTop: 2 }}>{def.name} · {def.number.split(' ').pop()}</div>
+              </div>
             </div>
           </div>
-        </Card>
+        )}
+      </SubHero>
+      <div style={{ flex: 1, overflow: 'auto', padding: '14px 18px 30px' }} className="scroll-area">
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {list.map((m) => (
@@ -298,7 +349,7 @@ function PaymentMethodScreen({ nav, brand, showToast }) {
 }
 
 // 4) Đổi mật khẩu
-function ChangePasswordScreen({ nav, brand, showToast }) {
+function ChangePasswordScreen({ nav, brand, user, showToast }) {
   const b = getBrand(brand);
   const [data, setData] = React.useState({ old: '', neww: '', confirm: '' });
   const [show, setShow] = React.useState({ old: false, neww: false, confirm: false });
@@ -332,7 +383,17 @@ function ChangePasswordScreen({ nav, brand, showToast }) {
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column', paddingBottom: 100 }} className="anim-slide-in">
-      <ScreenHeader title="Đổi mật khẩu" onBack={() => nav.pop()}/>
+      <SubHero nav={nav} brand={brand} title="Đổi mật khẩu" subtitle="Bảo vệ tài khoản & hoa hồng của bạn">
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', padding: 14, background: 'rgba(255,255,255,0.15)', borderRadius: 14, backdropFilter: 'blur(8px)' }}>
+          <div style={{ width: 48, height: 48, borderRadius: 14, background: '#fff', color: b.solid, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Ic.Lock s={24}/>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 800 }}>Mật khẩu hiện tại</div>
+            <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>Lần đổi gần nhất: 14 ngày trước</div>
+          </div>
+        </div>
+      </SubHero>
       <div style={{ flex: 1, overflow: 'auto', padding: '14px 18px 30px' }} className="scroll-area">
         <Card style={{ padding: 14 }}>
           <PField label="Mật khẩu hiện tại" required>
