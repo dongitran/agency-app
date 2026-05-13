@@ -23,6 +23,58 @@ function Toast({ msg }) {
   );
 }
 
+// Map between url hashes and the isAgent boolean.
+// `/agency-app/#dai-ly` lands directly on the agent home — handy for client demos
+// where the in-app Tweaks panel is hidden on the deployed site.
+const ROLE_HASHES = {
+  agent: ['agent', 'dai-ly', 'dailly', 'daily'],
+  consumer: ['consumer', 'nguoi-dung', 'nguoidung', 'user'],
+};
+function readRoleHash() {
+  const h = (window.location.hash || '').toLowerCase().replace(/^#/, '');
+  if (ROLE_HASHES.agent.includes(h)) return 'agent';
+  if (ROLE_HASHES.consumer.includes(h)) return 'consumer';
+  return null;
+}
+function writeRoleHash(isAgent) {
+  const want = isAgent ? '#dai-ly' : '#nguoi-dung';
+  if (window.location.hash !== want) {
+    window.history.replaceState(null, '', window.location.pathname + window.location.search + want);
+  }
+}
+
+function DemoRoleSwitcher({ isAgent, onChange }) {
+  const opts = [
+    { v: false, l: 'Người dùng' },
+    { v: true,  l: 'Đại lý' },
+  ];
+  return (
+    <div style={{
+      position: 'absolute', bottom: 100, right: 12, zIndex: 70,
+      display: 'flex', alignItems: 'center', gap: 2,
+      padding: 3,
+      background: 'rgba(15,23,42,0.78)',
+      backdropFilter: 'blur(14px)',
+      border: '1px solid rgba(255,255,255,0.16)',
+      borderRadius: 999,
+      boxShadow: '0 6px 18px rgba(0,0,0,0.22)',
+    }}>
+      <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.6)', padding: '0 6px 0 9px', letterSpacing: 0.4, display: 'flex', alignItems: 'center', gap: 4 }}>
+        <span style={{ fontSize: 12 }}>🎭</span>DEMO
+      </span>
+      {opts.map((opt) => (
+        <button key={String(opt.v)} onClick={() => onChange(opt.v)} className="tap" style={{
+          background: isAgent === opt.v ? '#fff' : 'transparent',
+          color: isAgent === opt.v ? '#0F172A' : 'rgba(255,255,255,0.82)',
+          border: 'none', borderRadius: 999,
+          padding: '5px 10px',
+          fontSize: 10.5, fontWeight: 700, letterSpacing: -0.1,
+        }}>{opt.l}</button>
+      ))}
+    </div>
+  );
+}
+
 function BottomNav({ active, onChange, brand }) {
   const b = getBrand(brand);
   const tabs = [
@@ -56,7 +108,11 @@ function AppShell() {
   const brand = tweaks.brand;
 
   const [auth, setAuth] = useState(true);
-  const [user, setUser] = useState({ name: 'Nguyễn Quốc Anh', phone: '0901 234 567', email: 'quocanh@gmail.com', balance: 12480000, isAgent: true, agentTier: 'Bạc', refCode: 'QA2026' });
+  // Default to consumer on the public site — `/agency-app/#dai-ly` opts into agent.
+  // (The Tweaks panel only opens inside the editor, so URL is the only switch a
+  // visitor on dongitran.github.io has.)
+  const initialRole = typeof window !== 'undefined' ? readRoleHash() : null;
+  const [user, setUser] = useState({ name: 'Nguyễn Quốc Anh', phone: '0901 234 567', email: 'quocanh@gmail.com', balance: 12480000, isAgent: initialRole === 'agent', agentTier: 'Bạc', refCode: 'QA2026' });
   const [cart, setCart] = useState([]);
   const [tab, setTab] = useState('home');
   const nav = useNav(auth ? 'home' : 'welcome');
@@ -120,12 +176,30 @@ function AppShell() {
   const showBottomNav = auth && ['home', 'products', 'tuvi', 'orders', 'profile'].includes(nav.current.name);
   const onTabChange = (k) => { setTab(k); nav.reset(k); };
 
+  const switchRole = (isAgent) => {
+    setUser({ ...user, isAgent });
+    writeRoleHash(isAgent);
+  };
+
+  // React to external hash changes (e.g. user pastes a different URL or hits back).
+  useEffect(() => {
+    const onHash = () => {
+      const role = readRoleHash();
+      if (role && (role === 'agent') !== user.isAgent) {
+        setUser((u) => ({ ...u, isAgent: role === 'agent' }));
+      }
+    };
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, [user.isAgent]);
+
   return (
     <>
       <IOSDevice width={402} height={874}>
         <div style={{ position: 'absolute', inset: 0, background: '#fff', overflow: 'hidden', zIndex: 5 }}>
           {renderScreen()}
           {showBottomNav && <BottomNav active={tab} onChange={onTabChange} brand={brand}/>}
+          {auth && <DemoRoleSwitcher isAgent={user.isAgent} onChange={switchRole}/>}
           <Toast msg={toast}/>
         </div>
       </IOSDevice>
@@ -143,7 +217,7 @@ function AppShell() {
           <TweakRadio
             label="Trang chủ"
             value={user.isAgent ? 'agent' : 'consumer'}
-            onChange={(v) => setUser({ ...user, isAgent: v === 'agent' })}
+            onChange={(v) => switchRole(v === 'agent')}
             options={[
               { value: 'consumer', label: 'Người dùng' },
               { value: 'agent', label: 'Đại lý' },
