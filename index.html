@@ -82,8 +82,10 @@
   }
 
   /* tap feedback for interactive elements */
-  .tap { transition: transform .12s ease, opacity .12s ease, background .15s ease; cursor: pointer; }
+  .tap { transition: transform .12s ease, opacity .12s ease, background .15s ease; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .tap:active { transform: scale(0.97); opacity: 0.85; }
+  .tap:focus, .tap:focus-visible { outline: none; }
+  button, a { -webkit-tap-highlight-color: transparent; }
 
   /* page transitions */
   @keyframes slideInRight { from { transform: translateX(100%); opacity: 0.6; } to { transform: translateX(0); opacity: 1; } }
