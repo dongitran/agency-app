@@ -43,17 +43,11 @@ function ProfileScreen({ nav, user, brand, onLogout }) {
         <SectionHead title="Quản lý"/>
         <Card style={{ overflow: 'hidden' }}>
           {[
-            { l: 'Hồ sơ cá nhân', i: <Ic.User s={20}/>, c: '#3B82F6', to: 'profile-edit' },
-            { l: 'Địa chỉ giao hàng', i: <Ic.Doc s={20}/>, c: '#10B981', to: 'addresses' },
-            { l: 'Phương thức thanh toán', i: <Ic.Wallet s={20}/>, c: '#F59E0B', to: 'payment-methods' },
-            { l: 'Đổi mật khẩu', i: <Ic.Lock s={20}/>, c: '#8B5CF6', to: 'change-password' },
-          ].map((r, i, arr) => (
-            <div key={r.l} onClick={() => nav.push(r.to)} className="tap" style={{ padding: '14px 14px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: i < arr.length-1 ? '1px solid #F1F5F9' : 'none' }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: r.c+'18', color: r.c, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{r.i}</div>
-              <div style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#0F172A' }}>{r.l}</div>
-              <Ic.Chevron s={14} c="#94A3B8"/>
-            </div>
-          ))}
+            { l: 'Hồ sơ cá nhân',         sub: `${user.name} · ${user.email}`,  i: <Ic.User s={22}/>,   c: '#3B82F6', to: 'profile-edit' },
+            { l: 'Địa chỉ giao hàng',     sub: '3 địa chỉ · Mặc định: Nhà',     i: <Ic.Doc s={22}/>,    c: '#10B981', to: 'addresses' },
+            { l: 'Phương thức thanh toán', sub: 'Vietcombank · ••••4789',        i: <Ic.Wallet s={22}/>, c: '#F59E0B', to: 'payment-methods' },
+            { l: 'Đổi mật khẩu',          sub: 'Đã đổi 14 ngày trước',          i: <Ic.Lock s={22}/>,   c: '#8B5CF6', to: 'change-password' },
+          ].map((r, i, arr) => <MenuRow key={r.l} row={r} last={i === arr.length-1} onClick={() => nav.push(r.to)}/>)}
         </Card>
       </div>
 
@@ -61,18 +55,14 @@ function ProfileScreen({ nav, user, brand, onLogout }) {
         <SectionHead title="Đại lý"/>
         <Card style={{ overflow: 'hidden' }}>
           {[
-            { l: user.isAgent ? 'Dashboard đại lý' : 'Đăng ký làm đại lý', i: <Ic.Crown s={20}/>, c: '#F59E0B', to: user.isAgent ? 'agent-dashboard' : 'agent-packages' },
-            { l: 'Link giới thiệu của tôi', i: <Ic.Share s={20}/>, c: '#0EA5E9', to: 'agent-referral' },
-            { l: 'Team & cây đại lý', i: <Ic.Users s={20}/>, c: '#10B981', to: 'agent-team' },
-            { l: 'Lịch sử mua gói đại lý', i: <Ic.Doc s={20}/>, c: '#8B5CF6', to: 'agent-history' },
-            { l: 'Yêu cầu rút tiền', i: <Ic.Trend s={20}/>, c: '#EC4899', to: 'wallet' },
-          ].map((r, i, arr) => (
-            <div key={r.l} onClick={() => nav.push(r.to)} className="tap" style={{ padding: '14px 14px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: i < arr.length-1 ? '1px solid #F1F5F9' : 'none' }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: r.c+'18', color: r.c, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{r.i}</div>
-              <div style={{ flex: 1, fontSize: 14, fontWeight: 600, color: '#0F172A' }}>{r.l}</div>
-              <Ic.Chevron s={14} c="#94A3B8"/>
-            </div>
-          ))}
+            user.isAgent
+              ? { l: 'Dashboard đại lý',     sub: `Cấp ${user.agentTier} · F1 20% · F2 8%`, i: <Ic.Crown s={22}/>, c: '#F59E0B', to: 'agent-dashboard', badge: { l: 'Active', color: 'green' } }
+              : { l: 'Đăng ký làm đại lý',   sub: 'Nhận hoa hồng F1·F2·F3 đến 25%',         i: <Ic.Crown s={22}/>, c: '#F59E0B', to: 'agent-packages', badge: { l: 'Mới', color: 'red' } },
+            { l: 'Link giới thiệu của tôi',  sub: `simplus.vn/r/${user.refCode}`,            i: <Ic.Share s={22}/>, c: '#0EA5E9', to: 'agent-referral' },
+            { l: 'Team & cây đại lý',        sub: '32 thành viên · 3 cấp',                   i: <Ic.Users s={22}/>, c: '#10B981', to: 'agent-team' },
+            { l: 'Lịch sử mua gói đại lý',   sub: '2 giao dịch · 1 đang hiệu lực',           i: <Ic.Doc s={22}/>,   c: '#8B5CF6', to: 'agent-history' },
+            { l: 'Yêu cầu rút tiền',         sub: `${vnd(user.balance)} khả dụng`,           i: <Ic.Trend s={22}/>, c: '#EC4899', to: 'wallet' },
+          ].map((r, i, arr) => <MenuRow key={r.l} row={r} last={i === arr.length-1} onClick={() => nav.push(r.to)}/>)}
         </Card>
       </div>
 
@@ -82,6 +72,37 @@ function ProfileScreen({ nav, user, brand, onLogout }) {
         </button>
         <div style={{ textAlign: 'center', fontSize: 11, color: '#94A3B8', marginTop: 14 }}>SimPlus v1.0 · Build 2026.05.12</div>
       </div>
+    </div>
+  );
+}
+
+function MenuRow({ row, last, onClick }) {
+  return (
+    <div onClick={onClick} className="tap" style={{
+      padding: '14px 14px', display: 'flex', alignItems: 'center', gap: 12,
+      borderBottom: last ? 'none' : '1px solid #F1F5F9',
+    }}>
+      <div style={{
+        width: 44, height: 44, borderRadius: 12,
+        background: `linear-gradient(135deg, ${row.c}22, ${row.c}12)`,
+        color: row.c, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        flexShrink: 0, position: 'relative',
+        boxShadow: `inset 0 0 0 1px ${row.c}25`,
+      }}>
+        {row.i}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>{row.l}</span>
+          {row.badge && <Badge color={row.badge.color}>{row.badge.l}</Badge>}
+        </div>
+        {row.sub && (
+          <div style={{ fontSize: 11, color: '#64748B', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {row.sub}
+          </div>
+        )}
+      </div>
+      <Ic.Chevron s={14} c="#94A3B8"/>
     </div>
   );
 }
