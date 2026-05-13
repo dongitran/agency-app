@@ -103,12 +103,14 @@ function AppShell() {
       case 'addresses': return <AddressBookScreen {...common}/>;
       case 'payment-methods': return <PaymentMethodScreen {...common}/>;
       case 'change-password': return <ChangePasswordScreen {...common}/>;
+      case 'contracts': return <ContractsScreen {...common}/>;
       case 'agent-packages': return <AgentPackagesScreen {...common}/>;
       case 'agent-dashboard': return <AgentDashboardScreen {...common} agentLayout={tweaks.agentLayout}/>;
       case 'agent-team': return <AgentTeamScreen {...common}/>;
       case 'agent-referral': return <AgentReferralScreen {...common}/>;
       case 'agent-history': return <AgentHistoryScreen {...common}/>;
       case 'wallet': return <WalletScreen {...common}/>;
+      case 'withdrawal-detail': return <WithdrawalDetailScreen {...common} request={params.request}/>;
       case 'shipping': return <ShippingScreen {...common} {...params}/>;
       default: return <HomeScreen {...common} homeHero={tweaks.homeHero}/>;
     }

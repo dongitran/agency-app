@@ -391,15 +391,5 @@ function HomeScreen({ nav, user, brand, homeHero, addToCart, cartCount }) {
   );
 }
 
-const btnGlass = {
-  width: 38, height: 38, borderRadius: 12,
-  background: 'rgba(255,255,255,0.2)',
-  border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
-  position: 'relative',
-};
-const dotPing = {
-  position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: 4,
-  background: '#EF4444', border: '1.5px solid #fff', animation: 'pulse 1.6s infinite',
-};
 
 Object.assign(window, { HomeScreen, MOCK_SIMS, MOCK_COURSES, MOCK_ACCESSORIES, calcTongNut, estCommission });

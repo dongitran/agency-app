@@ -44,7 +44,8 @@ function ProfileScreen({ nav, user, brand, onLogout }) {
         <Card style={{ overflow: 'hidden' }}>
           {[
             { l: 'Hồ sơ cá nhân',         sub: `${user.name} · ${user.email}`,  i: <Ic.User s={22}/>,   c: '#3B82F6', to: 'profile-edit' },
-            { l: 'Địa chỉ giao hàng',     sub: '3 địa chỉ · Mặc định: Nhà',     i: <Ic.Doc s={22}/>,    c: '#10B981', to: 'addresses' },
+            { l: 'Hợp đồng đã ký',       sub: '2 hợp đồng · Đang hiệu lực',      i: <Ic.Doc s={22}/>,    c: '#059669', to: 'contracts' },
+            { l: 'Địa chỉ giao hàng',     sub: '3 địa chỉ · Mặc định: Nhà',     i: <Ic.Sim s={22}/>,    c: '#10B981', to: 'addresses' },
             { l: 'Phương thức thanh toán', sub: 'Vietcombank · ••••4789',        i: <Ic.Wallet s={22}/>, c: '#F59E0B', to: 'payment-methods' },
             { l: 'Đổi mật khẩu',          sub: 'Đã đổi 14 ngày trước',          i: <Ic.Lock s={22}/>,   c: '#8B5CF6', to: 'change-password' },
           ].map((r, i, arr) => <MenuRow key={r.l} row={r} last={i === arr.length-1} onClick={() => nav.push(r.to)}/>)}
@@ -371,4 +372,47 @@ function ChangePasswordScreen({ nav, brand, showToast }) {
   );
 }
 
-Object.assign(window, { ProfileScreen, ProfileEditScreen, AddressBookScreen, PaymentMethodScreen, ChangePasswordScreen, MOCK_ADDRESSES, MOCK_PAYMENT_METHODS });
+// 5) Hợp đồng đã ký
+const MOCK_CONTRACTS = [
+  { id: 'c1', title: 'Hợp đồng đại lý SimPlus', code: 'SP-2026-A102', date: '12/05/2026', status: 'Hiệu lực', type: 'Đại lý' },
+  { id: 'c2', title: 'Thỏa thuận bảo mật thông tin (NDA)', code: 'NDA-2026-88', date: '10/05/2026', status: 'Đã ký', type: 'Pháp lý' },
+];
+
+function ContractsScreen({ nav, brand, showToast }) {
+  const b = getBrand(brand);
+  return (
+    <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column', paddingBottom: 100 }} className="anim-slide-in">
+      <ScreenHeader title="Hợp đồng đã ký" onBack={() => nav.pop()}/>
+      <div style={{ flex: 1, overflow: 'auto', padding: '14px 18px 30px' }} className="scroll-area">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {MOCK_CONTRACTS.map((c) => (
+            <Card key={c.id} style={{ padding: 16 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <Badge color={c.type === 'Đại lý' ? 'blue' : 'slate'}>{c.type}</Badge>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#0F172A', marginTop: 8 }}>{c.title}</div>
+                  <div style={{ fontSize: 12, color: '#64748B', marginTop: 4 }}>Mã số: {c.code}</div>
+                </div>
+                <Badge color="green">{c.status}</Badge>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, paddingTop: 12, borderTop: '1px solid #F1F5F9' }}>
+                <div style={{ fontSize: 12, color: '#94A3B8' }}>Ngày ký: {c.date}</div>
+                <button onClick={() => showToast && showToast('Đang tải tài liệu PDF...')} className="tap" style={{ padding: '8px 16px', borderRadius: 9, background: b.soft, color: b.solid, border: 'none', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Ic.Doc s={14}/> Xem PDF
+                </button>
+              </div>
+            </Card>
+          ))}
+        </div>
+        
+        <div style={{ marginTop: 20, padding: 14, borderRadius: 12, background: '#F8FAFC', border: '1px dashed #CBD5E1', textAlign: 'center' }}>
+          <div style={{ fontSize: 24, marginBottom: 8 }}>📑</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#475569' }}>Cần ký hợp đồng mới?</div>
+          <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 4, lineHeight: 1.5 }}>Các hợp đồng mới phát sinh từ việc nâng cấp đại lý sẽ được hiển thị tại đây sau khi bạn hoàn tất ký điện tử.</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { ProfileScreen, ProfileEditScreen, AddressBookScreen, PaymentMethodScreen, ChangePasswordScreen, ContractsScreen, MOCK_ADDRESSES, MOCK_PAYMENT_METHODS, MOCK_CONTRACTS });

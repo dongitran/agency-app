@@ -8,6 +8,18 @@ const BRANDS = {
   violet: { name: 'Violet',  grad: ['#7C3AED', '#EC4899'], solid: '#7C3AED', soft: '#F5F3FF', text: '#4C1D95', accent2: '#A855F7' },
 };
 
+const btnGlass = {
+  width: 38, height: 38, borderRadius: 12,
+  background: 'rgba(255,255,255,0.2)',
+  border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
+  position: 'relative',
+};
+
+const dotPing = {
+  position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: 4,
+  background: '#EF4444', border: '1.5px solid #fff', animation: 'pulse 1.6s infinite',
+};
+
 const getBrand = (key) => BRANDS[key] || BRANDS.blue;
 
 // Format VND
@@ -261,4 +273,5 @@ Object.assign(window, {
   BRANDS, getBrand, vnd, vndShort,
   PrimaryButton, GhostButton, Chip, ActionBar, ScreenHeader, Card, SectionHead,
   Input, Badge, Avatar, Toast, Sheet, Spark,
+  btnGlass, dotPing,
 });

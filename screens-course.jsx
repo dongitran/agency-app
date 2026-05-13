@@ -33,7 +33,7 @@ function CourseDetailScreen({ nav, item, brand, addToCart, showToast }) {
         <div style={{ height: 240, position: 'relative', background: `linear-gradient(160deg, ${item.cover}, ${item.cover}88)`, color: '#fff', borderRadius: '0 0 24px 24px', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), transparent 60%)' }}/>
           <IOSStatusBar dark={true}/>
-          <div style={{ position: 'absolute', top: 50, left: 16, right: 16, display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ position: 'absolute', top: 66, left: 16, right: 16, display: 'flex', justifyContent: 'space-between', zIndex: 30 }}>
             <button onClick={() => nav.pop()} className="tap" style={{...btnGlass, background: 'rgba(255,255,255,0.18)'}}><Ic.Back s={20} c="#fff"/></button>
             <button className="tap" style={{...btnGlass, background: 'rgba(255,255,255,0.18)'}}><Ic.Share s={18} c="#fff"/></button>
           </div>

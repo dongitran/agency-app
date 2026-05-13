@@ -21,7 +21,7 @@ function SimDetailScreen({ nav, item, brand, user, addToCart, showToast }) {
         }}>
           <div style={{ position: 'absolute', top: -40, right: -40, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }}/>
           <IOSStatusBar dark={true}/>
-          <div style={{ position: 'absolute', top: 50, left: 16, right: 16, display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ position: 'absolute', top: 66, left: 16, right: 16, display: 'flex', justifyContent: 'space-between', zIndex: 30 }}>
             <button onClick={() => nav.pop()} className="tap" style={{...btnGlass, background: 'rgba(255,255,255,0.18)'}}><Ic.Back s={20} c="#fff"/></button>
             <div style={{ display: 'flex', gap: 8 }}>
               <button onClick={() => setLiked(!liked)} className="tap" style={{...btnGlass, background: 'rgba(255,255,255,0.18)'}}><Ic.Heart s={18} c="#fff" f={liked ? '#EF4444' : 'none'}/></button>

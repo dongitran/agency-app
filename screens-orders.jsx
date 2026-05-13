@@ -1,11 +1,12 @@
 // screens-orders.jsx — Order history list + detail
 
 const MOCK_ORDERS = [
-  { id: 'SP12345678', date: '12/05/2026', items: [{ name: 'SIM Lộc Phát · 0868 86 86 86', type: 'sim', price: 5990000 }], total: 5990000, status: 'completed', tracking: { carrier: 'GHN Express', code: 'GHN9128347123', delivered: '14/05/2026 10:24' } },
-  { id: 'SP12345677', date: '08/05/2026', items: [{ name: 'Tượng Tỳ Hưu Phong Thủy', type: 'accessory', price: 2490000 }], total: 2490000, status: 'shipped', tracking: { carrier: 'GHTK Tiêu chuẩn', code: 'GHTK00871234', step: 'delivering', eta: '14/05/2026' } },
-  { id: 'SP12345676', date: '02/05/2026', items: [{ name: 'SIM Hợp Mệnh · 0911 26 36 86', type: 'sim', price: 2990000 }, { name: 'Khóa học · Phong thủy số học cơ bản', type: 'course', price: 499000 }], total: 3489000, status: 'waiting-payment' },
-  { id: 'SP12345675', date: '28/04/2026', items: [{ name: 'Gói đại lý Bạc', type: 'agent', price: 1990000 }], total: 1990000, status: 'completed' },
-  { id: 'SP12345674', date: '15/04/2026', items: [{ name: 'SIM Thần Tài · 0979 39 39 79', type: 'sim', price: 12990000 }], total: 12990000, status: 'cancelled' },
+  { id: 'SP12345678', date: '2026-05-12', userName: 'Nguyễn Quốc Anh', isOwn: true,  items: [{ name: 'SIM Lộc Phát · 0868 86 86 86', type: 'sim', price: 5990000 }], total: 5990000, commission: 599000, status: 'completed', tracking: { carrier: 'GHN Express', code: 'GHN9128347123', delivered: '14/05/2026 10:24' } },
+  { id: 'SP12345677', date: '2026-05-08', userName: 'Trần Minh Tâm (F1)', isOwn: false, items: [{ name: 'Tượng Tỳ Hưu Phong Thủy', type: 'accessory', price: 2490000 }], total: 2490000, commission: 199200, status: 'shipped', tracking: { carrier: 'GHTK Tiêu chuẩn', code: 'GHTK00871234', step: 'delivering', eta: '14/05/2026' } },
+  { id: 'SP12345676', date: '2026-05-02', userName: 'Nguyễn Quốc Anh', isOwn: true,  items: [{ name: 'SIM Hợp Mệnh · 0911 26 36 86', type: 'sim', price: 2990000 }, { name: 'Khóa học · Phong thủy số học cơ bản', type: 'course', price: 499000 }], total: 3489000, commission: 348900, status: 'waiting-payment' },
+  { id: 'SP12345675', date: '2026-04-28', userName: 'Lê Thu Hà (F1)', isOwn: false, items: [{ name: 'SIM Thần Tài · 0909 39 39 39', type: 'sim', price: 8990000 }], total: 8990000, commission: 719200, status: 'completed' },
+  { id: 'SP12345674', date: '2026-04-15', userName: 'Nguyễn Quốc Anh', isOwn: true,  items: [{ name: 'SIM VIP · 0979 39 39 79', type: 'sim', price: 12990000 }], total: 12990000, commission: 0, status: 'cancelled' },
+  { id: 'SP12345673', date: '2026-04-10', userName: 'Hoàng Nam (F2)', isOwn: false, items: [{ name: 'Khóa học chuyên sâu', type: 'course', price: 1500000 }], total: 1500000, commission: 120000, status: 'completed' },
 ];
 
 const STATUS = {
@@ -27,63 +28,131 @@ const TRACK_STEPS = [
 function OrdersScreen({ nav, brand }) {
   const b = getBrand(brand);
   const [tab, setTab] = React.useState('all');
+  const [userFilter, setUserFilter] = React.useState('all'); // all, me, team
+  const [search, setSearch] = React.useState('');
+  const [date, setDate] = React.useState('');
+
   const tabs = [
     { k: 'all', l: 'Tất cả' },
     { k: 'waiting-payment', l: 'Chờ TT' },
     { k: 'processing', l: 'Xử lý' },
     { k: 'completed', l: 'Hoàn tất' },
   ];
-  const orders = tab === 'all' ? MOCK_ORDERS : MOCK_ORDERS.filter(o => o.status === tab);
+
+  const filtered = MOCK_ORDERS.filter(o => {
+    if (tab !== 'all' && o.status !== tab) return false;
+    if (userFilter === 'me' && !o.isOwn) return false;
+    if (userFilter === 'team' && o.isOwn) return false;
+    if (search && !o.id.toLowerCase().includes(search.toLowerCase())) return false;
+    if (date && o.date !== date) return false;
+    return true;
+  });
+
+  const totalRevenue = filtered.reduce((acc, o) => acc + (o.status !== 'cancelled' ? o.total : 0), 0);
+  const totalComm = filtered.reduce((acc, o) => acc + o.commission, 0);
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column', paddingBottom: 80 }} className="anim-fade">
       <div className="screen-hero" style={{
         background: `linear-gradient(160deg, ${b.grad[0]}, ${b.grad[1]})`,
-        padding: '64px 18px 22px', color: '#fff', borderRadius: '0 0 28px 28px',
+        padding: '64px 18px 40px', color: '#fff', borderRadius: '0 0 28px 28px',
         position: 'relative', overflow: 'hidden', flexShrink: 0,
       }}>
         <div style={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }}/>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative' }}>
-          <div>
-            <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>Đơn hàng</div>
-            <div style={{ fontSize: 12, opacity: 0.85, marginTop: 4 }}>{MOCK_ORDERS.length} đơn · Lịch sử mua SIM & khóa học</div>
+        <div style={{ position: 'relative' }}>
+          <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>Đơn hàng</div>
+          <div style={{ fontSize: 12, opacity: 0.85, marginTop: 4 }}>
+            {filtered.length} đơn hàng đang hiển thị
           </div>
-          <button className="tap" style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.2)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Ic.Search s={18} c="#fff"/>
-          </button>
+        </div>
+
+        {/* Aggregate summary card */}
+        <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
+          <div style={{ flex: 1, padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)' }}>
+            <div style={{ fontSize: 10, fontWeight: 700, opacity: 0.8, letterSpacing: 0.5 }}>TỔNG DOANH SỐ</div>
+            <div style={{ fontSize: 17, fontWeight: 800, marginTop: 4 }}>{vnd(totalRevenue)}</div>
+          </div>
+          <div style={{ flex: 1, padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.25)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)' }}>
+            <div style={{ fontSize: 10, fontWeight: 700, opacity: 0.8, letterSpacing: 0.5 }}>TỔNG HOA HỒNG</div>
+            <div style={{ fontSize: 17, fontWeight: 800, marginTop: 4, color: '#FEF08A' }}>{vnd(totalComm)}</div>
+          </div>
         </div>
       </div>
+
+      {/* Filter Bar */}
+      <div style={{ padding: '14px 18px 0', display: 'flex', flexDirection: 'column', gap: 10, flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ flex: 1, height: 42, background: '#fff', borderRadius: 12, border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', padding: '0 12px', gap: 8 }}>
+            <Ic.Search s={16} c="#94A3B8"/>
+            <input 
+              value={search} 
+              onChange={e => setSearch(e.target.value)} 
+              placeholder="Mã đơn SP..." 
+              style={{ flex: 1, border: 'none', outline: 'none', fontSize: 13, background: 'transparent' }} 
+            />
+          </div>
+          <input 
+            type="date" 
+            value={date} 
+            onChange={e => setDate(e.target.value)} 
+            style={{ width: 120, height: 42, background: '#fff', borderRadius: 12, border: '1px solid #E2E8F0', padding: '0 10px', fontSize: 12, color: '#475569', outline: 'none' }} 
+          />
+        </div>
+        <div style={{ display: 'flex', background: '#E2E8F0', borderRadius: 10, padding: 3 }}>
+          {[
+            { k: 'all', l: 'Tất cả' },
+            { k: 'me', l: 'Của tôi' },
+            { k: 'team', l: 'Thành viên' },
+          ].map(u => (
+            <button key={u.k} onClick={() => setUserFilter(u.k)} className="tap" style={{
+              flex: 1, height: 32, borderRadius: 8, border: 'none',
+              background: userFilter === u.k ? '#fff' : 'transparent',
+              color: userFilter === u.k ? b.solid : '#64748B',
+              fontSize: 12, fontWeight: 700,
+              boxShadow: userFilter === u.k ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+            }}>{u.l}</button>
+          ))}
+        </div>
+      </div>
+
       <div style={{ display: 'flex', gap: 6, padding: '12px 18px 6px', overflowX: 'auto', flexShrink: 0 }} className="scroll-area">
         {tabs.map(t => <Chip key={t.k} active={t.k===tab} onClick={() => setTab(t.k)} brand={brand}>{t.l}</Chip>)}
       </div>
+
       <div style={{ flex: 1, overflow: 'auto', padding: '8px 18px 30px' }} className="scroll-area">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {orders.map((o) => {
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {filtered.map((o) => {
             const st = STATUS[o.status];
             return (
               <Card key={o.id} onClick={() => nav.push('order-detail', { order: o })} style={{ padding: 14 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
                   <div>
-                    <div style={{ fontSize: 12, color: '#64748B' }}>Mã đơn</div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', fontFamily: 'ui-monospace, monospace' }}>{o.id}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: '#0F172A', fontFamily: 'ui-monospace, monospace' }}>{o.id}</span>
+                      {!o.isOwn && <Badge color="purple">Team</Badge>}
+                    </div>
+                    <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{o.userName} · {o.date}</div>
                   </div>
                   <Badge color={st.c}>{st.l}</Badge>
                 </div>
+                
                 {o.items.map((it, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: it.type === 'sim' ? '#DBEAFE' : it.type === 'course' ? '#EDE9FE' : '#FEF3C7', color: it.type === 'sim' ? '#1D4ED8' : it.type === 'course' ? '#6D28D9' : '#B45309', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      {it.type === 'sim' ? <Ic.Sim s={18}/> : it.type === 'course' ? <Ic.Play s={16}/> : <Ic.Crown s={18}/>}
-                    </div>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 0' }}>
                     <div style={{ flex: 1, fontSize: 13, color: '#334155' }}>{it.name}</div>
                     <div style={{ fontSize: 12, color: '#0F172A', fontWeight: 600 }}>{vnd(it.price)}</div>
                   </div>
                 ))}
-                <div style={{ height: 1, background: '#F1F5F9', margin: '8px 0' }}/>
+
+                <div style={{ height: 1, background: '#F1F5F9', margin: '10px 0' }}/>
+                
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 12, color: '#64748B' }}>{o.date}</span>
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <div style={{ width: 22, height: 22, borderRadius: 6, background: '#FEF3C7', color: '#B45309', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11 }}>🎁</div>
+                    <div style={{ fontSize: 12, color: '#B45309', fontWeight: 700 }}>+{vnd(o.commission)}</div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                     <span style={{ fontSize: 12, color: '#64748B' }}>Tổng</span>
-                    <span style={{ fontSize: 16, fontWeight: 800, color: b.solid, letterSpacing: -0.3 }}>{vnd(o.total)}</span>
+                    <span style={{ fontSize: 17, fontWeight: 800, color: b.solid, letterSpacing: -0.3 }}>{vnd(o.total)}</span>
                   </div>
                 </div>
                 {o.status === 'waiting-payment' && (
