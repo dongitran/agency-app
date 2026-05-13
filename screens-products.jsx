@@ -153,7 +153,7 @@ function ProductsScreen({ nav, brand, cardStyle, addToCart, user }) {
         )}
       </div>
 
-      <Sheet open={sheetOpen} onClose={() => setSheetOpen(false)} title={seg === 'sim' ? 'Sắp xếp SIM' : 'Sắp xếp khóa học'}>
+      <Sheet open={sheetOpen} onClose={() => setSheetOpen(false)} title={seg === 'sim' ? 'Sắp xếp SIM' : 'Sắp xếp khóa học'} bottomOffset={88}>
         <div style={{ padding: '6px 20px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
           {(seg === 'sim'
             ? ['Phù hợp nhất', 'Giá thấp đến cao', 'Giá cao đến thấp', 'Số mới nhất', 'Bán chạy nhất']

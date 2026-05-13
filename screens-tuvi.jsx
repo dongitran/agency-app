@@ -214,11 +214,11 @@ function TuViScreen({ nav, brand, user, showToast }) {
         />
       )}
 
-      <Sheet open={!!selectedCung} onClose={() => setSelectedCung(null)} title={selectedCung ? `Cung ${selectedCung.Name}` : ''}>
+      <Sheet open={!!selectedCung} onClose={() => setSelectedCung(null)} title={selectedCung ? `Cung ${selectedCung.Name}` : ''} bottomOffset={88}>
         {selectedCung && <CungDetail cung={selectedCung}/>}
       </Sheet>
 
-      <Sheet open={personalOpen} onClose={() => setPersonalOpen(false)} title="Thông tin cá nhân">
+      <Sheet open={personalOpen} onClose={() => setPersonalOpen(false)} title="Thông tin cá nhân" bottomOffset={88}>
         {result && <PersonalInfoSheet info={result.Info} form={form}/>}
       </Sheet>
     </div>

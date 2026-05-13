@@ -208,11 +208,11 @@ function Toast({ message, onDone }) {
 }
 
 // Sheet (bottom)
-function Sheet({ open, onClose, children, title, maxHeight = '85%' }) {
+function Sheet({ open, onClose, children, title, maxHeight = '85%', bottomOffset = 0 }) {
   if (!open) return null;
   return (
     <div style={{
-      position: 'absolute', inset: 0, zIndex: 80,
+      position: 'absolute', top: 0, left: 0, right: 0, bottom: bottomOffset, zIndex: 80,
     }}>
       <div onClick={onClose} className="anim-fade" style={{
         position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.5)',
@@ -223,7 +223,7 @@ function Sheet({ open, onClose, children, title, maxHeight = '85%' }) {
         maxHeight, overflowY: 'auto', overflowX: 'hidden',
         WebkitOverflowScrolling: 'touch',
         touchAction: 'pan-y', overscrollBehavior: 'contain',
-        paddingBottom: 'calc(28px + env(safe-area-inset-bottom))',
+        paddingBottom: bottomOffset > 0 ? 16 : 'calc(28px + env(safe-area-inset-bottom))',
       }}>
         <div style={{ paddingTop: 10, display: 'flex', justifyContent: 'center', position: 'sticky', top: 0, background: '#fff', zIndex: 2 }}>
           <div style={{ width: 44, height: 4, borderRadius: 2, background: '#CBD5E1' }} />
