@@ -139,6 +139,57 @@ const MOCK_ACCESSORIES = [
   { id: 'a4', name: 'Vòng cổ Mặt Phật Bản Mệnh', price: 1290000, color: '#7C3AED', material: 'Bạc 925 + đá tự nhiên', purpose: 'Hộ mệnh · trừ tà', element: 'Kim', commission: 22, image: '🧿', tag: 'Phổ biến' },
 ];
 
+// Expert consultations — treat as a product type (each package has a price/commission).
+// Used by HomeConsumerScreen, the Experts list/detail screens, and the Products tab.
+const MOCK_EXPERTS = [
+  {
+    id: 'e1',
+    name: 'Master Nguyễn Hoàng',
+    title: 'Chuyên gia phong thủy số học',
+    bio: 'Hơn 18 năm tư vấn SIM phong thủy, mệnh học, dịch học. Đào tạo hơn 200 đại lý cấp cao trên toàn quốc. Từng cộng tác với nhiều tập đoàn lớn để chọn số phong thủy cho lãnh đạo.',
+    exp: '18 năm', cases: '5.2K', rating: 4.95, reviews: 1842,
+    avatar: 'NH', color: '#DC2626',
+    specialties: ['SIM phong thủy', 'Tổng nút · Ngũ hành', 'Mệnh & Bát Tự', 'Tư vấn doanh nhân'],
+    languages: ['Tiếng Việt'],
+    packages: [
+      { id: 'pkg-quick', name: 'Tư vấn nhanh', duration: '15 phút', price: 0,       format: 'Video call · Zalo',                  tag: 'FREE',     commission: 0 },
+      { id: 'pkg-deep',  name: 'Tư vấn chuyên sâu', duration: '60 phút', price: 599000, format: 'Video call · Zalo / Google Meet', tag: 'Bán chạy', commission: 25 },
+      { id: 'pkg-tuvi',  name: 'Lá số Tử vi đầy đủ', duration: '90 phút + báo cáo PDF', price: 1290000, format: 'Video call + email báo cáo', tag: 'Cao cấp', commission: 30 },
+    ],
+    slots: ['Hôm nay 14:00', 'Hôm nay 16:30', 'Mai 09:00', 'Mai 14:00', 'T5 10:00', 'T5 15:00'],
+  },
+  {
+    id: 'e2',
+    name: 'Master Trần Mai Linh',
+    title: 'Tư vấn SIM hợp tuổi · hợp mệnh',
+    bio: '12 năm chuyên sâu về SIM phong thủy và tử vi đẩu số. Đã tư vấn cho hàng ngàn doanh nhân, gia đình và người làm sales. Thành thạo tiếng Anh, có thể tư vấn cho khách Việt kiều.',
+    exp: '12 năm', cases: '3.8K', rating: 4.92, reviews: 1264,
+    avatar: 'TL', color: '#7C3AED',
+    specialties: ['SIM hợp tuổi', 'Tử vi đẩu số', 'Tư vấn doanh nhân', 'English consult'],
+    languages: ['Tiếng Việt', 'English'],
+    packages: [
+      { id: 'pkg-quick',  name: 'Tư vấn nhanh', duration: '15 phút', price: 0,       format: 'Video call · Zalo',                  tag: 'FREE',     commission: 0 },
+      { id: 'pkg-deep',   name: 'Tư vấn chuyên sâu', duration: '60 phút', price: 799000, format: 'Video call · Zalo / Google Meet', tag: null,        commission: 25 },
+    ],
+    slots: ['Mai 10:00', 'Mai 16:00', 'T5 09:00', 'T6 14:00'],
+  },
+  {
+    id: 'e3',
+    name: 'Coach Lê Quang Vũ',
+    title: 'Tư duy thịnh vượng · năng lượng',
+    bio: 'Mentor coaching cho hơn 8.000 học viên trong 8 năm. Đào tạo về tư duy bán hàng, thu hút khách hàng tốt và năng lượng tích cực cho người làm sales/đại lý.',
+    exp: '8 năm', cases: '2.1K', rating: 4.88, reviews: 956,
+    avatar: 'LV', color: '#10B981',
+    specialties: ['Coaching kinh doanh', 'Năng lượng tích cực', 'Sales mindset'],
+    languages: ['Tiếng Việt'],
+    packages: [
+      { id: 'pkg-quick',   name: 'Coaching mở đầu', duration: '30 phút', price: 0,        format: 'Video call · Zoom',  tag: 'FREE',     commission: 0 },
+      { id: 'pkg-monthly', name: 'Coaching 1-1 (1 tháng)', duration: '4 buổi · 60 phút/buổi', price: 4990000, format: 'Video call · Zoom', tag: 'Cao cấp', commission: 28 },
+    ],
+    slots: ['Mai 19:00', 'T5 20:00', 'T6 19:30', 'T7 09:00'],
+  },
+];
+
 // helper: estimated commission for current agent on a given product
 function estCommission(item) {
   if (!item || !item.commission) return 0;
@@ -153,4 +204,4 @@ function HomeScreen(props) {
   return <HomeConsumerScreen {...props}/>;
 }
 
-Object.assign(window, { HomeScreen, MOCK_SIMS, MOCK_COURSES, MOCK_ACCESSORIES, calcTongNut, estCommission });
+Object.assign(window, { HomeScreen, MOCK_SIMS, MOCK_COURSES, MOCK_ACCESSORIES, MOCK_EXPERTS, calcTongNut, estCommission });

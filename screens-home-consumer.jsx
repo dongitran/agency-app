@@ -6,11 +6,6 @@ const MOCK_TESTIMONIALS = [
   { who: 'Anh Hoàng · TP.HCM', age: 'Quý Hợi 1983', star: 5, text: 'Master tư vấn rất kỹ, chọn SIM hợp mệnh Kim cho mình. Đeo vòng tỳ hưu cùng SIM Thần Tài, thấy tinh thần thoải mái.', sim: 'SIM Thần Tài Đại Cát', avatar: 'AH', color: '#0EA5E9' },
 ];
 
-const MOCK_EXPERTS = [
-  { name: 'Master Nguyễn Hoàng', title: 'Chuyên gia phong thủy số học', exp: '18 năm', cases: '5.2K', avatar: 'NH', color: '#DC2626', free: true },
-  { name: 'Master Trần Mai Linh', title: 'Tư vấn SIM hợp tuổi · mệnh', exp: '12 năm', cases: '3.8K', avatar: 'TL', color: '#7C3AED', free: true },
-];
-
 // derive mệnh/element from phone (mock — real app would use birthday)
 function inferUserElement(user) {
   if (user.element) return user.element;
@@ -207,7 +202,7 @@ function HomeConsumerScreen({ nav, user, brand, addToCart, cartCount }) {
         {[
           { icon: <Ic.Sim s={22}/>,      label: 'SIM hợp mệnh', c: elemColor, go: () => nav.reset('products', { seg: 'sim', filter: { element } }) },
           { icon: <Ic.Sparkles s={22}/>, label: 'Tử vi',        c: '#8B5CF6', go: () => nav.reset('tuvi') },
-          { icon: <Ic.User s={22}/>,     label: 'Tư vấn 1-1',  c: '#EC4899', go: () => nav.push('agent-referral') },
+          { icon: <Ic.User s={22}/>,     label: 'Hỏi chuyên gia', c: '#EC4899', go: () => nav.push('experts') },
           { icon: <Ic.Book s={22}/>,     label: 'Khóa học',     c: '#0EA5E9', go: () => nav.reset('products', { seg: 'course' }) },
         ].map((a) => (
           <button key={a.label} onClick={a.go} className="tap" style={{
@@ -230,7 +225,7 @@ function HomeConsumerScreen({ nav, user, brand, addToCart, cartCount }) {
         slides={[
           { tag: '🔥 ƯU ĐÃI', icon: '🎁', title: 'Combo SIM + Khóa Phong Thủy', subtitle: 'Tặng Vòng Đá · giảm 30%', cta: 'Còn 4 ngày · Đặt ngay', bg: 'linear-gradient(110deg, #831843 0%, #BE185D 100%)', onClick: () => nav.reset('products', { seg: 'sim' }) },
           { tag: '🎯 SIM HOT',  icon: '💰', title: 'SIM Thần Tài 79·79·79', subtitle: 'Tặng kèm 12 tháng data 5G',     cta: 'Xem chi tiết',           bg: 'linear-gradient(110deg, #064E3B 0%, #059669 100%)', onClick: () => nav.reset('products', { seg: 'sim' }) },
-          { tag: '👨‍🏫 FREE',     icon: '🔮', title: 'Tư vấn 1-1 với Master',     subtitle: 'Chọn SIM hợp tuổi · mệnh', cta: 'Đặt lịch miễn phí',      bg: 'linear-gradient(110deg, #1E3A8A 0%, #3B82F6 100%)', onClick: () => nav.push('agent-referral') },
+          { tag: '👨‍🏫 FREE',     icon: '🔮', title: 'Hỏi chuyên gia phong thủy', subtitle: 'Tư vấn nhanh miễn phí · 15 phút', cta: 'Đặt lịch miễn phí',      bg: 'linear-gradient(110deg, #1E3A8A 0%, #3B82F6 100%)', onClick: () => nav.push('experts') },
           { tag: '🎓 KHÓA HỌC', icon: '📚', title: 'Phong thủy số học cơ bản',   subtitle: 'Giảm 40% · học trọn đời',  cta: 'Đăng ký ngay',           bg: 'linear-gradient(110deg, #4C1D95 0%, #7C3AED 100%)', onClick: () => nav.reset('products', { seg: 'course' }) },
           { tag: '✨ MỚI',       icon: '📿', title: 'Vòng đá Thạch Anh Hồng',    subtitle: 'Mua kèm SIM · bói duyên miễn phí', cta: 'Khám phá',     bg: 'linear-gradient(110deg, #9F1239 0%, #F43F5E 100%)', onClick: () => nav.reset('products', { seg: 'accessory' }) },
         ]}
@@ -264,22 +259,25 @@ function HomeConsumerScreen({ nav, user, brand, addToCart, cartCount }) {
 
       {/* Free expert consult */}
       <div style={{ marginTop: 18 }}>
-        <SectionHead title="Tư vấn 1-1 miễn phí" action="Xem chuyên gia" onAction={() => nav.push('agent-referral')}/>
+        <SectionHead title="Hỏi chuyên gia" action="Xem tất cả" onAction={() => nav.push('experts')}/>
         <div style={{ padding: '0 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {MOCK_EXPERTS.map((e, i) => (
-            <Card key={i} style={{ padding: 12, display: 'flex', gap: 12, alignItems: 'center' }} onClick={() => nav.push('agent-referral')}>
-              <Avatar name={e.name} size={48} color={e.color}/>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                  <span style={{ fontSize: 13.5, fontWeight: 700, color: '#0F172A' }}>{e.name}</span>
-                  {e.free && <span style={{ fontSize: 9, fontWeight: 800, padding: '1px 5px', borderRadius: 4, background: '#DCFCE7', color: '#166534', letterSpacing: 0.3 }}>FREE</span>}
+          {(window.MOCK_EXPERTS || []).slice(0, 2).map((e) => {
+            const hasFree = (e.packages || []).some(p => p.price === 0);
+            return (
+              <Card key={e.id} style={{ padding: 12, display: 'flex', gap: 12, alignItems: 'center' }} onClick={() => nav.push('expert-detail', { item: e })}>
+                <Avatar name={e.name} size={48} color={e.color}/>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                    <span style={{ fontSize: 13.5, fontWeight: 700, color: '#0F172A' }}>{e.name}</span>
+                    {hasFree && <span style={{ fontSize: 9, fontWeight: 800, padding: '1px 5px', borderRadius: 4, background: '#DCFCE7', color: '#166534', letterSpacing: 0.3 }}>FREE</span>}
+                  </div>
+                  <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{e.title}</div>
+                  <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{e.exp} kinh nghiệm · {e.cases} ca tư vấn</div>
                 </div>
-                <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{e.title}</div>
-                <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{e.exp} kinh nghiệm · {e.cases} ca tư vấn</div>
-              </div>
-              <PrimaryButton size="sm" brand={brand} style={{ padding: '6px 12px', fontSize: 12 }}>Đặt lịch</PrimaryButton>
-            </Card>
-          ))}
+                <PrimaryButton size="sm" brand={brand} style={{ padding: '6px 12px', fontSize: 12 }} onClick={(ev) => { ev.stopPropagation(); nav.push('expert-detail', { item: e }); }}>Đặt lịch</PrimaryButton>
+              </Card>
+            );
+          })}
         </div>
       </div>
 

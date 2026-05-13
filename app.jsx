@@ -169,6 +169,8 @@ function AppShell() {
       case 'wallet': return <WalletScreen {...common}/>;
       case 'withdrawal-detail': return <WithdrawalDetailScreen {...common} request={params.request}/>;
       case 'shipping': return <ShippingScreen {...common} {...params}/>;
+      case 'experts': return <ExpertsListScreen {...common}/>;
+      case 'expert-detail': return <ExpertDetailScreen {...common} item={params.item}/>;
       default: return <HomeScreen {...common} homeHero={tweaks.homeHero}/>;
     }
   };
