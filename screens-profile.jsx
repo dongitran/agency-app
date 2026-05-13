@@ -59,7 +59,7 @@ function ProfileScreen({ nav, user, brand, onLogout }) {
             user.isAgent
               ? { l: 'Dashboard đại lý',     sub: `Cấp ${user.agentTier} · F1 20% · F2 8%`, i: <Ic.Crown s={22}/>, c: '#F59E0B', to: 'agent-dashboard', badge: { l: 'Active', color: 'green' } }
               : { l: 'Đăng ký làm đại lý',   sub: 'Nhận hoa hồng F1·F2·F3 đến 25%',         i: <Ic.Crown s={22}/>, c: '#F59E0B', to: 'agent-packages', badge: { l: 'Mới', color: 'red' } },
-            { l: 'Link giới thiệu của tôi',  sub: `simplus.vn/r/${user.refCode}`,            i: <Ic.Share s={22}/>, c: '#0EA5E9', to: 'agent-referral' },
+            { l: 'Link giới thiệu của tôi',  sub: `agency.vn/r/${user.refCode}`,            i: <Ic.Share s={22}/>, c: '#0EA5E9', to: 'agent-referral' },
             { l: 'Team & cây đại lý',        sub: '32 thành viên · 3 cấp',                   i: <Ic.Users s={22}/>, c: '#10B981', to: 'agent-team' },
             { l: 'Lịch sử mua gói đại lý',   sub: '2 giao dịch · 1 đang hiệu lực',           i: <Ic.Doc s={22}/>,   c: '#8B5CF6', to: 'agent-history' },
             { l: 'Yêu cầu rút tiền',         sub: `${vnd(user.balance)} khả dụng`,           i: <Ic.Trend s={22}/>, c: '#EC4899', to: 'wallet' },
@@ -71,7 +71,7 @@ function ProfileScreen({ nav, user, brand, onLogout }) {
         <button onClick={onLogout} className="tap" style={{ width: '100%', padding: 14, borderRadius: 14, background: '#fff', border: '1.5px solid #FECACA', color: '#DC2626', fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
           <Ic.Logout s={18} c="#DC2626"/> Đăng xuất
         </button>
-        <div style={{ textAlign: 'center', fontSize: 11, color: '#94A3B8', marginTop: 14 }}>SimPlus v1.0 · Build 2026.05.12</div>
+        <div style={{ textAlign: 'center', fontSize: 11, color: '#94A3B8', marginTop: 14 }}>Agency v1.0 · Build 2026.05.12</div>
       </div>
     </div>
   );
@@ -435,7 +435,7 @@ function ChangePasswordScreen({ nav, brand, user, showToast }) {
 
 // 5) Hợp đồng đã ký
 const MOCK_CONTRACTS = [
-  { id: 'c1', title: 'Hợp đồng đại lý SimPlus', code: 'SP-2026-A102', date: '12/05/2026', status: 'Hiệu lực', type: 'Đại lý' },
+  { id: 'c1', title: 'Hợp đồng đại lý Agency', code: 'SP-2026-A102', date: '12/05/2026', status: 'Hiệu lực', type: 'Đại lý' },
   { id: 'c2', title: 'Thỏa thuận bảo mật thông tin (NDA)', code: 'NDA-2026-88', date: '10/05/2026', status: 'Đã ký', type: 'Pháp lý' },
 ];
 

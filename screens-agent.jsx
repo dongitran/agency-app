@@ -254,17 +254,17 @@ function Step3Contract({ data, set, pkg, brand }) {
       </Card>
 
       <Card style={{ padding: 16, maxHeight: 280, overflow: 'auto' }} className="scroll-area">
-        <div style={{ fontSize: 14, fontWeight: 800, color: '#0F172A', textAlign: 'center', marginBottom: 12 }}>HỢP ĐỒNG ĐẠI LÝ SIMPLUS</div>
+        <div style={{ fontSize: 14, fontWeight: 800, color: '#0F172A', textAlign: 'center', marginBottom: 12 }}>HỢP ĐỒNG ĐẠI LÝ AGENCY</div>
         <div style={{ fontSize: 12, color: '#334155', lineHeight: 1.7 }}>
           <p>Hôm nay, <strong>{new Date().toLocaleDateString('vi-VN')}</strong>, giữa các bên:</p>
-          <p><strong>Bên A — Công ty TNHH SimPlus Việt Nam</strong> (sau đây gọi là "Công ty").</p>
+          <p><strong>Bên A — Công ty TNHH Agency Việt Nam</strong> (sau đây gọi là "Công ty").</p>
           <p><strong>Bên B — {data.fullName || '<Họ tên đại lý>'}</strong>, CCCD {data.cccd || '<số CCCD>'}, địa chỉ {data.address || '<địa chỉ>'} (sau đây gọi là "Đại lý").</p>
           <p><strong>Điều 1 — Gói đại lý:</strong> Đại lý đăng ký gói <strong>{pkg?.name || '—'}</strong> với giá {vnd(pkg?.price || 0)}, thời hạn {pkg?.period || '—'}.</p>
           <p><strong>Điều 2 — Hoa hồng:</strong> Đại lý được hưởng hoa hồng F1 {pkg?.commission.f1 || 0}%, F2 {pkg?.commission.f2 || 0}%, F3 {pkg?.commission.f3 || 0}% trên doanh thu đơn hàng hợp lệ từ link giới thiệu của Đại lý và các đại lý tuyến dưới.</p>
           <p><strong>Điều 3 — Quyền và nghĩa vụ:</strong> Đại lý có quyền truy cập hệ thống quản lý, link giới thiệu riêng và báo cáo doanh thu. Đại lý cam kết bán hàng đúng giá niêm yết và không vi phạm chính sách công ty.</p>
           <p><strong>Điều 4 — Thanh toán hoa hồng:</strong> Hoa hồng được cộng vào ví đại lý sau khi đơn hàng hoàn tất giao hàng. Đại lý có thể yêu cầu rút tiền vào ngày 1 và ngày 15 hàng tháng, tối thiểu 200.000đ mỗi lần.</p>
           <p><strong>Điều 5 — Chấm dứt:</strong> Hợp đồng có hiệu lực từ ngày ký và kéo dài theo thời hạn của gói. Một trong hai bên có quyền chấm dứt hợp đồng trước thời hạn nếu bên còn lại vi phạm.</p>
-          <p style={{ fontStyle: 'italic', color: '#64748B', marginTop: 14 }}>Đầy đủ điều khoản chi tiết tại simplus.vn/contract</p>
+          <p style={{ fontStyle: 'italic', color: '#64748B', marginTop: 14 }}>Đầy đủ điều khoản chi tiết tại agency.vn/contract</p>
         </div>
       </Card>
 
@@ -272,7 +272,7 @@ function Step3Contract({ data, set, pkg, brand }) {
         <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: 12, background: '#fff', borderRadius: 12, border: `1.5px solid ${data.contractAgreed ? b.solid : '#E2E8F0'}`, cursor: 'pointer' }}>
           <input type="checkbox" checked={data.contractAgreed} onChange={(e) => set('contractAgreed', e.target.checked)} style={{ marginTop: 2 }} />
           <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.5 }}>
-            Tôi đã đọc và đồng ý toàn bộ điều khoản trong <strong>Hợp đồng đại lý SimPlus</strong> và chính sách bảo mật thông tin.
+            Tôi đã đọc và đồng ý toàn bộ điều khoản trong <strong>Hợp đồng đại lý Agency</strong> và chính sách bảo mật thông tin.
           </div>
         </label>
       </div>
@@ -697,7 +697,7 @@ function AgentTeamScreen({ nav, brand, showToast }) {
 
 function AgentReferralScreen({ nav, brand, user, showToast }) {
   const b = getBrand(brand);
-  const link = 'simplus.vn/r/' + user.refCode;
+  const link = 'agency.vn/r/' + user.refCode;
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#F4F6FB', display: 'flex', flexDirection: 'column' }} className="anim-slide-in">
       <ScreenHeader title="Link giới thiệu" onBack={() => nav.pop()} />

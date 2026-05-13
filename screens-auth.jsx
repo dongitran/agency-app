@@ -35,7 +35,7 @@ function WelcomeScreen({ nav, brand }) {
               <path d="M12 9v2M12 17v2" stroke="#fff" strokeWidth="2" strokeLinecap="round"/>
             </svg>
           </div>
-          <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.5 }}>SimPlus</div>
+          <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.5 }}>Agency</div>
         </div>
 
         {/* phone preview mock */}
@@ -218,7 +218,7 @@ function SignupScreen({ nav, onLogin, brand }) {
 
         {step === 0 && (
           <div className="anim-fade">
-            <div style={{ fontSize: 28, fontWeight: 800, color: '#0F172A', letterSpacing: -0.6, lineHeight: 1.15 }}>Tạo tài khoản<br/>SimPlus</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: '#0F172A', letterSpacing: -0.6, lineHeight: 1.15 }}>Tạo tài khoản<br/>Agency</div>
             <div style={{ fontSize: 13, color: '#64748B', marginTop: 8 }}>Bước 1/3 · Thông tin cơ bản</div>
 
             <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -241,7 +241,7 @@ function SignupScreen({ nav, onLogin, brand }) {
                 <Ic.Check s={12} c="#fff" w={3}/>
               </div>
               <div style={{ fontSize: 12, color: '#475569', lineHeight: 1.5 }}>
-                Tôi đồng ý với <span style={{ color: b.solid, fontWeight: 600 }}>Điều khoản sử dụng</span> và <span style={{ color: b.solid, fontWeight: 600 }}>Chính sách bảo mật</span> của SimPlus.
+                Tôi đồng ý với <span style={{ color: b.solid, fontWeight: 600 }}>Điều khoản sử dụng</span> và <span style={{ color: b.solid, fontWeight: 600 }}>Chính sách bảo mật</span> của Agency.
               </div>
             </div>
           </div>

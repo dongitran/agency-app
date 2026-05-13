@@ -178,7 +178,7 @@ function HomeConsumerScreen({ nav, user, brand, addToCart, cartCount }) {
             <Ic.Crown s={26} c="#fff"/>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 11, opacity: 0.85, fontWeight: 600 }}>Trở thành đại lý SimPlus</div>
+            <div style={{ fontSize: 11, opacity: 0.85, fontWeight: 600 }}>Trở thành đại lý Agency</div>
             <div style={{ fontSize: 16, fontWeight: 800, marginTop: 2, letterSpacing: -0.3 }}>Kiếm hoa hồng đến 25% mỗi đơn</div>
           </div>
           <Ic.Chevron s={16} c="#fff"/>
@@ -346,7 +346,7 @@ function HomeConsumerScreen({ nav, user, brand, addToCart, cartCount }) {
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>Có người hỏi mua SIM của bạn?</div>
-            <div style={{ fontSize: 11, color: '#475569', marginTop: 2 }}>Trở thành đại lý SimPlus · Nhận hoa hồng đến 25%</div>
+            <div style={{ fontSize: 11, color: '#475569', marginTop: 2 }}>Trở thành đại lý Agency · Nhận hoa hồng đến 25%</div>
           </div>
           <Ic.Chevron s={16} c={b.solid}/>
         </Card>

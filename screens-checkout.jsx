@@ -323,7 +323,7 @@ function CheckoutQRScreen({ nav, total, brand, onComplete }) {
 
           <div style={{ marginTop: 18, padding: 12, background: '#F8FAFC', borderRadius: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: 11, color: '#64748B' }}>Vietcombank · CT SimPlus VN</div>
+              <div style={{ fontSize: 11, color: '#64748B' }}>Vietcombank · CT Agency VN</div>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', fontVariantNumeric: 'tabular-nums' }}>0123 4567 8900</div>
             </div>
             <button className="tap" style={{ display: 'flex', gap: 5, alignItems: 'center', padding: '8px 12px', borderRadius: 10, border: 'none', background: b.solid, color: '#fff', fontSize: 12, fontWeight: 700 }}>
