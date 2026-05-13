@@ -62,18 +62,18 @@ function AgentPackagesScreen({ nav, brand, user, setUser, showToast }) {
   const [step, setStep] = React.useState(0);
   const [data, setData] = React.useState({
     packageId: user.isAgent ? null : 'silver',
-    fullName: user.name || '',
-    cccd: '',
-    birthDate: '',
+    fullName: user.name || 'Nguyễn Quốc Anh',
+    cccd: '012345678901',
+    birthDate: '01/01/1990',
     gender: 'male',
-    address: '',
-    phone: user.phone || '',
-    email: user.email || '',
+    address: '123 Đường ABC, Quận 1, TP.HCM',
+    phone: user.phone || '0901234567',
+    email: user.email || 'anh.nguyen@gmail.com',
     bankName: 'Vietcombank',
-    bankAccount: '',
-    bankHolder: user.name || '',
-    contractAgreed: false,
-    signature: '',
+    bankAccount: '9988776655',
+    bankHolder: (user.name || 'Nguyễn Quốc Anh').toUpperCase(),
+    contractAgreed: true,
+    signature: user.name || 'Nguyễn Quốc Anh',
     paid: false,
   });
 
@@ -84,8 +84,8 @@ function AgentPackagesScreen({ nav, brand, user, setUser, showToast }) {
 
   const canNext = () => {
     if (step === 0) return !!data.packageId;
-    if (step === 1) return data.fullName.trim() && data.cccd.trim().length >= 9 && data.address.trim() && data.bankAccount.trim().length >= 6;
-    if (step === 2) return data.contractAgreed && data.signature.trim();
+    if (step === 1) return data.fullName && data.cccd && data.address && data.bankAccount;
+    if (step === 2) return data.contractAgreed && data.signature;
     if (step === 3) return data.paid;
     return true;
   };
