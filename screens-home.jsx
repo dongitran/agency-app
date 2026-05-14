@@ -152,7 +152,7 @@ const MOCK_EXPERTS = [
     specialties: ['SIM phong thủy', 'Tổng nút · Ngũ hành', 'Mệnh & Bát Tự', 'Tư vấn doanh nhân'],
     languages: ['Tiếng Việt'],
     packages: [
-      { id: 'pkg-quick', name: 'Tư vấn nhanh', duration: '15 phút', price: 0,       format: 'Video call · Zalo',                  tag: 'FREE',     commission: 0 },
+      { id: 'pkg-quick', name: 'Tư vấn nhanh', duration: '15 phút', price: 179000, format: 'Video call · Zalo',                  tag: null,        commission: 20 },
       { id: 'pkg-deep',  name: 'Tư vấn chuyên sâu', duration: '60 phút', price: 599000, format: 'Video call · Zalo / Google Meet', tag: 'Bán chạy', commission: 25 },
       { id: 'pkg-tuvi',  name: 'Lá số Tử vi đầy đủ', duration: '90 phút + báo cáo PDF', price: 1290000, format: 'Video call + email báo cáo', tag: 'Cao cấp', commission: 30 },
     ],
@@ -168,8 +168,8 @@ const MOCK_EXPERTS = [
     specialties: ['SIM hợp tuổi', 'Tử vi đẩu số', 'Tư vấn doanh nhân', 'English consult'],
     languages: ['Tiếng Việt', 'English'],
     packages: [
-      { id: 'pkg-quick',  name: 'Tư vấn nhanh', duration: '15 phút', price: 0,       format: 'Video call · Zalo',                  tag: 'FREE',     commission: 0 },
-      { id: 'pkg-deep',   name: 'Tư vấn chuyên sâu', duration: '60 phút', price: 799000, format: 'Video call · Zalo / Google Meet', tag: null,        commission: 25 },
+      { id: 'pkg-quick',  name: 'Tư vấn nhanh', duration: '15 phút', price: 179000, format: 'Video call · Zalo',                  tag: null,        commission: 20 },
+      { id: 'pkg-deep',   name: 'Tư vấn chuyên sâu', duration: '60 phút', price: 799000, format: 'Video call · Zalo / Google Meet', tag: 'Bán chạy', commission: 25 },
     ],
     slots: ['Mai 10:00', 'Mai 16:00', 'T5 09:00', 'T6 14:00'],
   },
@@ -183,7 +183,7 @@ const MOCK_EXPERTS = [
     specialties: ['Coaching kinh doanh', 'Năng lượng tích cực', 'Sales mindset'],
     languages: ['Tiếng Việt'],
     packages: [
-      { id: 'pkg-quick',   name: 'Coaching mở đầu', duration: '30 phút', price: 0,        format: 'Video call · Zoom',  tag: 'FREE',     commission: 0 },
+      { id: 'pkg-quick',   name: 'Coaching mở đầu', duration: '30 phút', price: 149000,    format: 'Video call · Zoom',  tag: null,        commission: 20 },
       { id: 'pkg-monthly', name: 'Coaching 1-1 (1 tháng)', duration: '4 buổi · 60 phút/buổi', price: 4990000, format: 'Video call · Zoom', tag: 'Cao cấp', commission: 28 },
     ],
     slots: ['Mai 19:00', 'T5 20:00', 'T6 19:30', 'T7 09:00'],

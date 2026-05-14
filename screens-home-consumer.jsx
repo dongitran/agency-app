@@ -225,7 +225,7 @@ function HomeConsumerScreen({ nav, user, brand, addToCart, cartCount }) {
         slides={[
           { tag: '🔥 ƯU ĐÃI', icon: '🎁', title: 'Combo SIM + Khóa Phong Thủy', subtitle: 'Tặng Vòng Đá · giảm 30%', cta: 'Còn 4 ngày · Đặt ngay', bg: 'linear-gradient(110deg, #831843 0%, #BE185D 100%)', onClick: () => nav.reset('products', { seg: 'sim' }) },
           { tag: '🎯 SIM HOT',  icon: '💰', title: 'SIM Thần Tài 79·79·79', subtitle: 'Tặng kèm 12 tháng data 5G',     cta: 'Xem chi tiết',           bg: 'linear-gradient(110deg, #064E3B 0%, #059669 100%)', onClick: () => nav.reset('products', { seg: 'sim' }) },
-          { tag: '👨‍🏫 FREE',     icon: '🔮', title: 'Hỏi chuyên gia phong thủy', subtitle: 'Tư vấn nhanh miễn phí · 15 phút', cta: 'Đặt lịch miễn phí',      bg: 'linear-gradient(110deg, #1E3A8A 0%, #3B82F6 100%)', onClick: () => nav.push('experts') },
+          { tag: '🔮 TƯ VẤN',   icon: '🔮', title: 'Hỏi Master phong thủy',     subtitle: '15 phút chỉ 179k · giải đáp nhanh', cta: 'Đặt lịch ngay',           bg: 'linear-gradient(110deg, #1E3A8A 0%, #3B82F6 100%)', onClick: () => nav.push('experts') },
           { tag: '🎓 KHÓA HỌC', icon: '📚', title: 'Phong thủy số học cơ bản',   subtitle: 'Giảm 40% · học trọn đời',  cta: 'Đăng ký ngay',           bg: 'linear-gradient(110deg, #4C1D95 0%, #7C3AED 100%)', onClick: () => nav.reset('products', { seg: 'course' }) },
           { tag: '✨ MỚI',       icon: '📿', title: 'Vòng đá Thạch Anh Hồng',    subtitle: 'Mua kèm SIM · bói duyên miễn phí', cta: 'Khám phá',     bg: 'linear-gradient(110deg, #9F1239 0%, #F43F5E 100%)', onClick: () => nav.reset('products', { seg: 'accessory' }) },
         ]}
@@ -262,17 +262,15 @@ function HomeConsumerScreen({ nav, user, brand, addToCart, cartCount }) {
         <SectionHead title="Hỏi chuyên gia" action="Xem tất cả" onAction={() => nav.push('experts')}/>
         <div style={{ padding: '0 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
           {(window.MOCK_EXPERTS || []).slice(0, 2).map((e) => {
-            const hasFree = (e.packages || []).some(p => p.price === 0);
+            const cheap = (e.packages || []).reduce((min, p) => !min || p.price < min.price ? p : min, null);
             return (
               <Card key={e.id} style={{ padding: 12, display: 'flex', gap: 12, alignItems: 'center' }} onClick={() => nav.push('expert-detail', { item: e })}>
                 <Avatar name={e.name} size={48} color={e.color}/>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                    <span style={{ fontSize: 13.5, fontWeight: 700, color: '#0F172A' }}>{e.name}</span>
-                    {hasFree && <span style={{ fontSize: 9, fontWeight: 800, padding: '1px 5px', borderRadius: 4, background: '#DCFCE7', color: '#166534', letterSpacing: 0.3 }}>FREE</span>}
-                  </div>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0F172A' }}>{e.name}</div>
                   <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{e.title}</div>
                   <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{e.exp} kinh nghiệm · {e.cases} ca tư vấn</div>
+                  {cheap && <div style={{ fontSize: 11, fontWeight: 700, color: '#92400E', marginTop: 4 }}>Từ {vnd(cheap.price)} · {cheap.duration}</div>}
                 </div>
                 <PrimaryButton size="sm" brand={brand} style={{ padding: '6px 12px', fontSize: 12 }} onClick={(ev) => { ev.stopPropagation(); nav.push('expert-detail', { item: e }); }}>Đặt lịch</PrimaryButton>
               </Card>

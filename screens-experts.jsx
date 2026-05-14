@@ -27,25 +27,23 @@ function ExpertsListScreen({ nav, brand, user }) {
 
         {/* Glass info tile */}
         <div style={{ position: 'relative', marginTop: 18, padding: 14, borderRadius: 16, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.22)', backdropFilter: 'blur(12px)', display: 'flex', gap: 12, alignItems: 'center' }}>
-          <div style={{ fontSize: 28 }}>✨</div>
+          <div style={{ fontSize: 28 }}>🛡️</div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: -0.2 }}>Lần đầu tư vấn miễn phí</div>
-            <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>15-30 phút · Video call qua Zalo</div>
+            <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: -0.2 }}>Tư vấn 15 phút · từ 179.000đ</div>
+            <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>Master uy tín · hoàn tiền nếu không hài lòng</div>
           </div>
         </div>
       </div>
 
       <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 12 }}>
         {experts.map((e) => {
-          const freePkg = (e.packages || []).find(p => p.price === 0);
-          const paidPkg = (e.packages || []).find(p => p.price > 0);
+          const cheapestPkg = (e.packages || []).reduce((min, p) => !min || p.price < min.price ? p : min, null);
           return (
             <Card key={e.id} style={{ padding: 14, display: 'flex', gap: 14, alignItems: 'flex-start' }} onClick={() => nav.push('expert-detail', { item: e })}>
               <Avatar name={e.name} size={56} color={e.color}/>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
                   <span style={{ fontSize: 14.5, fontWeight: 800, color: '#0F172A' }}>{e.name}</span>
-                  {freePkg && <span style={{ fontSize: 9, fontWeight: 800, padding: '1px 6px', borderRadius: 4, background: '#DCFCE7', color: '#166534', letterSpacing: 0.3 }}>FREE</span>}
                 </div>
                 <div style={{ fontSize: 11.5, color: '#64748B', marginTop: 2 }}>{e.title}</div>
                 <div style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: 11, color: '#64748B', marginTop: 6 }}>
@@ -57,11 +55,11 @@ function ExpertsListScreen({ nav, brand, user }) {
                     <span key={s} style={{ fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 999, background: '#F1F5F9', color: '#475569' }}>{s}</span>
                   ))}
                 </div>
-                {paidPkg && (
+                {cheapestPkg && (
                   <div style={{ marginTop: 10, padding: '6px 10px', borderRadius: 8, background: '#FEF3C7', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ fontSize: 10, color: '#92400E', fontWeight: 700 }}>Từ</span>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: '#92400E' }}>{vnd(paidPkg.price)}</span>
-                    <span style={{ fontSize: 10, color: '#92400E', opacity: 0.75 }}>· {paidPkg.duration}</span>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: '#92400E' }}>{vnd(cheapestPkg.price)}</span>
+                    <span style={{ fontSize: 10, color: '#92400E', opacity: 0.75 }}>· {cheapestPkg.duration}</span>
                   </div>
                 )}
               </div>
@@ -91,7 +89,6 @@ function ExpertDetailScreen({ nav, brand, user, item: expert, addToCart, showToa
 
   const pkg = expert.packages[pkgIdx];
   const slot = expert.slots[slotIdx];
-  const isFree = pkg.price === 0;
 
   const onConfirm = () => {
     setConfirmOpen(false);
@@ -176,8 +173,8 @@ function ExpertDetailScreen({ nav, brand, user, item: expert, addToCart, showToa
                       <span style={{ fontSize: 14, fontWeight: 800, color: '#0F172A' }}>{p.name}</span>
                       {p.tag && <span style={{
                         fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 4,
-                        background: p.tag === 'FREE' ? '#DCFCE7' : p.tag === 'Bán chạy' ? '#FEF3C7' : '#F3E8FF',
-                        color:      p.tag === 'FREE' ? '#166534' : p.tag === 'Bán chạy' ? '#92400E' : '#6B21A8',
+                        background: p.tag === 'Bán chạy' ? '#FEF3C7' : '#F3E8FF',
+                        color:      p.tag === 'Bán chạy' ? '#92400E' : '#6B21A8',
                         letterSpacing: 0.3,
                       }}>{p.tag}</span>}
                     </div>
@@ -191,8 +188,8 @@ function ExpertDetailScreen({ nav, brand, user, item: expert, addToCart, showToa
                     )}
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 16, fontWeight: 800, color: p.price === 0 ? '#10B981' : '#0F172A', letterSpacing: -0.3 }}>
-                      {p.price === 0 ? 'Miễn phí' : vnd(p.price)}
+                    <div style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', letterSpacing: -0.3 }}>
+                      {vnd(p.price)}
                     </div>
                   </div>
                 </div>
@@ -231,7 +228,7 @@ function ExpertDetailScreen({ nav, brand, user, item: expert, addToCart, showToa
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 10, color: '#64748B', fontWeight: 700, letterSpacing: 0.3 }}>{slot.toUpperCase()}</div>
           <div style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', marginTop: 1 }}>
-            {isFree ? 'Miễn phí' : vnd(pkg.price)}
+            {vnd(pkg.price)}
           </div>
         </div>
         <PrimaryButton brand={brand} onClick={() => setConfirmOpen(true)} style={{ minWidth: 150 }}>
@@ -255,7 +252,7 @@ function ExpertDetailScreen({ nav, brand, user, item: expert, addToCart, showToa
             <Row label="Thời gian" value={slot}/>
             <Row label="Hình thức" value={pkg.format}/>
             <div style={{ height: 1, background: '#E2E8F0', margin: '10px 0' }}/>
-            <Row label="Phí" value={isFree ? 'Miễn phí' : vnd(pkg.price)} bold/>
+            <Row label="Phí" value={vnd(pkg.price)} bold/>
           </div>
 
           <div style={{ marginTop: 12, padding: 12, borderRadius: 12, background: '#FFFBEB', border: '1px solid #FDE68A', display: 'flex', gap: 10 }}>
@@ -267,7 +264,7 @@ function ExpertDetailScreen({ nav, brand, user, item: expert, addToCart, showToa
 
           <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
             <GhostButton brand={brand} fullWidth onClick={() => setConfirmOpen(false)}>Huỷ</GhostButton>
-            <PrimaryButton brand={brand} fullWidth onClick={onConfirm}>{isFree ? 'Xác nhận' : 'Thanh toán & xác nhận'}</PrimaryButton>
+            <PrimaryButton brand={brand} fullWidth onClick={onConfirm}>Thanh toán & xác nhận</PrimaryButton>
           </div>
         </div>
       </Sheet>
