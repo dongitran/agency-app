@@ -189,7 +189,7 @@ function LoginScreen({ nav, onLogin, brand }) {
 function SignupScreen({ nav, onLogin, brand }) {
   const b = getBrand(brand);
   const [step, setStep] = React.useState(0);
-  const [data, setData] = React.useState({ name: '', phone: '', pw: '', otp: ['', '', '', ''] });
+  const [data, setData] = React.useState({ name: '', phone: '', pw: '', acceptedTerms: false, otp: ['', '', '', ''] });
   const [err, setErr] = React.useState({});
 
   const next = () => {
@@ -198,6 +198,7 @@ function SignupScreen({ nav, onLogin, brand }) {
       if (data.name.trim().length < 2) e.name = 'Vui lòng nhập họ tên';
       if (!/^0\d{9,10}$/.test(data.phone.replace(/\s/g,''))) e.phone = 'Số điện thoại không hợp lệ';
       if (data.pw.length < 6) e.pw = 'Mật khẩu tối thiểu 6 ký tự';
+      if (!data.acceptedTerms) e.terms = 'Vui lòng đồng ý điều khoản để tiếp tục';
     }
     setErr(e);
     if (Object.keys(e).length) return;
@@ -236,14 +237,15 @@ function SignupScreen({ nav, onLogin, brand }) {
               </div>
             </div>
 
-            <div style={{ marginTop: 20, padding: 14, background: '#F8FAFC', borderRadius: 14, display: 'flex', gap: 10 }}>
-              <div style={{ width: 18, height: 18, borderRadius: 5, border: `2px solid ${b.solid}`, background: b.solid, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Ic.Check s={12} c="#fff" w={3}/>
+            <button type="button" role="checkbox" aria-checked={data.acceptedTerms} onClick={() => setData({...data, acceptedTerms: !data.acceptedTerms})} className="tap" style={{ width: '100%', marginTop: 20, padding: 14, background: '#F8FAFC', borderRadius: 14, border: err.terms ? '1.5px solid #DC2626' : 'none', display: 'flex', gap: 10, textAlign: 'left' }}>
+              <div style={{ width: 18, height: 18, borderRadius: 5, border: `2px solid ${data.acceptedTerms ? b.solid : '#E2E8F0'}`, background: data.acceptedTerms ? b.solid : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                {data.acceptedTerms && <Ic.Check s={12} c="#fff" w={3}/>}
               </div>
               <div style={{ fontSize: 12, color: '#475569', lineHeight: 1.5 }}>
                 Tôi đồng ý với <span style={{ color: b.solid, fontWeight: 600 }}>Điều khoản sử dụng</span> và <span style={{ color: b.solid, fontWeight: 600 }}>Chính sách bảo mật</span> của Agency.
               </div>
-            </div>
+            </button>
+            {err.terms && <div style={{ fontSize: 11, color: '#DC2626', marginTop: 6, marginLeft: 4 }}>{err.terms}</div>}
           </div>
         )}
 
