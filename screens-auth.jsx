@@ -109,18 +109,24 @@ function WelcomeScreen({ nav, brand }) {
   );
 }
 
+const compactPhone = (value) => value.replace(/\s/g, '');
+const normalizeContact = (value) => value.trim();
+const isEmailContact = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeContact(value));
+const isPhoneContact = (value) => /^0\d{9,10}$/.test(compactPhone(value));
+const isValidContact = (value) => isEmailContact(value) || isPhoneContact(value);
+
 function LoginScreen({ nav, onLogin, brand }) {
   const b = getBrand(brand);
-  const [phone, setPhone] = React.useState('0912 345 678');
-  const [pw, setPw] = React.useState('demo1234');
+  const [contact, setContact] = React.useState('0912 345 678');
+  const [pw, setPw] = React.useState('123456');
   const [showPw, setShowPw] = React.useState(false);
   const [err, setErr] = React.useState({});
   const [loading, setLoading] = React.useState(false);
 
   const submit = () => {
     const e = {};
-    if (!/^0\d{9,10}( |\d)*$/.test(phone.replace(/\s/g,''))) e.phone = 'Số điện thoại không hợp lệ';
-    if (pw.length < 6) e.pw = 'Mật khẩu tối thiểu 6 ký tự';
+    if (!isValidContact(contact)) e.contact = 'Nhập số điện thoại hoặc email hợp lệ';
+    if (!/^\d{6,}$/.test(pw)) e.pw = 'Mật khẩu số tối thiểu 6 chữ số';
     setErr(e);
     if (Object.keys(e).length) return;
     setLoading(true);
@@ -136,15 +142,16 @@ function LoginScreen({ nav, onLogin, brand }) {
 
         <div style={{ marginTop: 30, display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', marginBottom: 8 }}>Số điện thoại</div>
-            <Input value={phone} onChange={setPhone} icon={<Ic.Phone s={18}/>} placeholder="09xx xxx xxx" error={err.phone}/>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', marginBottom: 8 }}>Số điện thoại hoặc email</div>
+            <Input value={contact} onChange={setContact} icon={<Ic.Mail s={18}/>} placeholder="09xx xxx xxx hoặc email@domain.com" error={err.contact} autoComplete="username"/>
           </div>
           <div>
             <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
               <span>Mật khẩu</span>
               <span style={{ color: b.solid, fontWeight: 600, fontSize: 12 }} className="tap">Quên mật khẩu?</span>
             </div>
-            <Input value={pw} onChange={setPw} type={showPw ? 'text' : 'password'} icon={<Ic.Lock s={18}/>} error={err.pw}
+            <Input value={pw} onChange={(v) => setPw(v.replace(/\D/g,'').slice(0, 8))} type={showPw ? 'text' : 'password'} icon={<Ic.Lock s={18}/>} error={err.pw}
+              placeholder="Mật khẩu 6 số" inputMode="numeric" pattern="[0-9]*" autoComplete="current-password"
               suffix={<button onClick={() => setShowPw(!showPw)} style={{ background: 'none', border: 'none', color: '#94A3B8', padding: 4 }}><Ic.Eye s={18}/></button>}/>
           </div>
         </div>
@@ -189,22 +196,28 @@ function LoginScreen({ nav, onLogin, brand }) {
 function SignupScreen({ nav, onLogin, brand }) {
   const b = getBrand(brand);
   const [step, setStep] = React.useState(0);
-  const [data, setData] = React.useState({ name: '', phone: '', pw: '', acceptedTerms: false, otp: ['', '', '', ''] });
+  const [data, setData] = React.useState({ contact: '', pw: '', confirmPw: '', acceptedTerms: false, otp: ['', '', '', ''] });
   const [err, setErr] = React.useState({});
 
   const next = () => {
     const e = {};
     if (step === 0) {
-      if (data.name.trim().length < 2) e.name = 'Vui lòng nhập họ tên';
-      if (!/^0\d{9,10}$/.test(data.phone.replace(/\s/g,''))) e.phone = 'Số điện thoại không hợp lệ';
-      if (data.pw.length < 6) e.pw = 'Mật khẩu tối thiểu 6 ký tự';
+      if (!isValidContact(data.contact)) e.contact = 'Nhập số điện thoại hoặc email hợp lệ';
       if (!data.acceptedTerms) e.terms = 'Vui lòng đồng ý điều khoản để tiếp tục';
+    }
+    if (step === 1 && data.otp.join('').length < 4) e.otp = 'Vui lòng nhập đủ mã OTP';
+    if (step === 2) {
+      if (!/^\d{6,}$/.test(data.pw)) e.pw = 'Mật khẩu số tối thiểu 6 chữ số';
+      if (data.confirmPw !== data.pw) e.confirmPw = 'Mật khẩu nhập lại chưa khớp';
     }
     setErr(e);
     if (Object.keys(e).length) return;
-    if (step < 2) setStep(step + 1);
+    setErr({});
+    if (step < 3) setStep(step + 1);
     else onLogin();
   };
+
+  const contactLabel = normalizeContact(data.contact) || 'số điện thoại/email của bạn';
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#fff', display: 'flex', flexDirection: 'column' }} className="anim-slide-in">
@@ -212,7 +225,7 @@ function SignupScreen({ nav, onLogin, brand }) {
       <div style={{ flex: 1, overflow: 'auto', padding: '0 24px 110px' }} className="scroll-area">
         {/* progress */}
         <div style={{ display: 'flex', gap: 6, marginBottom: 18 }}>
-          {[0,1,2].map((i) => (
+          {[0,1,2,3].map((i) => (
             <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i <= step ? b.solid : '#E2E8F0', transition: 'background .2s' }}/>
           ))}
         </div>
@@ -220,22 +233,26 @@ function SignupScreen({ nav, onLogin, brand }) {
         {step === 0 && (
           <div className="anim-fade">
             <div style={{ fontSize: 28, fontWeight: 800, color: '#0F172A', letterSpacing: -0.6, lineHeight: 1.15 }}>Tạo tài khoản<br/>Agency</div>
-            <div style={{ fontSize: 13, color: '#64748B', marginTop: 8 }}>Bước 1/3 · Thông tin cơ bản</div>
+            <div style={{ fontSize: 13, color: '#64748B', marginTop: 8 }}>Bước 1/4 · Xác thực số điện thoại hoặc email</div>
 
             <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Họ và tên</div>
-                <Input value={data.name} onChange={(v) => setData({...data, name: v})} icon={<Ic.User s={18}/>} placeholder="Nguyễn Văn A" error={err.name}/>
-              </div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Số điện thoại</div>
-                <Input value={data.phone} onChange={(v) => setData({...data, phone: v})} icon={<Ic.Phone s={18}/>} placeholder="09xx xxx xxx" error={err.phone}/>
-              </div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Mật khẩu</div>
-                <Input value={data.pw} onChange={(v) => setData({...data, pw: v})} type="password" icon={<Ic.Lock s={18}/>} placeholder="Tối thiểu 6 ký tự" error={err.pw}/>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Số điện thoại hoặc email</div>
+                <Input value={data.contact} onChange={(v) => setData({...data, contact: v})} icon={<Ic.Mail s={18}/>} placeholder="09xx xxx xxx hoặc email@domain.com" error={err.contact} autoComplete="username"/>
               </div>
             </div>
+
+            <Card style={{ marginTop: 18, padding: 14, background: b.soft, border: `1px solid ${b.solid}18` }}>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                <div style={{ width: 30, height: 30, borderRadius: 10, background: b.solid, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Ic.Mail s={16} c="#fff"/>
+                </div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>Nhận mã xác thực</div>
+                  <div style={{ fontSize: 12, color: '#475569', marginTop: 3, lineHeight: 1.45 }}>Agency sẽ gửi OTP tới số điện thoại hoặc email bạn nhập ở bước này.</div>
+                </div>
+              </div>
+            </Card>
 
             <button type="button" role="checkbox" aria-checked={data.acceptedTerms} onClick={() => setData({...data, acceptedTerms: !data.acceptedTerms})} className="tap" style={{ width: '100%', marginTop: 20, padding: 14, background: '#F8FAFC', borderRadius: 14, border: err.terms ? '1.5px solid #DC2626' : 'none', display: 'flex', gap: 10, textAlign: 'left' }}>
               <div style={{ width: 18, height: 18, borderRadius: 5, border: `2px solid ${data.acceptedTerms ? b.solid : '#E2E8F0'}`, background: data.acceptedTerms ? b.solid : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -252,11 +269,11 @@ function SignupScreen({ nav, onLogin, brand }) {
         {step === 1 && (
           <div className="anim-fade">
             <div style={{ fontSize: 28, fontWeight: 800, color: '#0F172A', letterSpacing: -0.6, lineHeight: 1.15 }}>Xác minh OTP</div>
-            <div style={{ fontSize: 13, color: '#64748B', marginTop: 8 }}>Mã đã được gửi tới <strong style={{ color: '#0F172A' }}>{data.phone || '0912 345 678'}</strong></div>
+            <div style={{ fontSize: 13, color: '#64748B', marginTop: 8 }}>Mã đã được gửi tới <strong style={{ color: '#0F172A' }}>{contactLabel}</strong></div>
 
             <div style={{ marginTop: 32, display: 'flex', gap: 10, justifyContent: 'center' }}>
               {[0,1,2,3].map((i) => (
-                <input key={i} maxLength={1} value={data.otp[i]} autoFocus={i===0}
+                <input key={i} maxLength={1} value={data.otp[i]} autoFocus={i===0} inputMode="numeric" pattern="[0-9]*"
                   onChange={(e) => {
                     const o = [...data.otp]; o[i] = e.target.value.replace(/\D/g,''); setData({...data, otp: o});
                     if (e.target.value && e.target.nextSibling) e.target.nextSibling.focus();
@@ -269,6 +286,7 @@ function SignupScreen({ nav, onLogin, brand }) {
                   }}/>
               ))}
             </div>
+            {err.otp && <div style={{ textAlign: 'center', fontSize: 12, color: '#EF4444', marginTop: 10 }}>{err.otp}</div>}
 
             <div style={{ textAlign: 'center', marginTop: 28, fontSize: 13, color: '#64748B' }}>
               Không nhận được mã? <span style={{ color: b.solid, fontWeight: 700 }} className="tap" onClick={() => setData({...data, otp: ['1','2','3','4']})}>Gửi lại (00:42)</span>
@@ -278,6 +296,28 @@ function SignupScreen({ nav, onLogin, brand }) {
         )}
 
         {step === 2 && (
+          <div className="anim-fade">
+            <div style={{ fontSize: 28, fontWeight: 800, color: '#0F172A', letterSpacing: -0.6, lineHeight: 1.15 }}>Tạo mật khẩu</div>
+            <div style={{ fontSize: 13, color: '#64748B', marginTop: 8 }}>Bước 3/4 · Mật khẩu số dùng để đăng nhập nhanh trên điện thoại.</div>
+
+            <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Mật khẩu số</div>
+                <Input value={data.pw} onChange={(v) => setData({...data, pw: v.replace(/\D/g,'').slice(0, 8)})} type="password" icon={<Ic.Lock s={18}/>} placeholder="Mật khẩu 6 số" error={err.pw} inputMode="numeric" pattern="[0-9]*" autoComplete="new-password"/>
+              </div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Nhập lại mật khẩu</div>
+                <Input value={data.confirmPw} onChange={(v) => setData({...data, confirmPw: v.replace(/\D/g,'').slice(0, 8)})} type="password" icon={<Ic.Lock s={18}/>} placeholder="Nhập lại 6 số" error={err.confirmPw} inputMode="numeric" pattern="[0-9]*" autoComplete="new-password"/>
+              </div>
+            </div>
+
+            <Card style={{ marginTop: 18, padding: 14, background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+              <div style={{ fontSize: 12, color: '#475569', lineHeight: 1.5 }}>Mật khẩu chỉ gồm chữ số để thao tác nhanh trên mobile. Khi triển khai thật, bước này cần thêm chính sách bảo mật và khóa thử sai.</div>
+            </Card>
+          </div>
+        )}
+
+        {step === 3 && (
           <div className="anim-fade" style={{ paddingTop: 30 }}>
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               <div className="anim-scale" style={{
@@ -311,7 +351,7 @@ function SignupScreen({ nav, onLogin, brand }) {
 
       <ActionBar>
         <PrimaryButton fullWidth onClick={next} brand={brand}>
-          {step === 0 ? 'Gửi mã OTP' : step === 1 ? 'Xác nhận' : 'Vào ứng dụng'}
+          {step === 0 ? 'Gửi mã OTP' : step === 1 ? 'Xác nhận OTP' : step === 2 ? 'Tạo tài khoản' : 'Vào ứng dụng'}
         </PrimaryButton>
       </ActionBar>
     </div>

@@ -139,7 +139,7 @@ function SectionHead({ title, action, onAction }) {
 }
 
 // Input
-function Input({ value, onChange, placeholder, type='text', icon, error, suffix }) {
+function Input({ value, onChange, placeholder, type='text', icon, error, suffix, ...inputProps }) {
   const [focus, setFocus] = React.useState(false);
   return (
     <div>
@@ -151,6 +151,7 @@ function Input({ value, onChange, placeholder, type='text', icon, error, suffix 
       }}>
         {icon && <span style={{ color: '#94A3B8', display: 'flex' }}>{icon}</span>}
         <input
+          {...inputProps}
           type={type} value={value} onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           onFocus={() => setFocus(true)} onBlur={() => setFocus(false)}
