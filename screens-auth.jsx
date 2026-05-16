@@ -146,6 +146,7 @@ function ContactModeToggle({ mode, onChange, brand }) {
 
 function LoginScreen({ nav, onLogin, brand }) {
   const b = getBrand(brand);
+  const [step, setStep] = React.useState(0);
   const [contactMode, setContactMode] = React.useState('phone');
   const [contact, setContact] = React.useState('0912 345 678');
   const [pw, setPw] = React.useState('123456');
@@ -159,9 +160,17 @@ function LoginScreen({ nav, onLogin, brand }) {
     setErr({});
   };
 
-  const submit = () => {
+  const continueToPassword = () => {
     const e = {};
     if (!isValidContact(contact, contactMode)) e.contact = contactError(contactMode);
+    setErr(e);
+    if (Object.keys(e).length) return;
+    setErr({});
+    setStep(1);
+  };
+
+  const submitPassword = () => {
+    const e = {};
     if (!/^\d{6,}$/.test(pw)) e.pw = 'Mật khẩu số tối thiểu 6 chữ số';
     setErr(e);
     if (Object.keys(e).length) return;
@@ -169,62 +178,82 @@ function LoginScreen({ nav, onLogin, brand }) {
     setTimeout(() => { setLoading(false); onLogin(); }, 700);
   };
 
+  const loginContactLabel = normalizeContact(contact) || (contactMode === 'email' ? 'email của bạn' : 'số điện thoại của bạn');
+
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#fff', display: 'flex', flexDirection: 'column' }} className="anim-slide-in">
-      <ScreenHeader title="" onBack={() => nav.pop()} transparent/>
+      <ScreenHeader title="" onBack={() => step > 0 ? setStep(0) : nav.pop()} transparent/>
       <div style={{ flex: 1, overflow: 'auto', padding: '0 24px 30px' }} className="scroll-area">
-        <div style={{ fontSize: 30, fontWeight: 800, color: '#0F172A', letterSpacing: -0.8, lineHeight: 1.15 }}>Chào mừng<br/>trở lại 👋</div>
-        <div style={{ fontSize: 14, color: '#64748B', marginTop: 8 }}>Đăng nhập để tiếp tục quản lý đơn hàng và hoa hồng đại lý.</div>
+        {step === 0 && (
+          <div className="anim-fade">
+            <div style={{ fontSize: 30, fontWeight: 800, color: '#0F172A', letterSpacing: -0.8, lineHeight: 1.15 }}>Chào mừng<br/>trở lại 👋</div>
+            <div style={{ fontSize: 14, color: '#64748B', marginTop: 8 }}>Nhập số điện thoại hoặc email để tiếp tục đăng nhập.</div>
 
-        <div style={{ marginTop: 30, display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <ContactModeToggle mode={contactMode} onChange={changeContactMode} brand={brand}/>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', marginBottom: 8 }}>{contactModeLabel(contactMode)}</div>
-            <Input value={contact} onChange={setContact} type={contactMode === 'email' ? 'email' : 'tel'} inputMode={contactMode === 'email' ? 'email' : 'tel'} icon={contactMode === 'email' ? <Ic.Mail s={18}/> : <Ic.Phone s={18}/>} placeholder={contactModeLabel(contactMode)} error={err.contact} autoComplete={contactMode === 'email' ? 'email' : 'tel'} autoCapitalize="none" autoCorrect="off"/>
-          </div>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
-              <span>Mật khẩu</span>
-              <span style={{ color: b.solid, fontWeight: 600, fontSize: 12 }} className="tap">Quên mật khẩu?</span>
+            <div style={{ marginTop: 30, display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <ContactModeToggle mode={contactMode} onChange={changeContactMode} brand={brand}/>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', marginBottom: 8 }}>{contactModeLabel(contactMode)}</div>
+                <Input value={contact} onChange={setContact} type={contactMode === 'email' ? 'email' : 'tel'} inputMode={contactMode === 'email' ? 'email' : 'tel'} icon={contactMode === 'email' ? <Ic.Mail s={18}/> : <Ic.Phone s={18}/>} placeholder={contactModeLabel(contactMode)} error={err.contact} autoComplete={contactMode === 'email' ? 'email' : 'tel'} autoCapitalize="none" autoCorrect="off"/>
+              </div>
             </div>
-            <Input value={pw} onChange={(v) => setPw(v.replace(/\D/g,'').slice(0, 8))} type={showPw ? 'text' : 'password'} icon={<Ic.Lock s={18}/>} error={err.pw}
-              placeholder="Mật khẩu 6 số" inputMode="numeric" pattern="[0-9]*" autoComplete="current-password"
-              suffix={<button onClick={() => setShowPw(!showPw)} style={{ background: 'none', border: 'none', color: '#94A3B8', padding: 4 }}><Ic.Eye s={18}/></button>}/>
+
+            <div style={{ marginTop: 24 }}>
+              <PrimaryButton fullWidth onClick={continueToPassword} brand={brand}>Tiếp tục</PrimaryButton>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '24px 0' }}>
+              <div style={{ flex: 1, height: 1, background: '#E2E8F0' }}/>
+              <div style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>HOẶC</div>
+              <div style={{ flex: 1, height: 1, background: '#E2E8F0' }}/>
+            </div>
+
+            <div style={{ display: 'flex', gap: 10 }}>
+              {[
+                { n: 'Zalo', c: '#0068FF', icon: 'Z' },
+                { n: 'Google', c: '#EA4335', icon: 'G' },
+                { n: 'Apple', c: '#000', icon: '' },
+              ].map((s) => (
+                <button key={s.n} className="tap" style={{
+                  flex: 1, height: 50, borderRadius: 14, border: '1.5px solid #E2E8F0',
+                  background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  color: '#0F172A', fontSize: 14, fontWeight: 600,
+                }}>
+                  <div style={{ width: 22, height: 22, borderRadius: 6, background: s.c, color: '#fff', fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{s.icon}</div>
+                  {s.n}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ textAlign: 'center', marginTop: 28, fontSize: 13, color: '#64748B' }}>
+              Chưa có tài khoản? <span className="tap" onClick={() => nav.replace('signup')} style={{ color: b.solid, fontWeight: 700 }}>Đăng ký ngay</span>
+            </div>
           </div>
-        </div>
+        )}
 
-        <div style={{ marginTop: 24 }}>
-          <PrimaryButton fullWidth onClick={submit} disabled={loading} brand={brand}>
-            {loading ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><span className="spin" style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%' }}/>Đang đăng nhập…</span> : 'Đăng nhập'}
-          </PrimaryButton>
-        </div>
+        {step === 1 && (
+          <div className="anim-fade">
+            <div style={{ fontSize: 30, fontWeight: 800, color: '#0F172A', letterSpacing: -0.8, lineHeight: 1.15 }}>Nhập mật khẩu</div>
+            <div style={{ fontSize: 14, color: '#64748B', marginTop: 8 }}>Đăng nhập với <strong style={{ color: '#0F172A' }}>{loginContactLabel}</strong>.</div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '24px 0' }}>
-          <div style={{ flex: 1, height: 1, background: '#E2E8F0' }}/>
-          <div style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>HOẶC</div>
-          <div style={{ flex: 1, height: 1, background: '#E2E8F0' }}/>
-        </div>
+            <div style={{ marginTop: 30, display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Mật khẩu</span>
+                  <span style={{ color: b.solid, fontWeight: 600, fontSize: 12 }} className="tap">Quên mật khẩu?</span>
+                </div>
+                <Input value={pw} onChange={(v) => setPw(v.replace(/\D/g,'').slice(0, 8))} type={showPw ? 'text' : 'password'} icon={<Ic.Lock s={18}/>} error={err.pw}
+                  placeholder="Mật khẩu 6 số" inputMode="numeric" pattern="[0-9]*" autoComplete="current-password"
+                  suffix={<button onClick={() => setShowPw(!showPw)} style={{ background: 'none', border: 'none', color: '#94A3B8', padding: 4 }}><Ic.Eye s={18}/></button>}/>
+              </div>
+            </div>
 
-        <div style={{ display: 'flex', gap: 10 }}>
-          {[
-            { n: 'Zalo', c: '#0068FF', icon: 'Z' },
-            { n: 'Google', c: '#EA4335', icon: 'G' },
-            { n: 'Apple', c: '#000', icon: '' },
-          ].map((s) => (
-            <button key={s.n} className="tap" style={{
-              flex: 1, height: 50, borderRadius: 14, border: '1.5px solid #E2E8F0',
-              background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              color: '#0F172A', fontSize: 14, fontWeight: 600,
-            }}>
-              <div style={{ width: 22, height: 22, borderRadius: 6, background: s.c, color: '#fff', fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{s.icon}</div>
-              {s.n}
-            </button>
-          ))}
-        </div>
-
-        <div style={{ textAlign: 'center', marginTop: 28, fontSize: 13, color: '#64748B' }}>
-          Chưa có tài khoản? <span className="tap" onClick={() => nav.replace('signup')} style={{ color: b.solid, fontWeight: 700 }}>Đăng ký ngay</span>
-        </div>
+            <div style={{ marginTop: 24 }}>
+              <PrimaryButton fullWidth onClick={submitPassword} disabled={loading} brand={brand}>
+                {loading ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><span className="spin" style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%' }}/>Đang đăng nhập…</span> : 'Đăng nhập'}
+              </PrimaryButton>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
