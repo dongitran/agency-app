@@ -143,7 +143,7 @@ function LoginScreen({ nav, onLogin, brand }) {
         <div style={{ marginTop: 30, display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div>
             <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', marginBottom: 8 }}>Số điện thoại hoặc email</div>
-            <Input value={contact} onChange={setContact} icon={<Ic.Mail s={18}/>} placeholder="09xx xxx xxx hoặc email@domain.com" error={err.contact} autoComplete="username"/>
+            <Input value={contact} onChange={setContact} icon={<Ic.Mail s={18}/>} placeholder="Số điện thoại hoặc Email" error={err.contact} autoComplete="username"/>
           </div>
           <div>
             <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
@@ -238,21 +238,9 @@ function SignupScreen({ nav, onLogin, brand }) {
             <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Số điện thoại hoặc email</div>
-                <Input value={data.contact} onChange={(v) => setData({...data, contact: v})} icon={<Ic.Mail s={18}/>} placeholder="09xx xxx xxx hoặc email@domain.com" error={err.contact} autoComplete="username"/>
+                <Input value={data.contact} onChange={(v) => setData({...data, contact: v})} icon={<Ic.Mail s={18}/>} placeholder="Số điện thoại hoặc Email" error={err.contact} autoComplete="username"/>
               </div>
             </div>
-
-            <Card style={{ marginTop: 18, padding: 14, background: b.soft, border: `1px solid ${b.solid}18` }}>
-              <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                <div style={{ width: 30, height: 30, borderRadius: 10, background: b.solid, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Ic.Mail s={16} c="#fff"/>
-                </div>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>Nhận mã xác thực</div>
-                  <div style={{ fontSize: 12, color: '#475569', marginTop: 3, lineHeight: 1.45 }}>Agency sẽ gửi OTP tới số điện thoại hoặc email bạn nhập ở bước này.</div>
-                </div>
-              </div>
-            </Card>
 
             <button type="button" role="checkbox" aria-checked={data.acceptedTerms} onClick={() => setData({...data, acceptedTerms: !data.acceptedTerms})} className="tap" style={{ width: '100%', marginTop: 20, padding: 14, background: '#F8FAFC', borderRadius: 14, border: err.terms ? '1.5px solid #DC2626' : 'none', display: 'flex', gap: 10, textAlign: 'left' }}>
               <div style={{ width: 18, height: 18, borderRadius: 5, border: `2px solid ${data.acceptedTerms ? b.solid : '#E2E8F0'}`, background: data.acceptedTerms ? b.solid : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
