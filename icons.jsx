@@ -43,4 +43,10 @@ Ic.Bag = Ic.Cart;
 Ic.Grid = (p) => <svg width={p.s||22} height={p.s||22} viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5" stroke={p.c||'currentColor'} strokeWidth={p.w||1.8}/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5" stroke={p.c||'currentColor'} strokeWidth={p.w||1.8}/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5" stroke={p.c||'currentColor'} strokeWidth={p.w||1.8}/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5" stroke={p.c||'currentColor'} strokeWidth={p.w||1.8}/></svg>;
 Ic.Sparkles = (p) => <svg width={p.s||22} height={p.s||22} viewBox="0 0 24 24" fill="none"><path d="M12 2.5L13.6 8.4L19.5 10L13.6 11.6L12 17.5L10.4 11.6L4.5 10L10.4 8.4L12 2.5Z" stroke={p.c||'currentColor'} strokeWidth={p.w||1.6} strokeLinejoin="round" fill={p.f||'none'}/><path d="M18.5 16.5L19.2 18.8L21.5 19.5L19.2 20.2L18.5 22.5L17.8 20.2L15.5 19.5L17.8 18.8L18.5 16.5Z" stroke={p.c||'currentColor'} strokeWidth={p.w||1.5} strokeLinejoin="round" fill={p.f||'none'}/></svg>;
 Ic.Moon = (p) => <svg width={p.s||20} height={p.s||20} viewBox="0 0 24 24" fill="none"><path d="M20 14.5A8 8 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z" stroke={p.c||'currentColor'} strokeWidth={p.w||1.8} strokeLinejoin="round" fill={p.f||'none'}/></svg>;
-Object.assign(window, { Ic });
+
+function ContactIcon({ mode }) {
+  const content = mode === 'email' ? <Ic.Mail s={22} w={2}/> : <Ic.Phone s={19} w={2}/>;
+  return <span style={{ width: 22, height: 22, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{content}</span>;
+}
+
+Object.assign(window, { Ic, ContactIcon });

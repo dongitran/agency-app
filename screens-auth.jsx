@@ -193,7 +193,7 @@ function LoginScreen({ nav, onLogin, brand }) {
               <ContactModeToggle mode={contactMode} onChange={changeContactMode} brand={brand}/>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', marginBottom: 8 }}>{contactModeLabel(contactMode)}</div>
-                <Input value={contact} onChange={setContact} type={contactMode === 'email' ? 'email' : 'tel'} inputMode={contactMode === 'email' ? 'email' : 'tel'} icon={contactMode === 'email' ? <Ic.Mail s={18}/> : <Ic.Phone s={18}/>} placeholder={contactModeLabel(contactMode)} error={err.contact} autoComplete={contactMode === 'email' ? 'email' : 'tel'} autoCapitalize="none" autoCorrect="off"/>
+                <Input value={contact} onChange={setContact} type={contactMode === 'email' ? 'email' : 'tel'} inputMode={contactMode === 'email' ? 'email' : 'tel'} icon={<ContactIcon mode={contactMode}/>} placeholder={contactModeLabel(contactMode)} error={err.contact} autoComplete={contactMode === 'email' ? 'email' : 'tel'} autoCapitalize="none" autoCorrect="off"/>
               </div>
             </div>
 
@@ -239,7 +239,7 @@ function LoginScreen({ nav, onLogin, brand }) {
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
                   <span>Mật khẩu</span>
-                  <span style={{ color: b.solid, fontWeight: 600, fontSize: 12 }} className="tap">Quên mật khẩu?</span>
+                  <span style={{ color: b.solid, fontWeight: 600, fontSize: 12 }} className="tap" onClick={() => nav.push('forgot-password')}>Quên mật khẩu?</span>
                 </div>
                 <Input value={pw} onChange={(v) => setPw(v.replace(/\D/g,'').slice(0, 8))} type={showPw ? 'text' : 'password'} icon={<Ic.Lock s={18}/>} error={err.pw}
                   placeholder="Mật khẩu 6 số" inputMode="numeric" pattern="[0-9]*" autoComplete="current-password"
@@ -305,7 +305,7 @@ function SignupScreen({ nav, onLogin, brand }) {
               <ContactModeToggle mode={contactMode} onChange={changeContactMode} brand={brand}/>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{contactModeLabel(contactMode)}</div>
-                <Input value={data.contact} onChange={(v) => setData({...data, contact: v})} type={contactMode === 'email' ? 'email' : 'tel'} inputMode={contactMode === 'email' ? 'email' : 'tel'} icon={contactMode === 'email' ? <Ic.Mail s={18}/> : <Ic.Phone s={18}/>} placeholder={contactModeLabel(contactMode)} error={err.contact} autoComplete={contactMode === 'email' ? 'email' : 'tel'} autoCapitalize="none" autoCorrect="off"/>
+                <Input value={data.contact} onChange={(v) => setData({...data, contact: v})} type={contactMode === 'email' ? 'email' : 'tel'} inputMode={contactMode === 'email' ? 'email' : 'tel'} icon={<ContactIcon mode={contactMode}/>} placeholder={contactModeLabel(contactMode)} error={err.contact} autoComplete={contactMode === 'email' ? 'email' : 'tel'} autoCapitalize="none" autoCorrect="off"/>
               </div>
             </div>
 
@@ -314,7 +314,7 @@ function SignupScreen({ nav, onLogin, brand }) {
                 {data.acceptedTerms && <Ic.Check s={12} c="#fff" w={3}/>}
               </div>
               <div style={{ fontSize: 12, color: '#475569', lineHeight: 1.5 }}>
-                Tôi đồng ý với <span style={{ color: b.solid, fontWeight: 600 }}>Điều khoản sử dụng</span> và <span style={{ color: b.solid, fontWeight: 600 }}>Chính sách bảo mật</span> của Agency.
+                Tôi đồng ý với <span className="tap" onClick={(e) => { e.stopPropagation(); nav.push('legal', { type: 'terms' }); }} style={{ color: b.solid, fontWeight: 600 }}>Điều khoản sử dụng</span> và <span className="tap" onClick={(e) => { e.stopPropagation(); nav.push('legal', { type: 'privacy' }); }} style={{ color: b.solid, fontWeight: 600 }}>Chính sách bảo mật</span> của Agency.
               </div>
             </button>
             {err.terms && <div style={{ fontSize: 11, color: '#DC2626', marginTop: 6, marginLeft: 4 }}>{err.terms}</div>}

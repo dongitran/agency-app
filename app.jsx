@@ -145,7 +145,9 @@ function AppShell() {
     switch (name) {
       case 'welcome': return <WelcomeScreen {...common} onComplete={() => nav.replace('login')}/>;
       case 'login': return <LoginScreen {...common} onLogin={onLogin}/>;
+      case 'forgot-password': return <ForgotPasswordScreen {...common}/>;
       case 'signup': return <SignupScreen {...common} onLogin={onLogin}/>;
+      case 'legal': return <LegalScreen {...common} {...params}/>;
       case 'home': return <HomeScreen {...common}/>;
       case 'products': return <ProductsScreen {...common} cardStyle={tweaks.cardStyle} user={user}/>;
       case 'tuvi': return <TuViScreen {...common}/>;
