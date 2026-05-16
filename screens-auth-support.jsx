@@ -39,7 +39,7 @@ function useForgotPasswordState(nav) {
   };
 
   const contactText = normalizeContact(contact) || (contactMode === 'email' ? 'email của bạn' : 'số điện thoại của bạn');
-  const title = step === 0 ? 'Quên mật khẩu?' : step === 1 ? 'Xác minh OTP' : step === 2 ? 'Tạo mật khẩu mới' : 'Đổi mật khẩu thành công';
+  const title = step === 0 ? 'Quên mật khẩu?' : step === 1 ? 'Nhập mã OTP' : step === 2 ? 'Tạo mật khẩu mới' : 'Đổi mật khẩu thành công';
   const action = step === 0 ? 'Gửi mã OTP' : step === 1 ? 'Xác nhận OTP' : step === 2 ? 'Đặt lại mật khẩu' : 'Đăng nhập';
 
   return { step, setStep, contactMode, contact, setContact, resetContactMode, otp, setOtp, pw, setPw, confirmPw, setConfirmPw, err, next, contactText, title, action };
@@ -49,7 +49,7 @@ function getForgotPasswordErrors({ step, contact, contactMode, otp, pw, confirmP
   const e = {};
   if (step === 0 && !isValidContact(contact, contactMode)) e.contact = contactError(contactMode);
   if (step === 1 && otp.join('').length < 4) e.otp = 'Vui lòng nhập đủ mã OTP';
-  if (step === 2 && !/^\d{6,}$/.test(pw)) e.pw = 'Mật khẩu số tối thiểu 6 chữ số';
+  if (step === 2 && !/^\d{6}$/.test(pw)) e.pw = 'Mật khẩu gồm 6 chữ số';
   if (step === 2 && confirmPw !== pw) e.confirmPw = 'Mật khẩu nhập lại chưa khớp';
   return e;
 }
@@ -93,10 +93,9 @@ function ForgotOtpStep({ b, contactText, otp, setOtp, brand, err }) {
 function ForgotPasswordFields({ pw, setPw, confirmPw, setConfirmPw, err }) {
   return (
     <div className="anim-fade">
-      <div style={{ fontSize: 13, color: '#64748B', marginTop: 8 }}>Mật khẩu mới chỉ gồm chữ số để đăng nhập nhanh trên điện thoại.</div>
       <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <Input value={pw} onChange={(v) => setPw(v.replace(/\D/g,'').slice(0, 8))} type="password" icon={<Ic.Lock s={18}/>} placeholder="Mật khẩu 6 số" error={err.pw} inputMode="numeric" pattern="[0-9]*" autoComplete="new-password"/>
-        <Input value={confirmPw} onChange={(v) => setConfirmPw(v.replace(/\D/g,'').slice(0, 8))} type="password" icon={<Ic.Lock s={18}/>} placeholder="Nhập lại 6 số" error={err.confirmPw} inputMode="numeric" pattern="[0-9]*" autoComplete="new-password"/>
+        <Input value={pw} onChange={(v) => setPw(v.replace(/\D/g,'').slice(0, 6))} type="password" icon={<Ic.Lock s={18}/>} placeholder="Mật khẩu 6 số" error={err.pw} inputMode="numeric" pattern="[0-9]*" maxLength={6} autoComplete="new-password"/>
+        <Input value={confirmPw} onChange={(v) => setConfirmPw(v.replace(/\D/g,'').slice(0, 6))} type="password" icon={<Ic.Lock s={18}/>} placeholder="Nhập lại 6 số" error={err.confirmPw} inputMode="numeric" pattern="[0-9]*" maxLength={6} autoComplete="new-password"/>
       </div>
     </div>
   );

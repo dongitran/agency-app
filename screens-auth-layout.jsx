@@ -20,7 +20,7 @@ function AuthHero({ brand, eyebrow, title, subtitle, trailing }) {
         <ContactIcon mode="phone"/>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 11, color: b.solid, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.4 }}>{eyebrow}</div>
+        {eyebrow && <div style={{ fontSize: 11, color: b.solid, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.4 }}>{eyebrow}</div>}
         <div style={{ fontSize: 28, fontWeight: 850, color: '#0F172A', letterSpacing: -0.6, lineHeight: 1.12, marginTop: 5, textWrap: 'balance' }}>{title}</div>
         <div style={{ fontSize: 13, color: '#64748B', lineHeight: 1.55, marginTop: 8 }}>{subtitle}</div>
       </div>
@@ -43,7 +43,6 @@ function AuthProgress({ step, total, brand }) {
     <div style={{ marginBottom: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
         <div style={{ fontSize: 12, fontWeight: 800, color: b.solid }}>Bước {step}/{total}</div>
-        <div style={{ fontSize: 12, color: '#64748B', fontWeight: 650 }}>Tài khoản Agency</div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: `repeat(${total}, 1fr)`, gap: 6 }}>
         {Array.from({ length: total }, (_, index) => (

@@ -31,7 +31,7 @@ function getSignupErrors({ step, data, contactMode }) {
   if (step === 0 && !isValidContact(data.contact, contactMode)) e.contact = contactError(contactMode);
   if (step === 0 && !data.acceptedTerms) e.terms = 'Vui lòng đồng ý điều khoản để tiếp tục';
   if (step === 1 && data.otp.join('').length < 4) e.otp = 'Vui lòng nhập đủ mã OTP';
-  if (step === 2 && !/^\d{6,}$/.test(data.pw)) e.pw = 'Mật khẩu số tối thiểu 6 chữ số';
+  if (step === 2 && !/^\d{6}$/.test(data.pw)) e.pw = 'Mật khẩu gồm 6 chữ số';
   if (step === 2 && data.confirmPw !== data.pw) e.confirmPw = 'Mật khẩu nhập lại chưa khớp';
   return e;
 }
@@ -78,7 +78,7 @@ function SignupOtpStep({ brand, data, setData, err, contactMode }) {
   const contactLabel = normalizeContact(data.contact) || (contactMode === 'email' ? 'email của bạn' : 'số điện thoại của bạn');
   return (
     <div className="anim-fade">
-      <AuthHero brand={brand} eyebrow="Xác minh" title="Nhập mã OTP" subtitle={<span>Mã xác thực đã được gửi tới <strong style={{ color: '#0F172A' }}>{contactLabel}</strong>.</span>}/>
+      <AuthHero brand={brand} title="Nhập mã OTP" subtitle={<span>Mã xác thực đã được gửi tới <strong style={{ color: '#0F172A' }}>{contactLabel}</strong>.</span>}/>
       <AuthProgress step={2} total={4} brand={brand}/>
       <AuthPanel style={{ textAlign: 'center' }}>
         <OtpInputs data={data} setData={setData} brand={brand}/>
@@ -107,11 +107,10 @@ function SignupPasswordStep({ brand, data, setData, err }) {
       <AuthProgress step={3} total={4} brand={brand}/>
       <AuthPanel>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div><AuthFieldLabel>Mật khẩu số</AuthFieldLabel><Input aria-label="Mật khẩu số" name="signup-password" value={data.pw} onChange={(pw) => setData({...data, pw: pw.replace(/\D/g,'').slice(0, 8)})} type="password" icon={<Ic.Lock s={18}/>} placeholder="Mật khẩu 6 số" error={err.pw} inputMode="numeric" pattern="[0-9]*" autoComplete="new-password" spellCheck={false}/></div>
-          <div><AuthFieldLabel>Nhập lại mật khẩu</AuthFieldLabel><Input aria-label="Nhập lại mật khẩu" name="signup-confirm-password" value={data.confirmPw} onChange={(confirmPw) => setData({...data, confirmPw: confirmPw.replace(/\D/g,'').slice(0, 8)})} type="password" icon={<Ic.Lock s={18}/>} placeholder="Nhập lại 6 số" error={err.confirmPw} inputMode="numeric" pattern="[0-9]*" autoComplete="new-password" spellCheck={false}/></div>
+          <div><AuthFieldLabel>Mật khẩu</AuthFieldLabel><Input aria-label="Mật khẩu" name="signup-password" value={data.pw} onChange={(pw) => setData({...data, pw: pw.replace(/\D/g,'').slice(0, 6)})} type="password" icon={<Ic.Lock s={18}/>} placeholder="Mật khẩu 6 số" error={err.pw} inputMode="numeric" pattern="[0-9]*" maxLength={6} autoComplete="new-password" spellCheck={false}/></div>
+          <div><AuthFieldLabel>Nhập lại mật khẩu</AuthFieldLabel><Input aria-label="Nhập lại mật khẩu" name="signup-confirm-password" value={data.confirmPw} onChange={(confirmPw) => setData({...data, confirmPw: confirmPw.replace(/\D/g,'').slice(0, 6)})} type="password" icon={<Ic.Lock s={18}/>} placeholder="Nhập lại 6 số" error={err.confirmPw} inputMode="numeric" pattern="[0-9]*" maxLength={6} autoComplete="new-password" spellCheck={false}/></div>
         </div>
       </AuthPanel>
-      <AuthNote brand={brand} icon={<Ic.Lock s={16}/>} title="Mật khẩu chỉ gồm chữ số" body="Giữ thao tác nhanh trên mobile và dễ nhập bằng bàn phím số."/>
     </div>
   );
 }

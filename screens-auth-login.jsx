@@ -26,7 +26,7 @@ function LoginScreen({ nav, onLogin, brand }) {
 
   const submitPassword = () => {
     const e = {};
-    if (!/^\d{6,}$/.test(pw)) e.pw = 'Mật khẩu số tối thiểu 6 chữ số';
+    if (!/^\d{6}$/.test(pw)) e.pw = 'Mật khẩu gồm 6 chữ số';
     setErr(e);
     if (Object.keys(e).length) return;
     setLoading(true);
@@ -69,7 +69,7 @@ function LoginContactStep({ brand, contactMode, contact, err, changeContactMode,
   return (
     <div className="anim-fade">
       <div style={{ padding: '8px 4px 16px' }}>
-        <div style={{ fontSize: 27, fontWeight: 850, color: '#0F172A', letterSpacing: -0.55, lineHeight: 1.15 }}>Chào mừng trở lại</div>
+        <div style={{ fontSize: 27, fontWeight: 850, color: '#0F172A', letterSpacing: -0.55, lineHeight: 1.15 }}>Chào mừng trở lại 👋</div>
       </div>
       <AuthPanel>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -102,7 +102,7 @@ function LoginPasswordStep({ brand, b, loginContactLabel, pw, setPw, showPw, set
       <AuthPanel>
         <div>
           <AuthFieldLabel right={<span style={{ color: b.solid, fontWeight: 750, fontSize: 12 }} className="tap" onClick={() => nav.push('forgot-password')}>Quên mật khẩu?</span>}>Mật khẩu</AuthFieldLabel>
-          <Input aria-label="Mật khẩu" name="login-password" value={pw} onChange={(v) => setPw(v.replace(/\D/g,'').slice(0, 8))} type={showPw ? 'text' : 'password'} icon={<Ic.Lock s={18}/>} error={err.pw} placeholder="Mật khẩu 6 số" inputMode="numeric" pattern="[0-9]*" autoComplete="current-password" spellCheck={false} suffix={<button aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'} type="button" onClick={() => setShowPw(!showPw)} style={{ background: 'none', border: 'none', color: '#94A3B8', padding: 4 }}><Ic.Eye s={18}/></button>}/>
+          <Input aria-label="Mật khẩu" name="login-password" value={pw} onChange={(v) => setPw(v.replace(/\D/g,'').slice(0, 6))} type={showPw ? 'text' : 'password'} icon={<Ic.Lock s={18}/>} error={err.pw} placeholder="Mật khẩu 6 số" inputMode="numeric" pattern="[0-9]*" maxLength={6} autoComplete="current-password" spellCheck={false} suffix={<button aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'} type="button" onClick={() => setShowPw(!showPw)} style={{ background: 'none', border: 'none', color: '#94A3B8', padding: 4 }}><Ic.Eye s={18}/></button>}/>
         </div>
         <div style={{ marginTop: 18 }}>
           <PrimaryButton fullWidth onClick={submitPassword} disabled={loading} brand={brand}>

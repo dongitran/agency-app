@@ -127,7 +127,7 @@ function AppShell() {
   }, [nav.current.name]);
 
   const onLogin = (u = {}) => { setAuth(true); setUser({ ...user, ...u }); nav.reset('home'); };
-  const onLogout = () => { setAuth(false); nav.reset('welcome'); showToast('Đã đăng xuất'); };
+  const onLogout = () => { setAuth(false); nav.reset('welcome'); };
 
   const addToCart = (item) => {
     setCart(c => {
