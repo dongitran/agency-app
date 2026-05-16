@@ -267,13 +267,6 @@ function SignupScreen({ nav, onLogin, brand }) {
     <div style={{ position: 'absolute', inset: 0, background: '#fff', display: 'flex', flexDirection: 'column' }} className="anim-slide-in">
       <ScreenHeader title="" onBack={() => step > 0 ? setStep(step - 1) : nav.pop()} transparent/>
       <div style={{ flex: 1, overflow: 'auto', padding: '0 24px 110px' }} className="scroll-area">
-        {/* progress */}
-        <div style={{ display: 'flex', gap: 6, marginBottom: 18 }}>
-          {[0,1,2,3].map((i) => (
-            <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i <= step ? b.solid : '#E2E8F0', transition: 'background .2s' }}/>
-          ))}
-        </div>
-
         {step === 0 && (
           <div className="anim-fade">
             <div style={{ fontSize: 28, fontWeight: 800, color: '#0F172A', letterSpacing: -0.6, lineHeight: 1.15 }}>Tạo tài khoản<br/>Agency</div>
