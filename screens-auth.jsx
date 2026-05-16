@@ -113,19 +113,55 @@ const compactPhone = (value) => value.replace(/\s/g, '');
 const normalizeContact = (value) => value.trim();
 const isEmailContact = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeContact(value));
 const isPhoneContact = (value) => /^0\d{9,10}$/.test(compactPhone(value));
-const isValidContact = (value) => isEmailContact(value) || isPhoneContact(value);
+const isValidContact = (value, mode) => mode === 'email' ? isEmailContact(value) : isPhoneContact(value);
+const contactModeLabel = (mode) => mode === 'email' ? 'Email' : 'Số điện thoại';
+const contactError = (mode) => mode === 'email' ? 'Email không hợp lệ' : 'Số điện thoại không hợp lệ';
+
+function ContactModeToggle({ mode, onChange, brand }) {
+  const b = getBrand(brand);
+  const items = [
+    { key: 'phone', label: 'Số điện thoại' },
+    { key: 'email', label: 'Email' },
+  ];
+  return (
+    <div role="tablist" aria-label="Chọn phương thức xác thực" style={{
+      display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4,
+      padding: 4, borderRadius: 14, background: '#F1F5F9',
+    }}>
+      {items.map((item) => {
+        const active = mode === item.key;
+        return (
+          <button key={item.key} type="button" role="tab" aria-selected={active} onClick={() => onChange(item.key)} className="tap" style={{
+            height: 38, border: 'none', borderRadius: 11,
+            background: active ? '#fff' : 'transparent',
+            color: active ? b.solid : '#64748B',
+            fontSize: 13, fontWeight: 700,
+            boxShadow: active ? '0 4px 14px rgba(15,23,42,0.08)' : 'none',
+          }}>{item.label}</button>
+        );
+      })}
+    </div>
+  );
+}
 
 function LoginScreen({ nav, onLogin, brand }) {
   const b = getBrand(brand);
+  const [contactMode, setContactMode] = React.useState('phone');
   const [contact, setContact] = React.useState('0912 345 678');
   const [pw, setPw] = React.useState('123456');
   const [showPw, setShowPw] = React.useState(false);
   const [err, setErr] = React.useState({});
   const [loading, setLoading] = React.useState(false);
 
+  const changeContactMode = (mode) => {
+    setContactMode(mode);
+    setContact('');
+    setErr({});
+  };
+
   const submit = () => {
     const e = {};
-    if (!isValidContact(contact)) e.contact = 'Nhập số điện thoại hoặc email hợp lệ';
+    if (!isValidContact(contact, contactMode)) e.contact = contactError(contactMode);
     if (!/^\d{6,}$/.test(pw)) e.pw = 'Mật khẩu số tối thiểu 6 chữ số';
     setErr(e);
     if (Object.keys(e).length) return;
@@ -141,9 +177,10 @@ function LoginScreen({ nav, onLogin, brand }) {
         <div style={{ fontSize: 14, color: '#64748B', marginTop: 8 }}>Đăng nhập để tiếp tục quản lý đơn hàng và hoa hồng đại lý.</div>
 
         <div style={{ marginTop: 30, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <ContactModeToggle mode={contactMode} onChange={changeContactMode} brand={brand}/>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', marginBottom: 8 }}>Số điện thoại hoặc email</div>
-            <Input value={contact} onChange={setContact} icon={<Ic.Mail s={18}/>} placeholder="Số điện thoại hoặc Email" error={err.contact} autoComplete="username"/>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', marginBottom: 8 }}>{contactModeLabel(contactMode)}</div>
+            <Input value={contact} onChange={setContact} type={contactMode === 'email' ? 'email' : 'tel'} inputMode={contactMode === 'email' ? 'email' : 'tel'} icon={contactMode === 'email' ? <Ic.Mail s={18}/> : <Ic.Phone s={18}/>} placeholder={contactModeLabel(contactMode)} error={err.contact} autoComplete={contactMode === 'email' ? 'email' : 'tel'} autoCapitalize="none" autoCorrect="off"/>
           </div>
           <div>
             <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
@@ -196,13 +233,20 @@ function LoginScreen({ nav, onLogin, brand }) {
 function SignupScreen({ nav, onLogin, brand }) {
   const b = getBrand(brand);
   const [step, setStep] = React.useState(0);
+  const [contactMode, setContactMode] = React.useState('phone');
   const [data, setData] = React.useState({ contact: '', pw: '', confirmPw: '', acceptedTerms: false, otp: ['', '', '', ''] });
   const [err, setErr] = React.useState({});
+
+  const changeContactMode = (mode) => {
+    setContactMode(mode);
+    setData((current) => ({...current, contact: ''}));
+    setErr({});
+  };
 
   const next = () => {
     const e = {};
     if (step === 0) {
-      if (!isValidContact(data.contact)) e.contact = 'Nhập số điện thoại hoặc email hợp lệ';
+      if (!isValidContact(data.contact, contactMode)) e.contact = contactError(contactMode);
       if (!data.acceptedTerms) e.terms = 'Vui lòng đồng ý điều khoản để tiếp tục';
     }
     if (step === 1 && data.otp.join('').length < 4) e.otp = 'Vui lòng nhập đủ mã OTP';
@@ -217,7 +261,7 @@ function SignupScreen({ nav, onLogin, brand }) {
     else onLogin();
   };
 
-  const contactLabel = normalizeContact(data.contact) || 'số điện thoại/email của bạn';
+  const otpContactLabel = normalizeContact(data.contact) || (contactMode === 'email' ? 'email của bạn' : 'số điện thoại của bạn');
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#fff', display: 'flex', flexDirection: 'column' }} className="anim-slide-in">
@@ -236,9 +280,10 @@ function SignupScreen({ nav, onLogin, brand }) {
             <div style={{ fontSize: 13, color: '#64748B', marginTop: 8 }}>Bước 1/4 · Xác thực số điện thoại hoặc email</div>
 
             <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <ContactModeToggle mode={contactMode} onChange={changeContactMode} brand={brand}/>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Số điện thoại hoặc email</div>
-                <Input value={data.contact} onChange={(v) => setData({...data, contact: v})} icon={<Ic.Mail s={18}/>} placeholder="Số điện thoại hoặc Email" error={err.contact} autoComplete="username"/>
+                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{contactModeLabel(contactMode)}</div>
+                <Input value={data.contact} onChange={(v) => setData({...data, contact: v})} type={contactMode === 'email' ? 'email' : 'tel'} inputMode={contactMode === 'email' ? 'email' : 'tel'} icon={contactMode === 'email' ? <Ic.Mail s={18}/> : <Ic.Phone s={18}/>} placeholder={contactModeLabel(contactMode)} error={err.contact} autoComplete={contactMode === 'email' ? 'email' : 'tel'} autoCapitalize="none" autoCorrect="off"/>
               </div>
             </div>
 
@@ -257,7 +302,7 @@ function SignupScreen({ nav, onLogin, brand }) {
         {step === 1 && (
           <div className="anim-fade">
             <div style={{ fontSize: 28, fontWeight: 800, color: '#0F172A', letterSpacing: -0.6, lineHeight: 1.15 }}>Xác minh OTP</div>
-            <div style={{ fontSize: 13, color: '#64748B', marginTop: 8 }}>Mã đã được gửi tới <strong style={{ color: '#0F172A' }}>{contactLabel}</strong></div>
+            <div style={{ fontSize: 13, color: '#64748B', marginTop: 8 }}>Mã đã được gửi tới <strong style={{ color: '#0F172A' }}>{otpContactLabel}</strong></div>
 
             <div style={{ marginTop: 32, display: 'flex', gap: 10, justifyContent: 'center' }}>
               {[0,1,2,3].map((i) => (
