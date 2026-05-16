@@ -179,6 +179,7 @@ function AppShell() {
 
   const showBottomNav = auth && ['home', 'products', 'tuvi', 'orders', 'profile'].includes(nav.current.name);
   const onTabChange = (k) => { setTab(k); nav.reset(k); };
+  const supportBottomOffset = showBottomNav ? 158 : auth ? 28 : 112;
 
   const switchRole = (isAgent) => {
     setUser({ ...user, isAgent });
@@ -204,6 +205,7 @@ function AppShell() {
           {renderScreen()}
           {showBottomNav && <BottomNav active={tab} onChange={onTabChange} brand={brand}/>}
           {auth && <DemoRoleSwitcher isAgent={user.isAgent} onChange={switchRole}/>}
+          <SupportAssistant brand={brand} bottomOffset={supportBottomOffset}/>
           <Toast msg={toast}/>
         </div>
       </IOSDevice>
